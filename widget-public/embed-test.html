@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Embed test — Aristotle widget</title>
+    <style>
+      /* Hostile-ish host styles on purpose: none of this should reach the widget. */
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: 'Courier New', monospace;
+        background: #efe9dd;
+        color: #333;
+        padding: 3rem;
+        box-sizing: border-box;
+      }
+      html.dark body {
+        background: #191512;
+        color: #d8d2c8;
+      }
+      button {
+        font: inherit;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+      }
+      h1 {
+        font-size: 1.4rem;
+      }
+      code {
+        background: rgba(128, 128, 128, 0.2);
+        padding: 0.1em 0.4em;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Static embed test</h1>
+    <p>
+      This plain page loads the built widget with one classic script tag:<br />
+      <code>&lt;script src="/aristotle-widget.js" data-auto-init&gt;&lt;/script&gt;</code>
+    </p>
+    <p>
+      The page itself uses monospace type and its own colors; the widget (bottom right) should
+      render Libre Franklin and Aristotle styling from inside its shadow root, untouched.
+    </p>
+
+    <fieldset style="max-width: 24rem; margin-top: 1.5rem; border: 1px solid rgba(128, 128, 128, 0.4)">
+      <legend>Client portal (widget reads these)</legend>
+      <label style="display: block; margin-bottom: 0.75rem">
+        Account holder<br />
+        <input type="text" data-aristotle-profile="name" value="Secretariat" autocomplete="off" />
+      </label>
+      <label style="display: block">
+        Login ID<br />
+        <input type="text" data-aristotle-profile="id" value="AB12345" autocomplete="off" />
+      </label>
+    </fieldset>
+
+    <p style="margin-top: 1.5rem">
+      <button type="button" id="theme-toggle">Toggle host dark mode</button>
+    </p>
+    <script>
+      document.getElementById('theme-toggle').addEventListener('click', () => {
+        const dark = document.documentElement.classList.toggle('dark')
+        document.documentElement.classList.toggle('light', !dark)
+      })
+    </script>
+    <script src="/aristotle-widget.js" data-auto-init></script>
+  </body>
+</html>

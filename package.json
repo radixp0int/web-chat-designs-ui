@@ -6,14 +6,17 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:widget": "vite build --config vite.widget.config.ts",
     "lint": "oxlint",
     "preview": "vite preview",
+    "preview:widget": "vite preview --config vite.widget.config.ts",
     "prepare": "husky",
     "typecheck": "tsc -b"
   },
   "dependencies": {
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "react-router": "^7.18.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.2",

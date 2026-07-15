@@ -58,8 +58,10 @@
   }
 }
 
-/* Semantic surface tokens that flip with the theme */
-:root {
+/* Semantic surface tokens that flip with the theme. `:host` keeps them
+   resolvable inside the widget's shadow root, where `:root` never matches. */
+:root,
+:host {
   --canvas: #f3f6fa;
   --canvas-glow-a: rgba(0, 76, 151, 0.08);
   --canvas-glow-b: rgba(247, 132, 31, 0.07);

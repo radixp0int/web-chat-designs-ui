@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 5173
+    },
+    {
+      "name": "widget-preview",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "preview:widget"],
+      "port": 4173
     }
   ]
 }

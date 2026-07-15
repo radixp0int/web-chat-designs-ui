@@ -193,3 +193,21 @@ export const CollapseVerticalIcon = (p: IconProps) => (
     <path d="M8 5l4 4 4-4M8 19l4-4 4 4" />
   </svg>
 )
+
+export const MinusIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M5 12h14" />
+  </svg>
+)
+
+export const ExpandDiagonalIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7" />
+  </svg>
+)
+
+export const CollapseDiagonalIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M20 10h-6V4M21 3l-7 7M4 14h6v6M3 21l7-7" />
+  </svg>
+)

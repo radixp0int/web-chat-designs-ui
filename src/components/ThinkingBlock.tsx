@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ChevronRightIcon } from './Icons'
+import { useUiSize } from './uiSize'
 
 type ThinkingBlockProps = {
   text: string
@@ -8,6 +9,7 @@ type ThinkingBlockProps = {
 }
 
 export function ThinkingBlock({ text, active, durationSec }: ThinkingBlockProps) {
+  const compact = useUiSize() === 'compact'
   const [open, setOpen] = useState(false)
 
   return (
@@ -16,7 +18,7 @@ export function ThinkingBlock({ text, active, durationSec }: ThinkingBlockProps)
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="flex items-center gap-1.5 rounded-lg px-1.5 py-1 text-[13px] font-medium transition hover:bg-brand-600/6 dark:hover:bg-white/6"
+        className={`flex items-center gap-1.5 rounded-lg px-1.5 py-1 font-medium transition hover:bg-brand-600/6 dark:hover:bg-white/6 ${compact ? 'text-xs' : 'text-[13px]'}`}
       >
         <ChevronRightIcon
           width={14}
@@ -38,8 +40,12 @@ export function ThinkingBlock({ text, active, durationSec }: ThinkingBlockProps)
         }`}
       >
         <div className="overflow-hidden">
-          <div className="mt-1.5 ml-[7px] border-l-2 border-accent-500/40 pl-4">
-            <p className="text-[13px] leading-relaxed whitespace-pre-line text-(--text-soft) italic">
+          <div
+            className={`mt-1.5 ml-[7px] border-l-2 border-accent-500/40 ${compact ? 'pl-3' : 'pl-4'}`}
+          >
+            <p
+              className={`leading-relaxed whitespace-pre-line text-(--text-soft) italic ${compact ? 'text-xs' : 'text-[13px]'}`}
+            >
               {text}
               {active && <span className="not-italic">▍</span>}
             </p>

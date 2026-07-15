@@ -1,40 +1,35 @@
-import { APP_NAME } from '../config'
+import { APP_NAME } from "../config";
 import {
   ChatIcon,
-  CodeIcon,
   FolderIcon,
-  ImageIcon,
   LibraryIcon,
   PlusIcon,
   SearchIcon,
-  VideoIcon,
   XIcon,
-} from './Icons'
-
-const tools = [
-  { icon: ImageIcon, label: 'AI images' },
-  { icon: VideoIcon, label: 'AI videos' },
-  { icon: CodeIcon, label: 'AI code' },
-]
+} from "./Icons";
 
 const folders = [
   {
-    name: 'Wealth Planning',
-    tint: 'text-accent-500',
-    chats: ['Retirement glide path', 'College fund options', '529 vs custodial account'],
+    name: "Wealth Planning",
+    tint: "text-accent-500",
+    chats: [
+      "Retirement glide path",
+      "College fund options",
+      "529 vs custodial account",
+    ],
   },
   {
-    name: 'Small Business',
-    tint: 'text-brand-500 dark:text-brand-300',
-    chats: ['Cash flow forecast', 'Line of credit questions'],
+    name: "Small Business",
+    tint: "text-brand-500 dark:text-brand-300",
+    chats: ["Cash flow forecast", "Line of credit questions"],
   },
-]
+];
 
 type SidebarProps = {
-  open: boolean
-  onClose: () => void
-  onNewChat: () => void
-}
+  open: boolean;
+  onClose: () => void;
+  onNewChat: () => void;
+};
 
 export function Sidebar({ open, onClose, onNewChat }: SidebarProps) {
   return (
@@ -44,13 +39,13 @@ export function Sidebar({ open, onClose, onNewChat }: SidebarProps) {
         aria-hidden
         onClick={onClose}
         className={`fixed inset-0 z-30 bg-brand-950/40 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
-          open ? 'opacity-100' : 'pointer-events-none opacity-0'
+          open ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
 
       <aside
         className={`glass fixed inset-y-0 left-0 z-40 flex w-72 flex-col rounded-r-3xl transition-transform duration-300 lg:static lg:z-auto lg:translate-x-0 lg:rounded-3xl ${
-          open ? 'translate-x-0' : '-translate-x-full'
+          open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="flex items-center gap-2.5 px-5 pt-5 pb-4">
@@ -82,13 +77,6 @@ export function Sidebar({ open, onClose, onNewChat }: SidebarProps) {
         <nav className="mt-4 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-4 pb-5">
           <SidebarLink icon={<SearchIcon />} label="Search chat" />
           <SidebarLink icon={<LibraryIcon />} label="Library" />
-
-          <div className="mt-5 mb-1 px-2 text-[11px] font-semibold tracking-[0.14em] text-(--text-soft) uppercase">
-            Studio
-          </div>
-          {tools.map(({ icon: Icon, label }) => (
-            <SidebarLink key={label} icon={<Icon />} label={label} />
-          ))}
 
           <div className="mt-5 mb-1 flex items-center justify-between px-2">
             <span className="text-[11px] font-semibold tracking-[0.14em] text-(--text-soft) uppercase">
@@ -131,20 +119,30 @@ export function Sidebar({ open, onClose, onNewChat }: SidebarProps) {
         <div className="border-t border-(--panel-border) px-5 py-4">
           <div className="flex items-center gap-3">
             <span className="flex size-8 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">
-              SC
+              JO
             </span>
             <div className="min-w-0 text-[13px] leading-tight">
-              <div className="truncate font-semibold text-(--text-strong)">Sophia Chen</div>
-              <div className="truncate text-(--text-soft)">Performance plan</div>
+              <div className="truncate font-semibold text-(--text-strong)">
+                John Ozzo
+              </div>
+              <div className="truncate text-(--text-soft)">
+                Performance plan
+              </div>
             </div>
           </div>
         </div>
       </aside>
     </>
-  )
+  );
 }
 
-function SidebarLink({ icon, label }: { icon: React.ReactNode; label: string }) {
+function SidebarLink({
+  icon,
+  label,
+}: {
+  icon: React.ReactNode;
+  label: string;
+}) {
   return (
     <button
       type="button"
@@ -153,5 +151,5 @@ function SidebarLink({ icon, label }: { icon: React.ReactNode; label: string }) 
       <span className="text-(--text-soft)">{icon}</span>
       {label}
     </button>
-  )
+  );
 }

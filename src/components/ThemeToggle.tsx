@@ -5,8 +5,12 @@ export function ThemeToggle() {
   const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'))
 
   useEffect(() => {
+    // Keep an explicit light/dark class pair on <html>: the embedded widget's
+    // 'auto' theme reads them, and a bare element would fall back to the OS
+    // preference instead of this toggle.
     document.documentElement.classList.toggle('dark', dark)
-    localStorage.setItem('meridian-theme', dark ? 'dark' : 'light')
+    document.documentElement.classList.toggle('light', !dark)
+    localStorage.setItem('aristotle-theme', dark ? 'dark' : 'light')
   }, [dark])
 
   return (
