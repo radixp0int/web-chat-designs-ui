@@ -38,7 +38,7 @@ export function Hero() {
       <span className="orb block size-24 rounded-full animate-orb-drift" aria-hidden />
 
       <h1 className="mt-8 text-center text-4xl font-bold tracking-tight text-(--text-strong) sm:text-5xl">
-        {greeting()}, Sophia
+        {greeting()}, Secretariat
       </h1>
       <p className="mt-3 text-lg text-(--text-soft)">How can I help you today?</p>
     </div>
