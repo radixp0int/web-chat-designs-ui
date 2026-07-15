@@ -17,8 +17,6 @@ import { personas, type PersonaId } from "../personas";
 // Once the draft passes this length, offer to expand the textarea vertically.
 const EXPAND_THRESHOLD = 200;
 const HEIGHT_COLLAPSED = 180;
-// When expanded, grow up to this fraction of the viewport height.
-const EXPANDED_VIEWPORT_RATIO = 0.6;
 
 // Minimal typing for the (prefixed) Web Speech API
 type SpeechRecognitionLike = {
@@ -75,15 +73,13 @@ export function Composer({
   const speechSupported = useRef(getSpeechRecognition() !== null);
 
   // Auto-grow the textarea with the content, up to the current cap. When
-  // expanded the cap is a fraction of the viewport, so it tracks window height.
+  // expanded the cap is the full viewport height, so it tracks window resizes.
   const resize = useCallback(() => {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
     if (!value) return;
-    const cap = expandedHeight
-      ? Math.round(window.innerHeight)
-      : HEIGHT_COLLAPSED;
+    const cap = expandedHeight ? window.innerHeight : HEIGHT_COLLAPSED;
     el.style.height = `${Math.min(el.scrollHeight, cap)}px`;
   }, [value, expandedHeight]);
 
