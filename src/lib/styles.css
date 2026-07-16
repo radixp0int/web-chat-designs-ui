@@ -1,0 +1,161 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Libre Franklin', ui-sans-serif, system-ui, sans-serif;
+
+  --color-brand-50: #eef4fb;
+  --color-brand-100: #d9e6f5;
+  --color-brand-200: #aecbe9;
+  --color-brand-300: #7dabdb;
+  --color-brand-400: #3d7fc4;
+  --color-brand-500: #0069aa;
+  --color-brand-600: #004c97;
+  --color-brand-700: #003d7a;
+  --color-brand-800: #0d2f56;
+  --color-brand-900: #0e2238;
+  --color-brand-950: #0a1828;
+
+  --color-accent-300: #ffc48a;
+  --color-accent-400: #fb9c47;
+  --color-accent-500: #f7841f;
+  --color-accent-600: #db6c0d;
+
+  --color-ink: #2d3943;
+  --color-ink-soft: #64727e;
+
+  --animate-orb-drift: orb-drift 9s ease-in-out infinite;
+  --animate-fade-up: fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+
+  @keyframes orb-drift {
+    0%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-7px) rotate(6deg);
+    }
+  }
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes shimmer {
+    from {
+      background-position: 200% center;
+    }
+    to {
+      background-position: -200% center;
+    }
+  }
+}
+
+/* Semantic surface tokens that flip with the theme. `:host` keeps them
+   resolvable inside the widget's shadow root, where `:root` never matches. */
+:root,
+:host {
+  --canvas: #f3f6fa;
+  --canvas-glow-a: rgba(0, 76, 151, 0.08);
+  --canvas-glow-b: rgba(247, 132, 31, 0.07);
+  --panel: rgba(255, 255, 255, 0.62);
+  --panel-solid: #ffffff;
+  --panel-border: rgba(13, 47, 86, 0.1);
+  --text-strong: #1c2733;
+  --text-body: #2d3943;
+  --text-soft: #64727e;
+  --bubble-user: #004c97;
+  --focus-ring: #f7841f;
+}
+
+.dark {
+  --canvas: #0a1828;
+  --canvas-glow-a: rgba(0, 105, 170, 0.16);
+  --canvas-glow-b: rgba(247, 132, 31, 0.1);
+  --panel: rgba(14, 34, 56, 0.55);
+  --panel-solid: #0e2238;
+  --panel-border: rgba(174, 203, 233, 0.14);
+  --text-strong: #f2f6fa;
+  --text-body: #e5ebf2;
+  --text-soft: #93a5b6;
+  --bubble-user: #0069aa;
+  --focus-ring: #fb9c47;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--canvas);
+    color: var(--text-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: rgba(247, 132, 31, 0.28);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    backdrop-filter: blur(18px) saturate(1.3);
+    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+  }
+
+  .orb {
+    background:
+      radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 34%),
+      radial-gradient(circle at 70% 25%, #ffc48a 0%, rgba(255, 196, 138, 0) 45%),
+      radial-gradient(circle at 28% 70%, #f7841f 0%, rgba(247, 132, 31, 0) 55%),
+      radial-gradient(circle at 75% 78%, #0069aa 0%, rgba(0, 105, 170, 0) 62%),
+      radial-gradient(circle at 50% 50%, #7dabdb 0%, #004c97 78%);
+    box-shadow:
+      inset 0 -6px 14px rgba(10, 24, 40, 0.35),
+      inset 0 4px 10px rgba(255, 255, 255, 0.5),
+      0 10px 30px rgba(0, 76, 151, 0.35);
+  }
+
+  .shimmer-text {
+    background: linear-gradient(
+      90deg,
+      var(--text-soft) 35%,
+      var(--text-strong) 50%,
+      var(--text-soft) 65%
+    );
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: var(--animate-shimmer);
+  }
+}
