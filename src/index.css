@@ -1,9 +1,9 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Libre Franklin", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Libre Franklin', ui-sans-serif, system-ui, sans-serif;
 
   --color-brand-50: #eef4fb;
   --color-brand-100: #d9e6f5;
@@ -134,16 +134,8 @@
 
   .orb {
     background:
-      radial-gradient(
-        circle at 32% 28%,
-        rgba(255, 255, 255, 0.9) 0%,
-        rgba(255, 255, 255, 0) 34%
-      ),
-      radial-gradient(
-        circle at 70% 25%,
-        #ffc48a 0%,
-        rgba(255, 196, 138, 0) 45%
-      ),
+      radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 34%),
+      radial-gradient(circle at 70% 25%, #ffc48a 0%, rgba(255, 196, 138, 0) 45%),
       radial-gradient(circle at 28% 70%, #f7841f 0%, rgba(247, 132, 31, 0) 55%),
       radial-gradient(circle at 75% 78%, #0069aa 0%, rgba(0, 105, 170, 0) 62%),
       radial-gradient(circle at 50% 50%, #7dabdb 0%, #004c97 78%);

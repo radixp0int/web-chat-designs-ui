@@ -120,6 +120,25 @@ export const ChevronRightIcon = (p: IconProps) => (
   </svg>
 )
 
+export const ChevronLeftIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="m15 6-6 6 6 6" />
+  </svg>
+)
+
+export const FunnelIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M4 5h16l-6.5 7.5V19l-3 1.5v-8L4 5Z" />
+  </svg>
+)
+
+export const HistoryIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1M3.5 4.5V9H8" />
+    <path d="M12 8v4.5l3 2" />
+  </svg>
+)
+
 export const SunIcon = (p: IconProps) => (
   <svg {...base(p)}>
     <circle cx="12" cy="12" r="4" />

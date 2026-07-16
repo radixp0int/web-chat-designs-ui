@@ -1,10 +1,26 @@
 import { BulbIcon, ImageIcon, PlanIcon, SummarizeIcon } from './Icons'
 
 const suggestions = [
-  { icon: ImageIcon, label: 'Create image', prompt: 'Create an image of a sunrise over a city skyline in warm orange and deep blue tones' },
-  { icon: SummarizeIcon, label: 'Summarize text', prompt: 'Summarize the key points of my last quarterly budget review' },
-  { icon: BulbIcon, label: 'Brainstorm ideas', prompt: 'Brainstorm ideas for reducing my monthly subscription spending' },
-  { icon: PlanIcon, label: 'Make a plan', prompt: 'Make a 12-month savings plan for a $15,000 emergency fund' },
+  {
+    icon: ImageIcon,
+    label: 'Create image',
+    prompt: 'Create an image of a sunrise over a city skyline in warm orange and deep blue tones',
+  },
+  {
+    icon: SummarizeIcon,
+    label: 'Summarize text',
+    prompt: 'Summarize the key points of my last quarterly budget review',
+  },
+  {
+    icon: BulbIcon,
+    label: 'Brainstorm ideas',
+    prompt: 'Brainstorm ideas for reducing my monthly subscription spending',
+  },
+  {
+    icon: PlanIcon,
+    label: 'Make a plan',
+    prompt: 'Make a 12-month savings plan for a $15,000 emergency fund',
+  },
 ]
 
 const recentChats = [

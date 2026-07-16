@@ -33,9 +33,7 @@ export function useHostProfile(): HostProfile {
   useEffect(() => {
     const update = () => {
       const next = { name: readValue(NAME_SELECTOR), loginId: readValue(ID_SELECTOR) }
-      setProfile((prev) =>
-        prev.name === next.name && prev.loginId === next.loginId ? prev : next,
-      )
+      setProfile((prev) => (prev.name === next.name && prev.loginId === next.loginId ? prev : next))
     }
     update()
     // Host form typing (input bubbles/composes) and DOM swaps of tagged nodes.

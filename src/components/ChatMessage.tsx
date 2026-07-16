@@ -1,11 +1,18 @@
 import { useState } from 'react'
 import type { Message } from '../lib/chatEngine'
+import { useCite } from './citations'
 import { CopyIcon, RefreshIcon, ThumbDownIcon, ThumbUpIcon, CheckIcon } from './Icons'
+import { IconButton } from './IconButton'
+import { Markdown } from './Markdown'
+import { SourceStrip } from './SourceStrip'
 import { ThinkingBlock } from './ThinkingBlock'
+import { ToolCallChip } from './ToolCallChip'
 import { useUiSize } from './uiSize'
 
 export function ChatMessage({ message }: { message: Message }) {
   const compact = useUiSize() === 'compact'
+  const cite = useCite()
+  const onCite = (id: number) => message.sources && cite(message.sources, id)
 
   if (message.role === 'user') {
     return (
@@ -38,20 +45,50 @@ export function ChatMessage({ message }: { message: Message }) {
           />
         )}
 
+        {message.tools && message.tools.length > 0 && (
+          <div className="mb-3 flex flex-col items-start gap-1.5">
+            {message.tools.map((tool) => (
+              <ToolCallChip key={tool.toolCallId} tool={tool} />
+            ))}
+          </div>
+        )}
+
         {message.content && (
           <div
             className={
               compact
-                ? 'max-w-[68ch] text-sm leading-[1.65] whitespace-pre-line text-(--text-body)'
-                : 'max-w-[68ch] text-[15px] leading-[1.75] whitespace-pre-line text-(--text-body)'
+                ? 'max-w-[68ch] text-sm leading-[1.65] text-(--text-body)'
+                : 'max-w-[68ch] text-[15px] leading-[1.75] text-(--text-body)'
             }
           >
-            {message.content}
-            {message.streaming && <span className="text-accent-500">▍</span>}
+            <Markdown
+              text={message.content}
+              streaming={message.streaming}
+              sources={message.sources}
+              onCite={onCite}
+            />
           </div>
         )}
 
-        {!message.streaming && !message.thinkingActive && message.content && (
+        {!message.streaming && message.sources && message.sources.length > 0 && (
+          <SourceStrip sources={message.sources} onCite={onCite} />
+        )}
+
+        {message.error && (
+          <div
+            role="alert"
+            className={`mt-3 rounded-2xl border border-red-500/30 bg-red-500/8 text-red-700 dark:text-red-300 ${
+              compact ? 'px-3 py-2 text-xs' : 'px-4 py-2.5 text-[13px]'
+            }`}
+          >
+            <span className="font-medium">
+              {message.error.recoverable ? 'Hiccup in the stream. ' : 'Something went wrong. '}
+            </span>
+            {message.error.message}
+          </div>
+        )}
+
+        {!message.streaming && !message.thinkingActive && !message.error && message.content && (
           <ActionRow content={message.content} />
         )}
       </div>
@@ -65,18 +102,18 @@ function ActionRow({ content }: { content: string }) {
   const [vote, setVote] = useState<'up' | 'down' | null>(null)
 
   const iconSize = compact ? 14 : 15
-  const actionClass = `rounded-lg text-(--text-soft) transition hover:bg-brand-600/8 hover:text-(--text-strong) dark:hover:bg-white/8 ${compact ? 'p-1' : 'p-1.5'}`
+  const actionSize = compact ? 'sm' : 'md'
 
   return (
     <div className="mt-3 flex items-center gap-0.5">
-      <button
-        type="button"
+      <IconButton
+        shape="rounded"
+        size={actionSize}
         onClick={() => {
           navigator.clipboard?.writeText(content)
           setCopied(true)
           setTimeout(() => setCopied(false), 1500)
         }}
-        className={actionClass}
         aria-label="Copy response"
         title="Copy"
       >
@@ -85,30 +122,37 @@ function ActionRow({ content }: { content: string }) {
         ) : (
           <CopyIcon width={iconSize} height={iconSize} />
         )}
-      </button>
-      <button type="button" className={actionClass} aria-label="Regenerate response" title="Regenerate">
+      </IconButton>
+      <IconButton
+        shape="rounded"
+        size={actionSize}
+        aria-label="Regenerate response"
+        title="Regenerate"
+      >
         <RefreshIcon width={iconSize} height={iconSize} />
-      </button>
-      <button
-        type="button"
+      </IconButton>
+      <IconButton
+        shape="rounded"
+        size={actionSize}
+        active={vote === 'up'}
         onClick={() => setVote(vote === 'up' ? null : 'up')}
-        className={`${actionClass} ${vote === 'up' ? 'text-accent-500' : ''}`}
         aria-label="Good response"
         aria-pressed={vote === 'up'}
         title="Good response"
       >
         <ThumbUpIcon width={iconSize} height={iconSize} />
-      </button>
-      <button
-        type="button"
+      </IconButton>
+      <IconButton
+        shape="rounded"
+        size={actionSize}
+        active={vote === 'down'}
         onClick={() => setVote(vote === 'down' ? null : 'down')}
-        className={`${actionClass} ${vote === 'down' ? 'text-accent-500' : ''}`}
         aria-label="Poor response"
         aria-pressed={vote === 'down'}
         title="Poor response"
       >
         <ThumbDownIcon width={iconSize} height={iconSize} />
-      </button>
+      </IconButton>
     </div>
   )
 }

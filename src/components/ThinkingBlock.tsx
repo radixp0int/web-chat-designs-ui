@@ -28,9 +28,7 @@ export function ThinkingBlock({ text, active, durationSec }: ThinkingBlockProps)
         {active ? (
           <span className="shimmer-text">Thinking…</span>
         ) : (
-          <span className="text-(--text-soft)">
-            Thought for {durationSec ?? 4}s
-          </span>
+          <span className="text-(--text-soft)">Thought for {durationSec ?? 4}s</span>
         )}
       </button>
 

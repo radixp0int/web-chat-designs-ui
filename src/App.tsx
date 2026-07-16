@@ -1,21 +1,31 @@
 import { useState } from 'react'
+import { CitationsProvider } from './components/citations'
 import { ConversationView } from './components/ConversationView'
+import { ReferencePanel } from './components/ReferencePanel'
 import { Sidebar } from './components/Sidebar'
 import { TopBar } from './components/TopBar'
 import { useChat } from './hooks/useChat'
-import { createCannedResponder } from './lib/chatEngine'
-import { cannedTurns } from './responses'
+import { createCannedResponder, type Source } from './lib/chatEngine'
+import { createWsResponder } from './lib/wsResponder'
+import { cannedTurns } from './demo/cannedTurns'
 
-// Swap this for an API-backed Responder to wire in a real model.
-const responder = createCannedResponder(cannedTurns)
+// With VITE_WS_URL set (see .env.development), responses stream from the
+// mock WebSocket server in ../chat-ws-server; otherwise fall back to the
+// local canned responder.
+const wsUrl = import.meta.env.VITE_WS_URL as string | undefined
+const responder = wsUrl ? createWsResponder(wsUrl) : createCannedResponder(cannedTurns)
+
+type CitationState = { sources: Source[]; activeId: number } | null
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [citation, setCitation] = useState<CitationState>(null)
   const { messages, busy, send, reset } = useChat(responder)
 
   const startNewChat = () => {
     reset()
     setSidebarOpen(false)
+    setCitation(null)
   }
 
   return (
@@ -23,10 +33,34 @@ function App() {
       <AmbientGlow />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} onNewChat={startNewChat} />
 
-      <main className="glass relative flex min-w-0 flex-1 flex-col rounded-3xl">
-        <TopBar onOpenSidebar={() => setSidebarOpen(true)} />
-        <ConversationView messages={messages} busy={busy} onSubmit={send} />
-      </main>
+      <CitationsProvider value={(sources, id) => setCitation({ sources, activeId: id })}>
+        <main className="glass relative flex min-w-0 flex-1 flex-col rounded-3xl">
+          <TopBar onOpenSidebar={() => setSidebarOpen(true)} />
+          <ConversationView messages={messages} busy={busy} onSubmit={send} />
+        </main>
+      </CitationsProvider>
+
+      {citation && (
+        <>
+          {/* Mobile scrim, mirroring the Sidebar's */}
+          <div
+            aria-hidden
+            onClick={() => setCitation(null)}
+            className="fixed inset-0 z-30 bg-brand-950/40 backdrop-blur-sm lg:hidden"
+          />
+          <aside
+            className="glass relative z-40 flex w-[26rem] shrink-0 animate-fade-up flex-col overflow-hidden rounded-3xl xl:w-[30rem] max-lg:fixed max-lg:inset-y-0 max-lg:right-0 max-lg:w-[min(26rem,100vw)] max-lg:rounded-r-none max-lg:rounded-l-3xl"
+            aria-label="References"
+          >
+            <ReferencePanel
+              sources={citation.sources}
+              activeId={citation.activeId}
+              onSelect={(id) => setCitation((c) => c && { ...c, activeId: id })}
+              onClose={() => setCitation(null)}
+            />
+          </aside>
+        </>
+      )}
     </div>
   )
 }

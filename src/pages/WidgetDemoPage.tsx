@@ -57,9 +57,9 @@ export function WidgetDemoPage() {
             Quiet counsel for money that intends to outlast you.
           </h1>
           <p className="mt-6 max-w-xl text-base leading-relaxed text-[#4a584d] dark:text-[#a9b8ac]">
-            We manage portfolios for two hundred families, most of whom found us the same way
-            you did — through someone who never planned to leave. Questions? The assistant in
-            the corner is our Aristotle concierge, embedded with a single script tag.
+            We manage portfolios for two hundred families, most of whom found us the same way you
+            did — through someone who never planned to leave. Questions? The assistant in the corner
+            is our Aristotle concierge, embedded with a single script tag.
           </p>
         </section>
 
@@ -68,8 +68,8 @@ export function WidgetDemoPage() {
             Client portal
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#4a584d] dark:text-[#a9b8ac]">
-            The assistant reads these fields straight from this page. Edit them and watch the
-            chat header and greeting update — no API, just the widget querying the host DOM.
+            The assistant reads these fields straight from this page. Edit them and watch the chat
+            header and greeting update — no API, just the widget querying the host DOM.
           </p>
           <form
             onSubmit={(e) => e.preventDefault()}
@@ -115,8 +115,8 @@ export function WidgetDemoPage() {
         <footer className="flex flex-wrap items-baseline gap-x-6 gap-y-2 border-t border-[#212b24]/15 py-10 text-xs text-[#5c6b5f] dark:border-[#e6ece7]/15 dark:text-[#93a496]">
           <span>Alder &amp; Finch is a fictional firm on a demo page.</span>
           <span>
-            The chat bubble (bottom right) is the embedded Aristotle widget — it keeps its own
-            fonts and styles inside a shadow root and follows this page&apos;s theme.
+            The chat bubble (bottom right) is the embedded Aristotle widget — it keeps its own fonts
+            and styles inside a shadow root and follows this page&apos;s theme.
           </span>
         </footer>
       </main>

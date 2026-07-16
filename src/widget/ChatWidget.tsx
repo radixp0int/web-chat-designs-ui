@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import { CitationsProvider } from '../components/citations'
 import { ChatIcon, XIcon } from '../components/Icons'
 import { UiSizeProvider } from '../components/uiSize'
 import { useChat } from '../hooks/useChat'
-import { createCannedResponder } from '../lib/chatEngine'
-import { cannedTurns } from '../responses'
+import { createCannedResponder, type Source } from '../lib/chatEngine'
+import { createWsResponder } from '../lib/wsResponder'
+import { cannedTurns } from '../demo/cannedTurns'
 import { APP_NAME } from '../config'
 import { useHostTheme, type ThemeMode } from './useHostTheme'
 import { WidgetPanel } from './WidgetPanel'
@@ -34,11 +36,18 @@ type ChatWidgetProps = {
 export function ChatWidget({ initialTheme, position, zIndex, controller }: ChatWidgetProps) {
   const [open, setOpen] = useState(false)
   const [expanded, setExpanded] = useState(false)
+  const [citation, setCitation] = useState<{
+    sources: Source[]
+    activeId: number
+  } | null>(null)
   const [themeMode, setThemeMode] = useState<ThemeMode>(initialTheme)
   const dark = useHostTheme(themeMode)
 
-  // Swap this for an API-backed Responder to wire in a real model.
-  const [responder] = useState(() => createCannedResponder(cannedTurns))
+  // With VITE_WS_URL set, stream from the mock WS server; else canned demo.
+  const [responder] = useState(() => {
+    const wsUrl = import.meta.env.VITE_WS_URL as string | undefined
+    return wsUrl ? createWsResponder(wsUrl) : createCannedResponder(cannedTurns)
+  })
   const { messages, busy, send, reset } = useChat(responder)
 
   useEffect(() => {
@@ -59,7 +68,24 @@ export function ChatWidget({ initialTheme, position, zIndex, controller }: ChatW
   const close = () => {
     setOpen(false)
     setExpanded(false)
+    setCitation(null)
     reset()
+  }
+  const newChat = () => {
+    setCitation(null)
+    reset()
+  }
+
+  // Opening a citation needs the wide layout to fit the split view; the
+  // mobile full-screen override makes the expand a no-op there.
+  const openCitation = (sources: Source[], id: number) => {
+    setCitation({ sources, activeId: id })
+    setExpanded(true)
+  }
+  // Shrinking back to the narrow panel leaves no room for the frame.
+  const toggleExpand = () => {
+    if (expanded) setCitation(null)
+    setExpanded(!expanded)
   }
 
   return (
@@ -74,27 +100,28 @@ export function ChatWidget({ initialTheme, position, zIndex, controller }: ChatW
           inert={!open}
           style={{ zIndex }}
           className={`fixed bottom-24 flex max-h-[calc(100dvh-7rem)] flex-col overflow-hidden rounded-3xl border border-(--panel-border) bg-(--panel-solid) shadow-2xl shadow-brand-950/25 transition-all duration-300 ease-out max-sm:top-0 max-sm:right-0 max-sm:bottom-0 max-sm:left-0 max-sm:h-auto max-sm:max-h-none max-sm:w-auto max-sm:rounded-none ${
-            expanded
-              ? 'h-[85dvh] w-[min(560px,calc(100vw-2.5rem))]'
-              : 'h-[600px] w-[380px]'
-          } ${
-            right ? 'right-5 origin-bottom-right' : 'left-5 origin-bottom-left'
-          } ${
+            expanded ? 'h-[85dvh] w-[max(560px,calc(100vw-2.5rem))]' : 'h-[600px] w-[380px]'
+          } ${right ? 'right-5 origin-bottom-right' : 'left-5 origin-bottom-left'} ${
             open
               ? 'translate-y-0 scale-100 opacity-100'
               : 'pointer-events-none translate-y-2 scale-95 opacity-0'
           }`}
         >
-          <WidgetPanel
-            messages={messages}
-            busy={busy}
-            expanded={expanded}
-            onSubmit={send}
-            onReset={reset}
-            onToggleExpand={() => setExpanded((e) => !e)}
-            onMinimize={minimize}
-            onClose={close}
-          />
+          <CitationsProvider value={openCitation}>
+            <WidgetPanel
+              messages={messages}
+              busy={busy}
+              expanded={expanded}
+              citation={citation}
+              onSelectCitation={(id) => setCitation((c) => c && { ...c, activeId: id })}
+              onCloseCitation={() => setCitation(null)}
+              onSubmit={send}
+              onReset={newChat}
+              onToggleExpand={toggleExpand}
+              onMinimize={minimize}
+              onClose={close}
+            />
+          </CitationsProvider>
         </div>
 
         <button
