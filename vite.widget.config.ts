@@ -13,7 +13,7 @@ export default defineConfig({
   build: {
     outDir: 'dist-widget',
     lib: {
-      entry: resolve(import.meta.dirname, 'src/widget/embed.tsx'),
+      entry: resolve(import.meta.dirname, 'src/demo/widget/aristotleWidget.tsx'),
       name: 'AristotleChat',
       formats: ['iife'],
       fileName: () => 'aristotle-widget.js',
