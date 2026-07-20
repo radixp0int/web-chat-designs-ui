@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BrandingProvider } from '../lib/branding'
 import { createCannedResponder, type Source } from '../lib/engine/chatEngine'
 import { createWsResponder } from '../lib/engine/wsResponder'
 import { CitationsProvider } from '../lib/citations'
 import { ReferencePanel } from '../lib/components/ReferencePanel'
+import { ResizableColumn } from '../lib/components/ResizableColumn'
 import { useChat } from '../lib/hooks/useChat'
 import { ConversationView } from './components/ConversationView'
 import { Sidebar } from './components/Sidebar'
@@ -22,8 +23,15 @@ type CitationState = { sources: Source[]; activeId: number } | null
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(
+    () => typeof window !== 'undefined' && window.localStorage.getItem('sidebar-collapsed') === '1',
+  )
   const [citation, setCitation] = useState<CitationState>(null)
   const { messages, busy, send, reset } = useChat(responder)
+
+  useEffect(() => {
+    window.localStorage.setItem('sidebar-collapsed', collapsed ? '1' : '0')
+  }, [collapsed])
 
   const startNewChat = () => {
     reset()
@@ -37,17 +45,47 @@ function App() {
         <AmbientGlow />
         <Sidebar
           open={sidebarOpen}
+          collapsed={collapsed}
+          onToggleCollapse={() => setCollapsed((v) => !v)}
           onClose={() => setSidebarOpen(false)}
           onNewChat={startNewChat}
         />
 
         <CitationsProvider value={(sources, id) => setCitation({ sources, activeId: id })}>
-          <main className="glass relative flex min-w-0 flex-1 flex-col rounded-3xl">
-            <TopBar onOpenSidebar={() => setSidebarOpen(true)} />
-            <ConversationView messages={messages} busy={busy} onSubmit={send} personas={personas} />
+          <main className="glass relative flex min-w-0 flex-1 overflow-hidden rounded-3xl">
+            <div className="flex min-w-0 flex-1 flex-col">
+              <TopBar onOpenSidebar={() => setSidebarOpen(true)} />
+              <ConversationView
+                messages={messages}
+                busy={busy}
+                onSubmit={send}
+                personas={personas}
+              />
+            </div>
+
+            {/* Desktop: the reference pane shares the card with the chat,
+                split by a border — same design as the widget's split view. */}
+            {citation && (
+              <ResizableColumn
+                initial={448}
+                storageKey="ref-panel-w"
+                minWidth={320}
+                minRemainder={360}
+                aria-label="Resize reference panel"
+                className="hidden animate-fade-up flex-col border-l border-(--panel-border) lg:flex"
+              >
+                <ReferencePanel
+                  sources={citation.sources}
+                  activeId={citation.activeId}
+                  onSelect={(id) => setCitation((c) => c && { ...c, activeId: id })}
+                  onClose={() => setCitation(null)}
+                />
+              </ResizableColumn>
+            )}
           </main>
         </CitationsProvider>
 
+        {/* Mobile: the reference pane is a full-height slide-over card. */}
         {citation && (
           <>
             {/* Mobile scrim, mirroring the Sidebar's */}
@@ -57,7 +95,7 @@ function App() {
               className="fixed inset-0 z-30 bg-brand-950/40 backdrop-blur-sm lg:hidden"
             />
             <aside
-              className="glass relative z-40 flex w-[26rem] shrink-0 animate-fade-up flex-col overflow-hidden rounded-3xl xl:w-[30rem] max-lg:fixed max-lg:inset-y-0 max-lg:right-0 max-lg:w-[min(26rem,100vw)] max-lg:rounded-r-none max-lg:rounded-l-3xl"
+              className="glass fixed inset-y-0 right-0 z-40 flex w-[min(26rem,100vw)] animate-fade-up flex-col overflow-hidden rounded-l-3xl lg:hidden"
               aria-label="References"
             >
               <ReferencePanel

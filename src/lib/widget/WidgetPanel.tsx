@@ -11,6 +11,7 @@ import {
 } from '../components/Icons'
 import { IconButton } from '../components/IconButton'
 import { ReferencePanel } from '../components/ReferencePanel'
+import { ResizableColumn } from '../components/ResizableColumn'
 import { SideTabPanel, SideTabRail, type SideTab } from '../components/SideTabs'
 import type { Message, Source } from '../engine/chatEngine'
 import type { Persona, SidePanel } from '../types'
@@ -212,14 +213,18 @@ export function WidgetPanel({
 
         {/* Reference frame — side-by-side split in the wide expanded layout. */}
         {citation && (
-          <div className="hidden min-w-0 flex-1 flex-col border-l border-(--panel-border) sm:flex">
+          <ResizableColumn
+            initial={360}
+            aria-label="Resize reference panel"
+            className="hidden flex-col border-l border-(--panel-border) sm:flex"
+          >
             <ReferencePanel
               sources={citation.sources}
               activeId={citation.activeId}
               onSelect={onSelectCitation}
               onClose={onCloseCitation}
             />
-          </div>
+          </ResizableColumn>
         )}
 
         {/* Mobile: the panel is full-screen, so the frame slides over the chat. */}
