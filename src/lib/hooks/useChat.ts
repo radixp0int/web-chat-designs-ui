@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { Message, Responder, ToolCall } from '../engine/chatEngine'
+import type { Responder } from '../engine/chatEngine'
+import type { Message, ToolCall } from '../types'
 
 // Ids are unique across the whole session; they only ever move forward.
 let nextId = 1
@@ -101,8 +102,11 @@ export function useChat(responder: Responder) {
               }))
               break
             case 'sources':
-              // Sources arrive once, whole — no merging needed.
-              patch(assistantId, () => ({ sources: event.sources }))
+              // Sources (and their highlights) arrive once, whole — no merging.
+              patch(assistantId, () => ({
+                sources: event.sources,
+                highlights: event.highlights,
+              }))
               break
             case 'error':
               patch(assistantId, () => ({

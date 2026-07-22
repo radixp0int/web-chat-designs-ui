@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Source } from '../engine/chatEngine'
+import type { Highlight, Source } from '../types'
 import { ChevronLeftIcon, ChevronRightIcon, XIcon } from './Icons'
 import { IconButton } from './IconButton'
 import { Markdown } from './Markdown'
@@ -15,6 +15,8 @@ type ReferencePanelProps = {
   activeId: number
   onSelect: (id: number) => void
   onClose: () => void
+  /** Supporting passages to highlight, keyed by source id (referenceNumber). */
+  highlights?: Highlight[]
   /** When set (mobile widget slide-over), the close control becomes a back button. */
   backLabel?: string
 }
@@ -29,6 +31,7 @@ export function ReferencePanel({
   activeId,
   onSelect,
   onClose,
+  highlights,
   backLabel,
 }: ReferencePanelProps) {
   const compact = useUiSize() === 'compact'
@@ -60,12 +63,15 @@ export function ReferencePanel({
     rootRef.current?.focus({ preventScroll: true })
   }, [])
 
-  // Keep the active pill visible and restart reading from the top on change.
+  // Keep the active pill visible and, on change, jump to the first highlighted
+  // passage if there is one (else restart reading from the top).
   useEffect(() => {
     railRef.current
       ?.querySelector('[data-active="true"]')
       ?.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' })
-    bodyRef.current?.scrollTo({ top: 0 })
+    const mark = bodyRef.current?.querySelector('[data-hl]')
+    if (mark) mark.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    else bodyRef.current?.scrollTo({ top: 0 })
   }, [activeId])
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -181,7 +187,7 @@ export function ReferencePanel({
           compact ? 'px-4 py-3.5 text-sm leading-[1.65]' : 'px-5 py-4 text-[15px] leading-[1.75]'
         }`}
       >
-        <Markdown text={active.markdown} />
+        <Markdown text={active.markdown} highlights={highlights} activeRef={active.id} />
       </div>
     </div>
   )

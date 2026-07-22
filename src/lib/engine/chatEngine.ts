@@ -5,35 +5,9 @@
 // responder for one backed by a real streaming API (e.g. the mock WebSocket
 // server in ../chat-ws-server) needs no changes anywhere else.
 
-/** One tool call made by the assistant while producing a response. */
-export type ToolCall = {
-  toolCallId: string
-  name: string
-  status: 'started' | 'completed' | 'failed'
-  input?: Record<string, unknown>
-  output?: unknown
-  error?: string
-}
-
-/** A reference document the assistant cites with inline [n] markers. */
-export type Source = {
-  id: number
-  title: string
-  markdown: string
-}
-
-export type Message = {
-  id: number
-  role: 'user' | 'assistant'
-  content: string
-  thinking?: string
-  thinkingActive?: boolean
-  thinkingSec?: number
-  streaming?: boolean
-  tools?: ToolCall[]
-  sources?: Source[]
-  error?: { message: string; recoverable: boolean }
-}
+// Shared domain shapes live in ../types; this module owns the streaming
+// contract (events, responder) that consumes them.
+import type { Highlight, Source, ToolCall } from '../types'
 
 // Deltas carry their own whitespace — consumers concatenate them verbatim.
 // The optional fullText on thinking-done/done lets a server replace the
@@ -44,7 +18,7 @@ export type ChatEvent =
   | { type: 'content'; delta: string }
   | { type: 'done'; fullText?: string }
   | { type: 'tool'; toolCall: ToolCall }
-  | { type: 'sources'; sources: Source[] }
+  | { type: 'sources'; sources: Source[]; highlights?: Highlight[] }
   | { type: 'error'; message: string; recoverable: boolean }
 
 export type Responder = (prompt: string, signal: AbortSignal) => AsyncGenerator<ChatEvent>
@@ -53,6 +27,8 @@ export type CannedTurn = {
   thinking: string
   content: string
   sources?: Source[]
+  /** Passages to highlight in this turn's cited source docs (by referenceNumber). */
+  highlights?: Highlight[]
   /** When set, a prompt matching this pattern plays this turn instead of the
    *  next one in the cycle — handy for demo turns you want on demand. */
   match?: RegExp
@@ -106,8 +82,10 @@ export function createCannedResponder(turns: CannedTurn[]): Responder {
     yield { type: 'thinking-done' }
 
     // Sources land before the content streams so [n] citation markers are
-    // resolvable (and clickable) the moment they appear.
-    if (turn.sources?.length) yield { type: 'sources', sources: turn.sources }
+    // resolvable (and clickable) the moment they appear. Their highlights ride
+    // along so opening a reference can light up its supporting passages.
+    if (turn.sources?.length)
+      yield { type: 'sources', sources: turn.sources, highlights: turn.highlights }
 
     for (const word of wordsWithSpace(turn.content)) {
       yield { type: 'content', delta: word }

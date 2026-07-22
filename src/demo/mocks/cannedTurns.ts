@@ -1,6 +1,8 @@
 // Canned assistant turns for the design mockup — cycled in order.
 // Inline [n] markers in content refer to the turn's `sources` by id.
-import type { CannedTurn, Source } from '../../lib/engine/chatEngine'
+import type { CannedTurn } from '../../lib/engine/chatEngine'
+import type { Source } from '../../lib/types'
+import { sourceHighlights } from '../../lib/highlights'
 
 // Stress-test corpus: many small generated docs to exercise the reference
 // rail at scale (x-scroll, auto-scroll-into-view, prev/next across 50).
@@ -315,3 +317,35 @@ Internet, insurance, and phone plans are priced for inertia. A single retention 
     ],
   },
 ]
+
+// Highlights are attached after the fact so each spec resolves against that
+// turn's own source markdown — offsets index the source doc, not the answer.
+function attachSourceHighlights(
+  turn: CannedTurn,
+  specs: { referenceNumber: number; phrase: string }[],
+) {
+  turn.highlights = sourceHighlights(turn.sources ?? [], specs)
+}
+
+attachSourceHighlights(cannedTurns[0], [
+  { referenceNumber: 3, phrase: 'generated reference documents in the stress-test corpus' },
+  { referenceNumber: 8, phrase: 'This working note supports answer marker' },
+  { referenceNumber: 8, phrase: 'generated reference documents in the stress-test corpus' },
+  { referenceNumber: 50, phrase: 'This working note supports answer marker' },
+])
+
+// Reference 1 gets two sections to show one source highlighting two passages.
+attachSourceHighlights(cannedTurns[1], [
+  {
+    referenceNumber: 1,
+    phrase: 'the right number depends on income stability, household structure',
+  },
+  { referenceNumber: 1, phrase: 'An emergency fund is insurance, not an investment' },
+  { referenceNumber: 2, phrase: 'APYs move with the federal funds rate' },
+  { referenceNumber: 3, phrase: 'money moved before it reaches the spending account' },
+  {
+    referenceNumber: 4,
+    phrase: 'A buffer converts a volatile income stream into a steady personal',
+  },
+  { referenceNumber: 5, phrase: 'even while attacking debt' },
+])

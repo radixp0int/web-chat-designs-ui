@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Source } from '../engine/chatEngine'
+import type { Source } from '../types'
 import { useUiSize } from '../uiSize'
 
 // Past this many sources, collapse the strip behind a "+N more" toggle so a

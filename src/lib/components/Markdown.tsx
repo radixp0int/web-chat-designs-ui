@@ -1,6 +1,9 @@
 import ReactMarkdown, { type Components } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import type { Source } from '../engine/chatEngine'
+import rehypeRaw from 'rehype-raw'
+import type { Highlight, Source } from '../types'
+import { markRanges } from '../highlights'
+import { useHighlightRanges } from '../hooks/useHighlights'
 import { CitationChip } from './CitationChip'
 import { useUiSize } from '../uiSize'
 
@@ -10,6 +13,10 @@ type MarkdownProps = {
   /** When present, inline [n] markers matching a source id become chips. */
   sources?: Source[]
   onCite?: (sourceId: number) => void
+  /** Passages to highlight, grouped by referenceNumber. */
+  highlights?: Highlight[]
+  /** The reference (referenceNumber) whose passages should currently highlight. */
+  activeRef?: number | null
 }
 
 /**
@@ -37,10 +44,33 @@ function linkifyCitations(text: string, sources: Source[] | undefined, streaming
 const CITE_PREFIX = '#cite-'
 
 /** Shared markdown renderer for assistant messages and reference documents. */
-export function Markdown({ text, streaming, sources, onCite }: MarkdownProps) {
+export function Markdown({
+  text,
+  streaming,
+  sources,
+  onCite,
+  highlights,
+  activeRef = null,
+}: MarkdownProps) {
   const compact = useUiSize() === 'compact'
 
+  // Ranges are resolved against the original `text`, then wrapped in <mark>
+  // *before* citation linkify, so highlight offsets are never disturbed by the
+  // [n] → [n](#cite-n) rewrite. Rebuilding from original offsets (markRanges)
+  // is what keeps multiple ranges from drifting.
+  const ranges = useHighlightRanges(highlights, activeRef, text.length)
+  const rendered = linkifyCitations(markRanges(text, ranges), sources, !!streaming)
+
   const components: Components = {
+    // Highlighted source passage. `data-hl` lets a surface scroll to it.
+    mark: ({ children }) => (
+      <mark
+        data-hl
+        className="rounded bg-accent-500/25 px-0.5 text-(--text-strong) transition-colors dark:bg-accent-400/25"
+      >
+        {children}
+      </mark>
+    ),
     a: ({ href, children }) => {
       if (href?.startsWith(CITE_PREFIX)) {
         const id = Number(href.slice(CITE_PREFIX.length))
@@ -123,8 +153,14 @@ export function Markdown({ text, streaming, sources, onCite }: MarkdownProps) {
 
   return (
     <>
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
-        {linkifyCitations(text, sources, !!streaming)}
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        // rehype-raw only when there are highlights to render, so ordinary
+        // messages don't pay to reparse raw HTML.
+        rehypePlugins={ranges.length ? [rehypeRaw] : undefined}
+        components={components}
+      >
+        {rendered}
       </ReactMarkdown>
       {streaming && <span className="text-accent-500">▍</span>}
     </>
