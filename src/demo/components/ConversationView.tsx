@@ -10,6 +10,9 @@ type ConversationViewProps = {
   messages: Message[]
   busy: boolean
   onSubmit: (text: string) => void
+  onStop: () => void
+  onSteer: (text: string) => void
+  onRemoveQueued: (id: number) => void
   personas: Persona[]
 }
 
@@ -18,7 +21,15 @@ type ConversationViewProps = {
  * list after, and the composer — centered at first, then docked to the bottom.
  * Owns the persona selection shared by both composer positions.
  */
-export function ConversationView({ messages, busy, onSubmit, personas }: ConversationViewProps) {
+export function ConversationView({
+  messages,
+  busy,
+  onSubmit,
+  onStop,
+  onSteer,
+  onRemoveQueued,
+  personas,
+}: ConversationViewProps) {
   const [persona, setPersona] = useState<string>(personas[0].id)
   const scrollRef = useRef<HTMLDivElement>(null)
   const inChat = messages.length > 0
@@ -32,8 +43,9 @@ export function ConversationView({ messages, busy, onSubmit, personas }: Convers
   const composer = (docked: boolean) => (
     <Composer
       docked={docked}
-      disabled={busy}
-      onSubmit={onSubmit}
+      streaming={busy}
+      onStop={onStop}
+      onSubmit={(text, opts) => (opts?.steer ? onSteer(text) : onSubmit(text))}
       personas={personas}
       persona={persona}
       onPersonaChange={setPersona}
@@ -51,7 +63,7 @@ export function ConversationView({ messages, busy, onSubmit, personas }: Convers
           {inChat ? (
             <div className="flex flex-col gap-7">
               {messages.map((m) => (
-                <ChatMessage key={m.id} message={m} />
+                <ChatMessage key={m.id} message={m} onRemoveQueued={onRemoveQueued} />
               ))}
             </div>
           ) : (

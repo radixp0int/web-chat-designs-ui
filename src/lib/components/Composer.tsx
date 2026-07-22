@@ -10,6 +10,7 @@ import {
   PaperclipIcon,
   PlusIcon,
   SendIcon,
+  StopIcon,
   XIcon,
 } from './Icons'
 import { IconButton } from './IconButton'
@@ -37,8 +38,12 @@ const SIZING: Record<
 
 type ComposerProps = {
   docked: boolean
-  disabled: boolean
-  onSubmit: (text: string) => void
+  disabled?: boolean
+  /** A response is streaming: the send button becomes a stop button, and
+   *  submits queue (Enter) or steer (Cmd/Ctrl+Enter) instead of sending. */
+  streaming?: boolean
+  onStop?: () => void
+  onSubmit: (text: string, opts?: { steer?: boolean }) => void
   personas: Persona[]
   persona: string
   onPersonaChange: (id: string) => void
@@ -46,7 +51,9 @@ type ComposerProps = {
 
 export function Composer({
   docked,
-  disabled,
+  disabled = false,
+  streaming = false,
+  onStop,
   onSubmit,
   personas,
   persona,
@@ -73,14 +80,14 @@ export function Composer({
     onStart: () => textareaRef.current?.focus(),
   })
 
-  function submit() {
+  function submit(opts?: { steer?: boolean }) {
     const text = value.trim()
     if (!text || disabled) return
     speech.stop()
     setValue('')
     setAttachments([])
     setExpanded(false)
-    onSubmit(text)
+    onSubmit(text, opts)
   }
 
   const toolIconSize = compact ? 16 : 18
@@ -123,7 +130,9 @@ export function Composer({
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault()
-              submit()
+              // Cmd/Ctrl+Enter steers: interrupts the in-flight response and
+              // sends immediately. Plain Enter queues while streaming.
+              submit({ steer: e.metaKey || e.ctrlKey })
             }
           }}
           rows={compact || docked ? 1 : 2}
@@ -205,17 +214,47 @@ export function Composer({
           compact={compact}
         />
 
-        <button
-          type="button"
-          onClick={submit}
-          disabled={!value.trim() || disabled}
-          aria-label="Send message"
-          className={`ml-auto flex items-center justify-center rounded-full bg-accent-500 text-white shadow-md shadow-accent-500/30 transition hover:bg-accent-600 disabled:opacity-35 disabled:shadow-none ${
-            compact ? 'size-8' : 'size-9'
-          }`}
-        >
-          <SendIcon width={compact ? 16 : 18} height={compact ? 16 : 18} />
-        </button>
+        {streaming ? (
+          <div className={`ml-auto flex items-center ${compact ? 'gap-1' : 'gap-1.5'}`}>
+            {/* Steer: only offered once there's a draft to send. */}
+            {value.trim() && (
+              <button
+                type="button"
+                onClick={() => submit({ steer: true })}
+                aria-label="Send now, interrupting the current response"
+                title="Send now — interrupts the current response (⌘Enter)"
+                className={`flex items-center justify-center rounded-full border border-accent-500/40 text-accent-600 transition hover:bg-accent-500/10 dark:text-accent-400 ${
+                  compact ? 'size-8' : 'size-9'
+                }`}
+              >
+                <SendIcon width={compact ? 16 : 18} height={compact ? 16 : 18} />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onStop}
+              aria-label="Stop response"
+              title="Stop response (Enter queues)"
+              className={`flex items-center justify-center rounded-full bg-accent-500 text-white shadow-md shadow-accent-500/30 transition hover:bg-accent-600 ${
+                compact ? 'size-8' : 'size-9'
+              }`}
+            >
+              <StopIcon width={compact ? 16 : 18} height={compact ? 16 : 18} />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => submit()}
+            disabled={!value.trim() || disabled}
+            aria-label="Send message"
+            className={`ml-auto flex items-center justify-center rounded-full bg-accent-500 text-white shadow-md shadow-accent-500/30 transition hover:bg-accent-600 disabled:opacity-35 disabled:shadow-none ${
+              compact ? 'size-8' : 'size-9'
+            }`}
+          >
+            <SendIcon width={compact ? 16 : 18} height={compact ? 16 : 18} />
+          </button>
+        )}
       </div>
     </div>
   )

@@ -34,6 +34,9 @@ type WidgetPanelProps = {
   onSelectCitation: (id: number) => void
   onCloseCitation: () => void
   onSubmit: (text: string) => void
+  onStop: () => void
+  onSteer: (text: string) => void
+  onRemoveQueued: (id: number) => void
   onReset: () => void
   onToggleExpand: () => void
   onMinimize: () => void
@@ -56,6 +59,9 @@ export function WidgetPanel({
   onSelectCitation,
   onCloseCitation,
   onSubmit,
+  onStop,
+  onSteer,
+  onRemoveQueued,
   onReset,
   onToggleExpand,
   onMinimize,
@@ -150,7 +156,7 @@ export function WidgetPanel({
             {inChat ? (
               <div className="flex flex-col gap-5">
                 {messages.map((m) => (
-                  <ChatMessage key={m.id} message={m} />
+                  <ChatMessage key={m.id} message={m} onRemoveQueued={onRemoveQueued} />
                 ))}
               </div>
             ) : (
@@ -182,8 +188,9 @@ export function WidgetPanel({
           <div className="px-3 pb-2">
             <Composer
               docked
-              disabled={busy}
-              onSubmit={onSubmit}
+              streaming={busy}
+              onStop={onStop}
+              onSubmit={(text, opts) => (opts?.steer ? onSteer(text) : onSubmit(text))}
               personas={personas}
               persona={persona}
               onPersonaChange={setPersona}

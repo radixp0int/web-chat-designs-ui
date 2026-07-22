@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { Message } from '../types'
 import { useCite } from '../citations'
-import { CopyIcon, RefreshIcon, ThumbDownIcon, ThumbUpIcon, CheckIcon } from './Icons'
+import { CopyIcon, RefreshIcon, ThumbDownIcon, ThumbUpIcon, CheckIcon, XIcon } from './Icons'
 import { IconButton } from './IconButton'
 import { Markdown } from './Markdown'
 import { SourceStrip } from './SourceStrip'
@@ -9,7 +9,13 @@ import { ThinkingBlock } from './ThinkingBlock'
 import { ToolCallChip } from './ToolCallChip'
 import { useUiSize } from '../uiSize'
 
-export function ChatMessage({ message }: { message: Message }) {
+export function ChatMessage({
+  message,
+  onRemoveQueued,
+}: {
+  message: Message
+  onRemoveQueued?: (id: number) => void
+}) {
   const compact = useUiSize() === 'compact'
   const cite = useCite()
   // Opening a citation carries the message's highlights so the reference frame
@@ -18,16 +24,32 @@ export function ChatMessage({ message }: { message: Message }) {
 
   if (message.role === 'user') {
     return (
-      <div className="flex justify-end animate-fade-up">
+      <div className="flex flex-col items-end animate-fade-up">
         <div
-          className={
+          className={`${
             compact
               ? 'max-w-[85%] rounded-2xl rounded-br-md bg-(--bubble-user) px-3.5 py-2 text-sm leading-relaxed text-white shadow-md shadow-brand-600/20'
               : 'max-w-[78%] rounded-3xl rounded-br-lg bg-(--bubble-user) px-5 py-3 text-[15px] leading-relaxed text-white shadow-md shadow-brand-600/20'
-          }
+          } ${message.queued ? 'opacity-60' : ''}`}
         >
           {message.content}
         </div>
+        {message.queued && (
+          <div className="mt-1 flex items-center gap-1 text-[11px] text-(--text-soft)">
+            <span>Queued</span>
+            {onRemoveQueued && (
+              <button
+                type="button"
+                onClick={() => onRemoveQueued(message.id)}
+                aria-label="Remove from queue"
+                title="Remove from queue"
+                className="rounded-full p-0.5 transition hover:bg-brand-600/10 hover:text-(--text-strong) dark:hover:bg-white/10"
+              >
+                <XIcon width={12} height={12} />
+              </button>
+            )}
+          </div>
+        )}
       </div>
     )
   }
@@ -70,6 +92,12 @@ export function ChatMessage({ message }: { message: Message }) {
               onCite={onCite}
             />
           </div>
+        )}
+
+        {message.stopped && (
+          <p className={`mt-2 italic text-(--text-soft) ${compact ? 'text-[11px]' : 'text-xs'}`}>
+            Stopped
+          </p>
         )}
 
         {!message.streaming && message.sources && message.sources.length > 0 && (

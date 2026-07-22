@@ -28,7 +28,7 @@ function App() {
     () => typeof window !== 'undefined' && window.localStorage.getItem('sidebar-collapsed') === '1',
   )
   const [citation, setCitation] = useState<CitationState>(null)
-  const { messages, busy, send, reset } = useChat(responder)
+  const { messages, busy, send, stop, steer, removeQueued, reset } = useChat(responder)
 
   useEffect(() => {
     window.localStorage.setItem('sidebar-collapsed', collapsed ? '1' : '0')
@@ -62,6 +62,9 @@ function App() {
                 messages={messages}
                 busy={busy}
                 onSubmit={send}
+                onStop={stop}
+                onSteer={steer}
+                onRemoveQueued={removeQueued}
                 personas={personas}
               />
             </div>

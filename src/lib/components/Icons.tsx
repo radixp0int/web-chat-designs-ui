@@ -36,6 +36,12 @@ export const SendIcon = (p: IconProps) => (
   </svg>
 )
 
+export const StopIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <rect x="6.5" y="6.5" width="11" height="11" rx="2" fill="currentColor" stroke="none" />
+  </svg>
+)
+
 export const SearchIcon = (p: IconProps) => (
   <svg {...base(p)}>
     <circle cx="11" cy="11" r="7" />
