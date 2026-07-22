@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 import { MODEL_NAME } from '../config'
-import { ChatIcon, ChevronDownIcon, MenuIcon } from '../../lib/components/Icons'
+import { ChatIcon, ChevronDownIcon, MenuIcon } from '../../lib/components/icons'
 import { ThemeToggle } from './ThemeToggle'
 
 export function TopBar({ onOpenSidebar }: { onOpenSidebar: () => void }) {

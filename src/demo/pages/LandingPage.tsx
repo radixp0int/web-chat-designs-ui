@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { ChatIcon, ChevronRightIcon, SparkleIcon } from '../../lib/components/Icons'
+import { ChatIcon, ChevronRightIcon, SparkleIcon } from '../../lib/components/icons'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { APP_NAME } from '../config'
 

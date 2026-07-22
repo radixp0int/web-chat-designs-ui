@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BrandingProvider, type Branding } from '../branding'
 import { CitationsProvider } from '../citations'
-import { ChatIcon, XIcon } from '../components/Icons'
+import { ChatIcon, XIcon } from '../components/icons'
 import type { Responder } from '../engine/chatEngine'
 import { useChat } from '../hooks/useChat'
 import type { Highlight, Persona, SidePanel, Source } from '../types'

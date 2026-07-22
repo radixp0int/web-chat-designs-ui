@@ -1,6 +1,6 @@
 import { createCannedResponder } from '../../lib/engine/chatEngine'
 import { createWsResponder } from '../../lib/engine/wsResponder'
-import { FunnelIcon, HistoryIcon } from '../../lib/components/Icons'
+import { FunnelIcon, HistoryIcon } from '../../lib/components/icons'
 import type { SidePanel } from '../../lib/types'
 import type { WidgetContent, WidgetPosition } from '../../lib/widget/ChatWidget'
 import { mountWidget, type MountOptions, type WidgetHandle } from '../../lib/widget/mount'

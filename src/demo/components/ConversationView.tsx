@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { DISCLAIMER } from '../config'
 import type { Message } from '../../lib/types'
 import type { Persona } from '../../lib/types'
-import { ChatMessage } from '../../lib/components/ChatMessage'
-import { Composer } from '../../lib/components/Composer'
+import { ChatMessage } from '../../lib/components/chat-message'
+import { Composer } from '../../lib/components/composer'
 import { Hero, HeroSuggestions } from './Hero'
 
 type ConversationViewProps = {

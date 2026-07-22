@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { MoonIcon, SunIcon } from '../../lib/components/Icons'
+import { MoonIcon, SunIcon } from '../../lib/components/icons'
 
 export function ThemeToggle() {
   const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'))
