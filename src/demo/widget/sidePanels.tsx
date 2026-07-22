@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { FiltersPanel } from '../../lib/components/FiltersPanel'
-import { RecentChatsPanel } from '../../lib/components/RecentChatsPanel'
+import { FiltersPanel } from '../../lib/components/filters-panel'
+import { RecentChatsPanel } from '../../lib/components/recent-chats-panel'
 import { demoFilters, demoRecentChats } from '../mocks/sideTabData'
 
 // Self-contained stateful wrappers: the widget renders these inside its own

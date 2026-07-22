@@ -1,4 +1,4 @@
-import { BulbIcon, ImageIcon, PlanIcon, SummarizeIcon } from '../../lib/components/Icons'
+import { BulbIcon, ImageIcon, PlanIcon, SummarizeIcon } from '../../lib/components/icons'
 
 const suggestions = [
   {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BrandingProvider, type Branding } from '../branding'
 import { CitationsProvider } from '../citations'
-import { ChatIcon, XIcon } from '../components/Icons'
+import { ChatIcon, XIcon } from '../components/icons'
 import type { Responder } from '../engine/chatEngine'
 import { useChat } from '../hooks/useChat'
 import type { Highlight, Persona, SidePanel, Source } from '../types'
@@ -66,7 +66,7 @@ export function ChatWidget({
   const dark = useHostTheme(themeMode)
   const profile = useProfile()
 
-  const { messages, busy, send, reset } = useChat(responder)
+  const { messages, busy, send, stop, steer, removeQueued, reset } = useChat(responder)
 
   useEffect(() => {
     controller.current = {
@@ -139,6 +139,9 @@ export function ChatWidget({
                 onSelectCitation={(id) => setCitation((c) => c && { ...c, activeId: id })}
                 onCloseCitation={() => setCitation(null)}
                 onSubmit={send}
+                onStop={stop}
+                onSteer={steer}
+                onRemoveQueued={removeQueued}
                 onReset={newChat}
                 onToggleExpand={toggleExpand}
                 onMinimize={minimize}

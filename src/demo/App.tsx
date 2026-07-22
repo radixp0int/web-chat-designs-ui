@@ -4,8 +4,8 @@ import { createCannedResponder } from '../lib/engine/chatEngine'
 import type { Highlight, Source } from '../lib/types'
 import { createWsResponder } from '../lib/engine/wsResponder'
 import { CitationsProvider } from '../lib/citations'
-import { ReferencePanel } from '../lib/components/ReferencePanel'
-import { ResizableColumn } from '../lib/components/ResizableColumn'
+import { ReferencePanel } from '../lib/components/reference-panel'
+import { ResizableColumn } from '../lib/components/resizable-column'
 import { useChat } from '../lib/hooks/useChat'
 import { ConversationView } from './components/ConversationView'
 import { Sidebar } from './components/Sidebar'
@@ -28,7 +28,7 @@ function App() {
     () => typeof window !== 'undefined' && window.localStorage.getItem('sidebar-collapsed') === '1',
   )
   const [citation, setCitation] = useState<CitationState>(null)
-  const { messages, busy, send, reset } = useChat(responder)
+  const { messages, busy, send, stop, steer, removeQueued, reset } = useChat(responder)
 
   useEffect(() => {
     window.localStorage.setItem('sidebar-collapsed', collapsed ? '1' : '0')
@@ -62,6 +62,9 @@ function App() {
                 messages={messages}
                 busy={busy}
                 onSubmit={send}
+                onStop={stop}
+                onSteer={steer}
+                onRemoveQueued={removeQueued}
                 personas={personas}
               />
             </div>

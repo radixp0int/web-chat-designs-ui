@@ -46,6 +46,10 @@ export type Message = {
   thinkingActive?: boolean
   thinkingSec?: number
   streaming?: boolean
+  /** Assistant message whose stream was interrupted; partial content is kept. */
+  stopped?: boolean
+  /** User message waiting in the send queue while another turn streams. */
+  queued?: boolean
   tools?: ToolCall[]
   sources?: Source[]
   highlights?: Highlight[]

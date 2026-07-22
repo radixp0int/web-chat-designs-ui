@@ -8,7 +8,7 @@ import {
   PlusIcon,
   SearchIcon,
   XIcon,
-} from '../../lib/components/Icons'
+} from '../../lib/components/icons'
 
 const folders = [
   {
