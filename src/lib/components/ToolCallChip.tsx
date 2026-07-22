@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { ToolCall } from '../engine/chatEngine'
+import type { ToolCall } from '../types'
 import { CheckIcon, ChevronRightIcon, XIcon } from './Icons'
 import { useUiSize } from '../uiSize'
 

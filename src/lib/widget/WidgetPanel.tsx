@@ -13,8 +13,7 @@ import { IconButton } from '../components/IconButton'
 import { ReferencePanel } from '../components/ReferencePanel'
 import { ResizableColumn } from '../components/ResizableColumn'
 import { SideTabPanel, SideTabRail, type SideTab } from '../components/SideTabs'
-import type { Message, Source } from '../engine/chatEngine'
-import type { Persona, SidePanel } from '../types'
+import type { Highlight, Message, Persona, SidePanel, Source } from '../types'
 
 /** Host-provided profile shown in the header and greeting. */
 export type WidgetProfile = { name: string; loginId?: string }
@@ -23,7 +22,7 @@ type WidgetPanelProps = {
   messages: Message[]
   busy: boolean
   expanded: boolean
-  citation: { sources: Source[]; activeId: number } | null
+  citation: { sources: Source[]; activeId: number; highlights?: Highlight[] } | null
   /** Personas offered by the composer's persona menu. */
   personas: Persona[]
   /** Suggested prompts shown on the empty greeting screen. */
@@ -221,6 +220,7 @@ export function WidgetPanel({
             <ReferencePanel
               sources={citation.sources}
               activeId={citation.activeId}
+              highlights={citation.highlights}
               onSelect={onSelectCitation}
               onClose={onCloseCitation}
             />
@@ -238,6 +238,7 @@ export function WidgetPanel({
             <ReferencePanel
               sources={citation.sources}
               activeId={citation.activeId}
+              highlights={citation.highlights}
               onSelect={onSelectCitation}
               onClose={onCloseCitation}
               backLabel="Back to chat"

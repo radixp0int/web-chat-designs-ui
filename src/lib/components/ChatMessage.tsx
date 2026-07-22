@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Message } from '../engine/chatEngine'
+import type { Message } from '../types'
 import { useCite } from '../citations'
 import { CopyIcon, RefreshIcon, ThumbDownIcon, ThumbUpIcon, CheckIcon } from './Icons'
 import { IconButton } from './IconButton'
@@ -12,7 +12,9 @@ import { useUiSize } from '../uiSize'
 export function ChatMessage({ message }: { message: Message }) {
   const compact = useUiSize() === 'compact'
   const cite = useCite()
-  const onCite = (id: number) => message.sources && cite(message.sources, id)
+  // Opening a citation carries the message's highlights so the reference frame
+  // can highlight the supporting passages inside the source doc.
+  const onCite = (id: number) => message.sources && cite(message.sources, id, message.highlights)
 
   if (message.role === 'user') {
     return (

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { DISCLAIMER } from '../config'
-import type { Message } from '../../lib/engine/chatEngine'
+import type { Message } from '../../lib/types'
 import type { Persona } from '../../lib/types'
 import { ChatMessage } from '../../lib/components/ChatMessage'
 import { Composer } from '../../lib/components/Composer'

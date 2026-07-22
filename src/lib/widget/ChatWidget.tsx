@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import { BrandingProvider, type Branding } from '../branding'
 import { CitationsProvider } from '../citations'
 import { ChatIcon, XIcon } from '../components/Icons'
-import type { Responder, Source } from '../engine/chatEngine'
+import type { Responder } from '../engine/chatEngine'
 import { useChat } from '../hooks/useChat'
-import type { Persona, SidePanel } from '../types'
+import type { Highlight, Persona, SidePanel, Source } from '../types'
 import { UiSizeProvider } from '../uiSize'
 import { useHostTheme, type ThemeMode } from './useHostTheme'
 import { WidgetPanel, type WidgetProfile } from './WidgetPanel'
@@ -60,6 +60,7 @@ export function ChatWidget({
   const [citation, setCitation] = useState<{
     sources: Source[]
     activeId: number
+    highlights?: Highlight[]
   } | null>(null)
   const [themeMode, setThemeMode] = useState<ThemeMode>(initialTheme)
   const dark = useHostTheme(themeMode)
@@ -95,8 +96,8 @@ export function ChatWidget({
 
   // Opening a citation needs the wide layout to fit the split view; the
   // mobile full-screen override makes the expand a no-op there.
-  const openCitation = (sources: Source[], id: number) => {
-    setCitation({ sources, activeId: id })
+  const openCitation = (sources: Source[], id: number, highlights?: Highlight[]) => {
+    setCitation({ sources, activeId: id, highlights })
     setExpanded(true)
   }
   // Shrinking back to the narrow panel leaves no room for the frame.

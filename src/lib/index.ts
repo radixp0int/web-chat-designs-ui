@@ -10,12 +10,14 @@ export * from './engine/wsProtocol'
 export * from './hooks/useChat'
 export * from './hooks/useSpeechRecognition'
 export * from './hooks/useAutoGrowTextarea'
+export * from './hooks/useHighlights'
 
 // Context + shared types
 export * from './branding'
 export * from './citations'
 export * from './uiSize'
 export * from './types'
+export * from './highlights'
 
 // Components
 export * from './components/Icons'

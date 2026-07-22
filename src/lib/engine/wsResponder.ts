@@ -19,9 +19,11 @@ function translate(event: WSEvent): ChatEvent[] {
     case 'token':
       return [{ type: 'content', delta: event.text }]
     case 'summary': {
-      // Citations ride in on the summary; surface them before closing the turn.
+      // Citations (and their source highlights) ride in on the summary;
+      // surface them before closing the turn.
       const events: ChatEvent[] = []
-      if (event.sources?.length) events.push({ type: 'sources', sources: event.sources })
+      if (event.sources?.length)
+        events.push({ type: 'sources', sources: event.sources, highlights: event.highlights })
       events.push({ type: 'done', fullText: event.text })
       return events
     }

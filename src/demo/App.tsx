@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BrandingProvider } from '../lib/branding'
-import { createCannedResponder, type Source } from '../lib/engine/chatEngine'
+import { createCannedResponder } from '../lib/engine/chatEngine'
+import type { Highlight, Source } from '../lib/types'
 import { createWsResponder } from '../lib/engine/wsResponder'
 import { CitationsProvider } from '../lib/citations'
 import { ReferencePanel } from '../lib/components/ReferencePanel'
@@ -19,7 +20,7 @@ import { personas } from './personas'
 const wsUrl = import.meta.env.VITE_WS_URL as string | undefined
 const responder = wsUrl ? createWsResponder(wsUrl) : createCannedResponder(cannedTurns)
 
-type CitationState = { sources: Source[]; activeId: number } | null
+type CitationState = { sources: Source[]; activeId: number; highlights?: Highlight[] } | null
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -51,7 +52,9 @@ function App() {
           onNewChat={startNewChat}
         />
 
-        <CitationsProvider value={(sources, id) => setCitation({ sources, activeId: id })}>
+        <CitationsProvider
+          value={(sources, id, highlights) => setCitation({ sources, activeId: id, highlights })}
+        >
           <main className="glass relative flex min-w-0 flex-1 overflow-hidden rounded-3xl">
             <div className="flex min-w-0 flex-1 flex-col">
               <TopBar onOpenSidebar={() => setSidebarOpen(true)} />
@@ -77,6 +80,7 @@ function App() {
                 <ReferencePanel
                   sources={citation.sources}
                   activeId={citation.activeId}
+                  highlights={citation.highlights}
                   onSelect={(id) => setCitation((c) => c && { ...c, activeId: id })}
                   onClose={() => setCitation(null)}
                 />
@@ -101,6 +105,7 @@ function App() {
               <ReferencePanel
                 sources={citation.sources}
                 activeId={citation.activeId}
+                highlights={citation.highlights}
                 onSelect={(id) => setCitation((c) => c && { ...c, activeId: id })}
                 onClose={() => setCitation(null)}
               />

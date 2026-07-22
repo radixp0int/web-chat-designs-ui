@@ -1,5 +1,57 @@
 import type { ReactNode } from 'react'
 
+/** One tool call made by the assistant while producing a response. */
+export type ToolCall = {
+  toolCallId: string
+  name: string
+  status: 'started' | 'completed' | 'failed'
+  input?: Record<string, unknown>
+  output?: unknown
+  error?: string
+}
+
+/** A reference document the assistant cites with inline [n] markers. */
+export type Source = {
+  id: number
+  title: string
+  markdown: string
+}
+
+/**
+ * One passage to highlight, as character offsets into the source document's
+ * markdown. `idx` is a stable per-section id, not a reference — used only as a
+ * key.
+ */
+export type HighlightSection = {
+  idx: number
+  start: number
+  end: number
+}
+
+/**
+ * The passages of a cited source to highlight. `referenceNumber` is the source
+ * id (the [n] marker the chip shows); opening that reference highlights every
+ * section here. One source can own several sections.
+ */
+export type Highlight = {
+  referenceNumber: number
+  sections: HighlightSection[]
+}
+
+export type Message = {
+  id: number
+  role: 'user' | 'assistant'
+  content: string
+  thinking?: string
+  thinkingActive?: boolean
+  thinkingSec?: number
+  streaming?: boolean
+  tools?: ToolCall[]
+  sources?: Source[]
+  highlights?: Highlight[]
+  error?: { message: string; recoverable: boolean }
+}
+
 /** A selectable assistant persona shown in the composer's persona menu. */
 export type Persona = {
   id: string
