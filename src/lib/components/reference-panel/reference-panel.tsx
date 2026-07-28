@@ -79,24 +79,24 @@ export function ReferencePanel({
       aria-label={`Reference ${active.id}: ${active.title}`}
       className="flex min-h-0 flex-1 flex-col outline-none"
     >
-      <div className="flex items-center gap-1.5 border-b border-(--panel-border) px-3 py-2.5">
+      <div className="flex items-center gap-1.5 border-b border-line px-3 py-2.5">
         {backLabel && (
           <IconButton onClick={onClose} aria-label={backLabel} title={backLabel}>
             <ChevronLeftIcon width={16} height={16} />
           </IconButton>
         )}
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-semibold tracking-wide text-(--text-soft) uppercase">
+          <p className="text-[10px] font-semibold tracking-wide text-ink-soft uppercase">
             Reference {active.id}
           </p>
           <p
-            className={`truncate font-semibold text-(--text-strong) ${compact ? 'text-[13px]' : 'text-sm'}`}
+            className={`truncate font-semibold text-ink-strong ${compact ? 'text-[13px]' : 'text-sm'}`}
           >
             {active.title}
           </p>
         </div>
         {showJump && (
-          <div className="flex items-center gap-1 rounded-lg border border-(--panel-border) px-1.5 py-1 text-xs text-(--text-soft)">
+          <div className="flex items-center gap-1 rounded-lg border border-line px-1.5 py-1 text-xs text-ink-soft">
             <input
               aria-label="Jump to reference number"
               title="Jump to reference"
@@ -111,7 +111,7 @@ export function ReferencePanel({
                 if (e.key === 'Enter') commitJump()
                 else if (e.key === 'Escape') setJumpDraft(String(active.id))
               }}
-              className="w-7 bg-transparent text-center font-semibold text-(--text-strong) tabular-nums outline-none"
+              className="w-7 bg-transparent text-center font-semibold text-ink-strong tabular-nums outline-none"
             />
             <span className="tabular-nums">/ {sources.length}</span>
           </div>
@@ -142,7 +142,7 @@ export function ReferencePanel({
       {sources.length > 1 && (
         <div
           ref={railRef}
-          className="flex gap-1.5 overflow-x-auto border-b border-(--panel-border) px-3 py-2 [scrollbar-width:thin]"
+          className="flex gap-1.5 overflow-x-auto border-b border-line px-3 py-2 [scrollbar-width:thin]"
           role="tablist"
           aria-label="References"
         >
@@ -159,8 +159,8 @@ export function ReferencePanel({
                 title={source.title}
                 className={`grid size-7 shrink-0 place-items-center rounded-full text-xs font-semibold transition ${
                   isActive
-                    ? 'bg-brand-600 text-white dark:bg-brand-300 dark:text-brand-950'
-                    : 'border border-(--panel-border) text-(--text-soft) hover:bg-brand-600/8 hover:text-(--text-strong) dark:hover:bg-white/8'
+                    ? 'bg-selected text-on-selected'
+                    : 'border border-line text-ink-soft hover:bg-tint/8 hover:text-ink-strong'
                 }`}
               >
                 {source.id}
@@ -172,7 +172,7 @@ export function ReferencePanel({
 
       <div
         ref={bodyRef}
-        className={`min-h-0 flex-1 overflow-y-auto text-(--text-body) ${
+        className={`min-h-0 flex-1 overflow-y-auto text-ink ${
           compact ? 'px-4 py-3.5 text-sm leading-[1.65]' : 'px-5 py-4 text-[15px] leading-[1.75]'
         }`}
       >

@@ -80,7 +80,7 @@ export function ConversationView({
       {inChat && (
         <div className="mx-auto w-full max-w-3xl px-5 pb-5 animate-fade-up">
           {composer(true)}
-          <p className="mt-2.5 text-center text-xs text-(--text-soft)/80">{DISCLAIMER}</p>
+          <p className="mt-2.5 text-center text-xs text-ink-soft/80">{DISCLAIMER}</p>
         </div>
       )}
     </>

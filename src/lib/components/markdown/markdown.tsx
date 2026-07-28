@@ -53,10 +53,7 @@ export function Markdown({
   const components: Components = {
     // Highlighted source passage. `data-hl` lets a surface scroll to it.
     mark: ({ children }) => (
-      <mark
-        data-hl
-        className="rounded bg-accent-500/25 px-0.5 text-(--text-strong) transition-colors dark:bg-accent-400/25"
-      >
+      <mark data-hl className="rounded bg-highlight/25 px-0.5 text-ink-strong transition-colors">
         {children}
       </mark>
     ),
@@ -70,7 +67,7 @@ export function Markdown({
           href={href}
           target="_blank"
           rel="noreferrer"
-          className="text-brand-500 underline decoration-brand-500/40 underline-offset-2 transition hover:decoration-brand-500 dark:text-brand-300 dark:decoration-brand-300/40 dark:hover:decoration-brand-300"
+          className="text-brand-fg underline decoration-brand-fg/40 underline-offset-2 transition hover:decoration-brand-fg"
         >
           {children}
         </a>
@@ -78,38 +75,32 @@ export function Markdown({
     },
     p: ({ children }) => <p className="my-2.5 first:mt-0 last:mb-0">{children}</p>,
     h1: ({ children }) => (
-      <h1 className="mt-5 mb-2 text-lg font-semibold text-(--text-strong) first:mt-0">
-        {children}
-      </h1>
+      <h1 className="mt-5 mb-2 text-lg font-semibold text-ink-strong first:mt-0">{children}</h1>
     ),
     h2: ({ children }) => (
-      <h2 className="mt-5 mb-2 text-base font-semibold text-(--text-strong) first:mt-0">
-        {children}
-      </h2>
+      <h2 className="mt-5 mb-2 text-base font-semibold text-ink-strong first:mt-0">{children}</h2>
     ),
     h3: ({ children }) => (
-      <h3 className="mt-4 mb-1.5 font-semibold text-(--text-strong) first:mt-0">{children}</h3>
+      <h3 className="mt-4 mb-1.5 font-semibold text-ink-strong first:mt-0">{children}</h3>
     ),
     ul: ({ children }) => <ul className="my-2.5 list-disc space-y-1 pl-5">{children}</ul>,
     ol: ({ children }) => <ol className="my-2.5 list-decimal space-y-1 pl-5">{children}</ol>,
     li: ({ children }) => <li className="[&>p]:my-0">{children}</li>,
-    strong: ({ children }) => (
-      <strong className="font-semibold text-(--text-strong)">{children}</strong>
-    ),
+    strong: ({ children }) => <strong className="font-semibold text-ink-strong">{children}</strong>,
     code: ({ children }) => (
-      <code className="rounded bg-brand-600/8 px-1.5 py-0.5 font-mono text-[0.85em] text-(--text-strong) dark:bg-white/10">
+      <code className="rounded bg-code px-1.5 py-0.5 font-mono text-[0.85em] text-ink-strong">
         {children}
       </code>
     ),
     pre: ({ children }) => (
       <pre
-        className={`my-3 overflow-x-auto rounded-xl border border-(--panel-border) bg-brand-950/4 p-3.5 font-mono leading-relaxed dark:bg-white/5 [&>code]:bg-transparent [&>code]:p-0 ${compact ? 'text-xs' : 'text-[13px]'}`}
+        className={`my-3 overflow-x-auto rounded-xl border border-line bg-code-block p-3.5 font-mono leading-relaxed [&>code]:bg-transparent [&>code]:p-0 ${compact ? 'text-xs' : 'text-[13px]'}`}
       >
         {children}
       </pre>
     ),
     table: ({ children }) => (
-      <div className="my-3 overflow-x-auto rounded-xl border border-(--panel-border)">
+      <div className="my-3 overflow-x-auto rounded-xl border border-line">
         <table className={`w-full border-collapse ${compact ? 'text-[13px]' : 'text-sm'}`}>
           {children}
         </table>
@@ -118,26 +109,23 @@ export function Markdown({
     th: ({ children, style }) => (
       <th
         style={style}
-        className="border-b border-(--panel-border) bg-brand-600/4 px-3 py-1.5 text-left font-semibold whitespace-nowrap text-(--text-strong) dark:bg-white/4"
+        className="border-b border-line bg-tint/4 px-3 py-1.5 text-left font-semibold whitespace-nowrap text-ink-strong"
       >
         {children}
       </th>
     ),
     td: ({ children, style }) => (
-      <td
-        style={style}
-        className="border-b border-(--panel-border)/60 px-3 py-1.5 align-top last:border-b-0"
-      >
+      <td style={style} className="border-b border-line/60 px-3 py-1.5 align-top last:border-b-0">
         {children}
       </td>
     ),
     tr: ({ children }) => <tr className="last:[&>td]:border-b-0">{children}</tr>,
     blockquote: ({ children }) => (
-      <blockquote className="my-3 border-l-2 border-accent-500/40 pl-4 text-(--text-soft) italic">
+      <blockquote className="my-3 border-l-2 border-accent/40 pl-4 text-ink-soft italic">
         {children}
       </blockquote>
     ),
-    hr: () => <hr className="my-4 border-(--panel-border)" />,
+    hr: () => <hr className="my-4 border-line" />,
   }
 
   return (
@@ -151,7 +139,7 @@ export function Markdown({
       >
         {rendered}
       </ReactMarkdown>
-      {streaming && <span className="text-accent-500">▍</span>}
+      {streaming && <span className="text-accent">▍</span>}
     </>
   )
 }

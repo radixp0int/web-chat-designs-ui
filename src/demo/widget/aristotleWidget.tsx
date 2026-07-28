@@ -64,7 +64,8 @@ export function init(options: AristotleChatOptions = {}): AristotleChatHandle {
 }
 
 // Auto-init when loaded via a classic script tag carrying data-auto-init:
-//   <script src=".../aristotle-widget.js" data-auto-init data-theme="auto"></script>
+//   <script src=".../aristotle-widget.js" data-auto-init data-theme="auto"
+//           data-theme-class="chat-theme-aristotle2"></script>
 // (document.currentScript is null in module scripts, so this requires a
 // classic tag; module consumers call init() themselves.)
 const script = document.currentScript as HTMLScriptElement | null
@@ -72,6 +73,7 @@ if (script && script.dataset.autoInit !== undefined) {
   const boot = () =>
     init({
       theme: script.dataset.theme as ThemeMode | undefined,
+      themeClass: script.dataset.themeClass,
       position: script.dataset.position as WidgetPosition | undefined,
     })
   if (document.readyState === 'loading') {

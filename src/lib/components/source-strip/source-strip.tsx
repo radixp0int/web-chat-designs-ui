@@ -21,11 +21,11 @@ export function SourceStrip({ sources, onCite }: SourceStripProps) {
           type="button"
           onClick={() => onCite(source.id)}
           title={source.title}
-          className={`flex items-center gap-1.5 rounded-lg border border-(--panel-border) font-medium text-(--text-soft) transition hover:bg-brand-600/6 hover:text-(--text-strong) dark:hover:bg-white/6 ${
+          className={`flex items-center gap-1.5 rounded-lg border border-line font-medium text-ink-soft transition hover:bg-tint/6 hover:text-ink-strong ${
             compact ? 'px-2 py-1 text-xs' : 'px-2.5 py-1 text-[13px]'
           }`}
         >
-          <span className="grid size-4 shrink-0 place-items-center rounded bg-brand-600/10 text-[10px] font-semibold text-brand-600 dark:bg-brand-300/15 dark:text-brand-300">
+          <span className="grid size-4 shrink-0 place-items-center rounded bg-chip text-[10px] font-semibold text-chip-fg">
             {source.id}
           </span>
           <span className="max-w-[18ch] truncate">{source.title}</span>
@@ -35,7 +35,7 @@ export function SourceStrip({ sources, onCite }: SourceStripProps) {
         <button
           type="button"
           onClick={() => setShowAll((s) => !s)}
-          className={`rounded-lg border border-dashed border-(--panel-border) font-medium text-(--text-soft) transition hover:bg-brand-600/6 hover:text-(--text-strong) dark:hover:bg-white/6 ${
+          className={`rounded-lg border border-dashed border-line font-medium text-ink-soft transition hover:bg-tint/6 hover:text-ink-strong ${
             compact ? 'px-2 py-1 text-xs' : 'px-2.5 py-1 text-[13px]'
           }`}
         >

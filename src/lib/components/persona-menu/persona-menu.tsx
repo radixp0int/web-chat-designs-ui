@@ -33,9 +33,9 @@ export function PersonaMenu({ personas, persona, onChange, compact }: PersonaMen
           aria-expanded={open}
           aria-label={`Persona: ${activePersona.name}`}
           title={`Persona: ${activePersona.name}`}
-          className="flex items-center justify-center rounded-full bg-brand-600/8 p-1.5 text-brand-600 transition hover:bg-brand-600/14 dark:bg-brand-300/12 dark:text-brand-200 dark:hover:bg-brand-300/20"
+          className="flex items-center justify-center rounded-full bg-chip p-1.5 text-chip-fg transition hover:bg-chip-hover"
         >
-          <SparkleIcon width={16} height={16} className="text-accent-500" />
+          <SparkleIcon width={16} height={16} className="text-accent" />
         </button>
       ) : (
         <button
@@ -43,9 +43,9 @@ export function PersonaMenu({ personas, persona, onChange, compact }: PersonaMen
           onClick={() => setOpen((o) => !o)}
           aria-haspopup="listbox"
           aria-expanded={open}
-          className="flex items-center gap-1.5 rounded-full bg-brand-600/8 px-3.5 py-2 text-[13px] font-semibold text-brand-600 transition hover:bg-brand-600/14 dark:bg-brand-300/12 dark:text-brand-200 dark:hover:bg-brand-300/20"
+          className="flex items-center gap-1.5 rounded-full bg-chip px-3.5 py-2 text-[13px] font-semibold text-chip-fg transition hover:bg-chip-hover"
         >
-          <SparkleIcon width={14} height={14} className="text-accent-500" />
+          <SparkleIcon width={14} height={14} className="text-accent" />
           {activePersona.name}
           <ChevronDownIcon
             width={14}
@@ -59,7 +59,7 @@ export function PersonaMenu({ personas, persona, onChange, compact }: PersonaMen
         <ul
           role="listbox"
           aria-label="Chat persona"
-          className="absolute bottom-full left-0 z-20 mb-2 w-56 overflow-hidden rounded-2xl border border-(--panel-border) bg-(--panel-solid) p-1.5 shadow-xl shadow-brand-950/20"
+          className="absolute bottom-full left-0 z-20 mb-2 w-56 overflow-hidden rounded-2xl border border-line bg-panel-solid p-1.5 shadow-xl shadow-(color:--shadow-menu)"
         >
           {personas.map((p) => (
             <li key={p.id} role="option" aria-selected={p.id === persona}>
@@ -69,17 +69,13 @@ export function PersonaMenu({ personas, persona, onChange, compact }: PersonaMen
                   onChange(p.id)
                   setOpen(false)
                 }}
-                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left transition hover:bg-brand-600/8 dark:hover:bg-white/8"
+                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left transition hover:bg-tint/8"
               >
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[13px] font-semibold text-(--text-strong)">
-                    {p.name}
-                  </span>
-                  <span className="block text-xs text-(--text-soft)">{p.hint}</span>
+                  <span className="block text-[13px] font-semibold text-ink-strong">{p.name}</span>
+                  <span className="block text-xs text-ink-soft">{p.hint}</span>
                 </span>
-                {p.id === persona && (
-                  <CheckIcon width={15} height={15} className="text-accent-500" />
-                )}
+                {p.id === persona && <CheckIcon width={15} height={15} className="text-accent" />}
               </button>
             </li>
           ))}

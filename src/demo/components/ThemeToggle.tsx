@@ -19,7 +19,7 @@ export function ThemeToggle() {
       onClick={() => setDark((d) => !d)}
       aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={dark ? 'Light mode' : 'Dark mode'}
-      className="glass flex size-9 items-center justify-center rounded-full text-(--text-soft) transition hover:text-accent-500"
+      className="glass flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:text-accent"
     >
       {dark ? <SunIcon width={16} height={16} /> : <MoonIcon width={16} height={16} />}
     </button>

@@ -38,12 +38,13 @@
   <body>
     <h1>Static embed test</h1>
     <p>
-      This plain page loads the built widget with one classic script tag:<br />
-      <code>&lt;script src="/aristotle-widget.js" data-auto-init&gt;&lt;/script&gt;</code>
+      This plain page loads the built widget with one classic script tag and calls
+      <code>AristotleChat.init()</code> itself, so the brand picker below can remount it:<br />
+      <code>&lt;script src="/aristotle-widget.js"&gt;&lt;/script&gt;</code>
     </p>
     <p>
       The page itself uses monospace type and its own colors; the widget (bottom right) should
-      render Libre Franklin and Aristotle styling from inside its shadow root, untouched.
+      render Libre Franklin and its own palette from inside its shadow root, untouched.
     </p>
 
     <fieldset
@@ -62,13 +63,32 @@
 
     <p style="margin-top: 1.5rem">
       <button type="button" id="theme-toggle">Toggle host dark mode</button>
+      <label style="margin-left: 1rem">
+        Brand:
+        <select id="brand-select">
+          <option value="">default</option>
+          <option value="chat-theme-aristotle1">aristotle1</option>
+          <option value="chat-theme-aristotle2">aristotle2</option>
+        </select>
+      </label>
     </p>
+    <p style="max-width: 40rem; font-size: 0.85rem">
+      Dark mode is followed automatically from this page's <code>dark</code> class. The brand
+      palette is <em>not</em> — a theme class here can't cross into the widget's shadow root, so
+      switching it remounts the widget with a different <code>themeClass</code>.
+    </p>
+    <script src="/aristotle-widget.js"></script>
     <script>
       document.getElementById('theme-toggle').addEventListener('click', () => {
         const dark = document.documentElement.classList.toggle('dark')
         document.documentElement.classList.toggle('light', !dark)
       })
+
+      let widget = AristotleChat.init({ theme: 'auto' })
+      document.getElementById('brand-select').addEventListener('change', (e) => {
+        widget.destroy()
+        widget = AristotleChat.init({ theme: 'auto', themeClass: e.target.value || undefined })
+      })
     </script>
-    <script src="/aristotle-widget.js" data-auto-init></script>
   </body>
 </html>

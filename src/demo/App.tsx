@@ -78,7 +78,7 @@ function App() {
                 minWidth={320}
                 minRemainder={360}
                 aria-label="Resize reference panel"
-                className="hidden animate-fade-up flex-col border-l border-(--panel-border) lg:flex"
+                className="hidden animate-fade-up flex-col border-l border-line lg:flex"
               >
                 <ReferencePanel
                   sources={citation.sources}
@@ -99,7 +99,7 @@ function App() {
             <div
               aria-hidden
               onClick={() => setCitation(null)}
-              className="fixed inset-0 z-30 bg-brand-950/40 backdrop-blur-sm lg:hidden"
+              className="fixed inset-0 z-30 bg-scrim/40 backdrop-blur-sm lg:hidden"
             />
             <aside
               className="glass fixed inset-y-0 right-0 z-40 flex w-[min(26rem,100vw)] animate-fade-up flex-col overflow-hidden rounded-l-3xl lg:hidden"

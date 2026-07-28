@@ -22,14 +22,14 @@ export function ChatMessage({ message, onRemoveQueued }: ChatMessageProps) {
         <div
           className={`${
             compact
-              ? 'max-w-[85%] rounded-2xl rounded-br-md bg-(--bubble-user) px-3.5 py-2 text-sm leading-relaxed text-white shadow-md shadow-brand-600/20'
-              : 'max-w-[78%] rounded-3xl rounded-br-lg bg-(--bubble-user) px-5 py-3 text-[15px] leading-relaxed text-white shadow-md shadow-brand-600/20'
+              ? 'max-w-[85%] rounded-2xl rounded-br-md bg-bubble px-3.5 py-2 text-sm leading-relaxed text-on-bubble shadow-md shadow-(color:--shadow-bubble)'
+              : 'max-w-[78%] rounded-3xl rounded-br-lg bg-bubble px-5 py-3 text-[15px] leading-relaxed text-on-bubble shadow-md shadow-(color:--shadow-bubble)'
           } ${message.queued ? 'opacity-60' : ''}`}
         >
           {message.content}
         </div>
         {message.queued && (
-          <div className="mt-1 flex items-center gap-1 text-[11px] text-(--text-soft)">
+          <div className="mt-1 flex items-center gap-1 text-[11px] text-ink-soft">
             <span>Queued</span>
             {onRemoveQueued && (
               <button
@@ -37,7 +37,7 @@ export function ChatMessage({ message, onRemoveQueued }: ChatMessageProps) {
                 onClick={() => onRemoveQueued(message.id)}
                 aria-label="Remove from queue"
                 title="Remove from queue"
-                className="rounded-full p-0.5 transition hover:bg-brand-600/10 hover:text-(--text-strong) dark:hover:bg-white/10"
+                className="rounded-full p-0.5 transition hover:bg-tint/10 hover:text-ink-strong"
               >
                 <XIcon width={12} height={12} />
               </button>
@@ -75,8 +75,8 @@ export function ChatMessage({ message, onRemoveQueued }: ChatMessageProps) {
           <div
             className={
               compact
-                ? 'max-w-[68ch] text-sm leading-[1.65] text-(--text-body)'
-                : 'max-w-[68ch] text-[15px] leading-[1.75] text-(--text-body)'
+                ? 'max-w-[68ch] text-sm leading-[1.65] text-ink'
+                : 'max-w-[68ch] text-[15px] leading-[1.75] text-ink'
             }
           >
             <Markdown
@@ -89,7 +89,7 @@ export function ChatMessage({ message, onRemoveQueued }: ChatMessageProps) {
         )}
 
         {message.stopped && (
-          <p className={`mt-2 italic text-(--text-soft) ${compact ? 'text-[11px]' : 'text-xs'}`}>
+          <p className={`mt-2 italic text-ink-soft ${compact ? 'text-[11px]' : 'text-xs'}`}>
             Stopped
           </p>
         )}
@@ -101,7 +101,7 @@ export function ChatMessage({ message, onRemoveQueued }: ChatMessageProps) {
         {message.error && (
           <div
             role="alert"
-            className={`mt-3 rounded-2xl border border-red-500/30 bg-red-500/8 text-red-700 dark:text-red-300 ${
+            className={`mt-3 rounded-2xl border border-danger/30 bg-danger/8 text-danger-fg ${
               compact ? 'px-3 py-2 text-xs' : 'px-4 py-2.5 text-[13px]'
             }`}
           >
@@ -142,7 +142,7 @@ function ActionRow({ content }: { content: string }) {
         title="Copy"
       >
         {copied ? (
-          <CheckIcon width={iconSize} height={iconSize} className="text-accent-500" />
+          <CheckIcon width={iconSize} height={iconSize} className="text-accent" />
         ) : (
           <CopyIcon width={iconSize} height={iconSize} />
         )}

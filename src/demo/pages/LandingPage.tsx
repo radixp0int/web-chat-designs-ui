@@ -30,24 +30,24 @@ export function LandingPage() {
 
       <main className="mx-auto flex min-h-dvh max-w-3xl flex-col items-center justify-center px-6 py-16 text-center">
         <span className="orb block size-16 rounded-full animate-orb-drift" aria-hidden />
-        <h1 className="mt-6 text-3xl font-bold tracking-tight text-(--text-strong) sm:text-4xl">
+        <h1 className="mt-6 text-3xl font-bold tracking-tight text-ink-strong sm:text-4xl">
           {APP_NAME}
         </h1>
-        <p className="mt-2 text-base text-(--text-soft)">Two ways to see the chat UI.</p>
+        <p className="mt-2 text-base text-ink-soft">Two ways to see the chat UI.</p>
 
         <div className="mt-10 grid w-full gap-4 sm:grid-cols-2">
           {demos.map(({ to, icon: Icon, title, body }) => (
             <Link
               key={to}
               to={to}
-              className="glass group flex flex-col rounded-3xl p-6 text-left transition hover:-translate-y-0.5 hover:border-accent-500/40 hover:shadow-lg hover:shadow-brand-600/10"
+              className="glass group flex flex-col rounded-3xl p-6 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg hover:shadow-(color:--shadow-raised)"
             >
-              <span className="flex size-11 items-center justify-center rounded-2xl bg-brand-600/8 text-brand-600 dark:bg-brand-300/12 dark:text-brand-200">
-                <Icon width={20} height={20} className="text-accent-500" />
+              <span className="flex size-11 items-center justify-center rounded-2xl bg-chip text-chip-fg">
+                <Icon width={20} height={20} className="text-accent" />
               </span>
-              <h2 className="mt-4 text-lg font-semibold text-(--text-strong)">{title}</h2>
-              <p className="mt-1.5 flex-1 text-sm leading-relaxed text-(--text-soft)">{body}</p>
-              <span className="mt-4 flex items-center gap-1 text-sm font-semibold text-accent-600 dark:text-accent-400">
+              <h2 className="mt-4 text-lg font-semibold text-ink-strong">{title}</h2>
+              <p className="mt-1.5 flex-1 text-sm leading-relaxed text-ink-soft">{body}</p>
+              <span className="mt-4 flex items-center gap-1 text-sm font-semibold text-accent-fg">
                 Open demo
                 <ChevronRightIcon
                   width={16}

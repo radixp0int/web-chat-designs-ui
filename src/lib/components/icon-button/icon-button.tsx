@@ -7,7 +7,7 @@ const sizePadding: Record<NonNullable<IconButtonProps['size']>, string> = {
 }
 
 const ghost =
-  'text-(--text-soft) transition hover:bg-brand-600/8 hover:text-(--text-strong) disabled:pointer-events-none disabled:opacity-40 dark:hover:bg-white/8'
+  'text-ink-soft transition hover:bg-tint/8 hover:text-ink-strong disabled:pointer-events-none disabled:opacity-40'
 
 /**
  * Icon-only ghost button — the recurring control in the chat UI (header actions,
@@ -31,7 +31,7 @@ export function IconButton({
     shape === 'circle' ? 'rounded-full' : 'rounded-lg',
     sizePadding[size],
     ghost,
-    active ? 'text-accent-500' : '',
+    active ? 'text-accent' : '',
     className,
   ]
     .filter(Boolean)

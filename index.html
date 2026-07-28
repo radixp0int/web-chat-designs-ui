@@ -13,7 +13,9 @@
       rel="stylesheet"
     />
     <script>
-      // Apply theme before first paint to avoid a flash of the wrong mode
+      // Apply theme before first paint to avoid a flash of the wrong mode.
+      // A brand palette goes on this same element — add a `chat-theme-*` class
+      // (or data-chat-theme) here; see Theming in the README.
       const stored = localStorage.getItem('aristotle-theme')
       const dark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
       document.documentElement.classList.toggle('dark', dark)

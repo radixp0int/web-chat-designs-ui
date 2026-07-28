@@ -81,7 +81,7 @@ export function Composer({
 
   return (
     <div
-      className={`glass w-full shadow-lg shadow-brand-600/5 transition-shadow duration-300 focus-within:shadow-xl focus-within:shadow-brand-600/10 dark:shadow-black/20 ${
+      className={`glass w-full shadow-lg shadow-(color:--shadow-soft) transition-shadow duration-300 focus-within:shadow-xl focus-within:shadow-(color:--shadow-raised) ${
         compact ? 'rounded-2xl' : 'rounded-3xl'
       } ${docked ? '' : 'shadow-xl'}`}
     >
@@ -90,7 +90,7 @@ export function Composer({
           {attachments.map((name) => (
             <span
               key={name}
-              className={`flex items-center gap-1.5 rounded-full bg-brand-600/10 py-1 pr-1.5 pl-3 font-medium text-brand-600 dark:bg-brand-300/15 dark:text-brand-200 ${
+              className={`flex items-center gap-1.5 rounded-full bg-chip py-1 pr-1.5 pl-3 font-medium text-chip-fg ${
                 compact ? 'text-[11px]' : 'text-xs'
               }`}
             >
@@ -99,7 +99,7 @@ export function Composer({
               <button
                 type="button"
                 onClick={() => setAttachments((a) => a.filter((n) => n !== name))}
-                className="rounded-full p-0.5 hover:bg-brand-600/15"
+                className="rounded-full p-0.5 hover:bg-tint/15"
                 aria-label={`Remove ${name}`}
               >
                 <XIcon width={12} height={12} />
@@ -125,7 +125,7 @@ export function Composer({
           rows={compact || docked ? 1 : 2}
           placeholder={speech.listening ? 'Listening…' : 'Ask anything…'}
           aria-label={`Message ${appName}`}
-          className={`w-full resize-none bg-transparent pb-1 leading-relaxed text-(--text-strong) outline-none placeholder:text-(--text-soft) ${
+          className={`w-full resize-none bg-transparent pb-1 leading-relaxed text-ink-strong outline-none placeholder:text-ink-soft ${
             compact ? 'pt-3 pl-4 text-sm' : 'pt-4 pl-5 text-[15px]'
           } ${canExpand ? (compact ? 'pr-10' : 'pr-12') : compact ? 'pr-4' : 'pr-5'}`}
         />
@@ -137,7 +137,7 @@ export function Composer({
             aria-pressed={expanded}
             aria-label={expanded ? 'Collapse input' : 'Expand input'}
             title={expanded ? 'Collapse' : 'Expand'}
-            className={`absolute rounded-lg p-1.5 text-(--text-soft) transition hover:bg-brand-600/8 hover:text-(--text-strong) dark:hover:bg-white/8 ${
+            className={`absolute rounded-lg p-1.5 text-ink-soft transition hover:bg-tint/8 hover:text-ink-strong ${
               compact ? 'top-1.5 right-2' : 'top-2.5 right-3'
             }`}
           >
@@ -180,13 +180,13 @@ export function Composer({
             title="Voice to text"
             className={`relative rounded-full transition ${compact ? 'p-1.5' : 'p-2'} ${
               speech.listening
-                ? 'bg-accent-500/15 text-accent-600 dark:text-accent-400'
-                : 'text-(--text-soft) hover:bg-brand-600/8 hover:text-(--text-strong) dark:hover:bg-white/8'
+                ? 'bg-accent/15 text-accent-fg'
+                : 'text-ink-soft hover:bg-tint/8 hover:text-ink-strong'
             }`}
           >
             {speech.listening && (
               <span
-                className="absolute inset-0 animate-ping rounded-full bg-accent-500/30"
+                className="absolute inset-0 animate-ping rounded-full bg-accent/30"
                 aria-hidden
               />
             )}
@@ -210,7 +210,7 @@ export function Composer({
                 onClick={() => submit({ steer: true })}
                 aria-label="Send now, interrupting the current response"
                 title="Send now — interrupts the current response (⌘Enter)"
-                className={`flex items-center justify-center rounded-full border border-accent-500/40 text-accent-600 transition hover:bg-accent-500/10 dark:text-accent-400 ${
+                className={`flex items-center justify-center rounded-full border border-accent/40 text-accent-fg transition hover:bg-accent/10 ${
                   compact ? 'size-8' : 'size-9'
                 }`}
               >
@@ -222,7 +222,7 @@ export function Composer({
               onClick={onStop}
               aria-label="Stop response"
               title="Stop response (Enter queues)"
-              className={`flex items-center justify-center rounded-full bg-accent-500 text-white shadow-md shadow-accent-500/30 transition hover:bg-accent-600 ${
+              className={`flex items-center justify-center rounded-full bg-accent text-on-accent shadow-md shadow-(color:--shadow-accent) transition hover:bg-accent-hover ${
                 compact ? 'size-8' : 'size-9'
               }`}
             >
@@ -235,7 +235,7 @@ export function Composer({
             onClick={() => submit()}
             disabled={!value.trim() || disabled}
             aria-label="Send message"
-            className={`ml-auto flex items-center justify-center rounded-full bg-accent-500 text-white shadow-md shadow-accent-500/30 transition hover:bg-accent-600 disabled:opacity-35 disabled:shadow-none ${
+            className={`ml-auto flex items-center justify-center rounded-full bg-accent text-on-accent shadow-md shadow-(color:--shadow-accent) transition hover:bg-accent-hover disabled:opacity-35 disabled:shadow-none ${
               compact ? 'size-8' : 'size-9'
             }`}
           >

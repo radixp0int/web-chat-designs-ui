@@ -21,8 +21,8 @@ export function ResizeHandle({
     >
       <span
         aria-hidden
-        className={`absolute inset-y-0 left-0 w-0.5 transition-colors group-hover:bg-accent-500/60 ${
-          active ? 'bg-accent-500/70' : 'bg-transparent'
+        className={`absolute inset-y-0 left-0 w-0.5 transition-colors group-hover:bg-accent/60 ${
+          active ? 'bg-accent/70' : 'bg-transparent'
         }`}
       />
     </div>

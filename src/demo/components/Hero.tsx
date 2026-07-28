@@ -53,10 +53,10 @@ export function Hero() {
     <div className="flex flex-col items-center">
       <span className="orb block size-16 rounded-full animate-orb-drift" aria-hidden />
 
-      <h1 className="mt-8 text-center text-4xl font-bold tracking-tight text-(--text-strong) sm:text-5xl">
+      <h1 className="mt-8 text-center text-4xl font-bold tracking-tight text-ink-strong sm:text-5xl">
         {greeting()}, Secretariat
       </h1>
-      <p className="mt-3 text-lg text-(--text-soft)">How can I help you today?</p>
+      <p className="mt-3 text-lg text-ink-soft">How can I help you today?</p>
     </div>
   )
 }
@@ -70,29 +70,29 @@ export function HeroSuggestions({ onPrompt }: { onPrompt: (text: string) => void
             key={label}
             type="button"
             onClick={() => onPrompt(prompt)}
-            className="glass flex items-center gap-2 rounded-full px-4 py-2.5 text-[13px] font-semibold text-(--text-body) transition hover:border-accent-500/50 hover:text-(--text-strong)"
+            className="glass flex items-center gap-2 rounded-full px-4 py-2.5 text-[13px] font-semibold text-ink transition hover:border-accent/50 hover:text-ink-strong"
           >
-            <Icon width={15} height={15} className="text-brand-500 dark:text-brand-300" />
+            <Icon width={15} height={15} className="text-brand-fg" />
             {label}
           </button>
         ))}
       </div>
 
       <section className="mt-12 w-full">
-        <h2 className="mb-4 text-sm font-semibold text-(--text-soft)">Your recent chats</h2>
+        <h2 className="mb-4 text-sm font-semibold text-ink-soft">Your recent chats</h2>
         <div className="grid gap-3 sm:grid-cols-3">
           {recentChats.map((chat) => (
             <button
               key={chat.title}
               type="button"
               onClick={() => onPrompt(`Continue our chat about: ${chat.title}`)}
-              className="glass group rounded-2xl p-4 text-left transition hover:-translate-y-0.5 hover:border-accent-500/40 hover:shadow-lg hover:shadow-brand-600/10"
+              className="glass group rounded-2xl p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg hover:shadow-(color:--shadow-raised)"
             >
-              <h3 className="text-[15px] font-semibold text-(--text-strong)">{chat.title}</h3>
-              <p className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-(--text-soft)">
+              <h3 className="text-[15px] font-semibold text-ink-strong">{chat.title}</h3>
+              <p className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-ink-soft">
                 {chat.excerpt}
               </p>
-              <time className="mt-3 block text-xs text-(--text-soft)/80">{chat.date}</time>
+              <time className="mt-3 block text-xs text-ink-soft/80">{chat.date}</time>
             </button>
           ))}
         </div>

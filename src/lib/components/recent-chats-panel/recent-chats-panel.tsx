@@ -13,24 +13,22 @@ export function RecentChatsPanel({ chats, activeId, onSelect }: RecentChatsPanel
             onClick={() => onSelect(chat.id)}
             aria-current={active || undefined}
             className={`rounded-xl border px-3 py-2 text-left transition ${
-              active
-                ? 'border-accent-500/50 bg-brand-600/6 dark:bg-white/6'
-                : 'border-transparent hover:bg-brand-600/6 dark:hover:bg-white/6'
+              active ? 'border-accent/50 bg-tint/6' : 'border-transparent hover:bg-tint/6'
             }`}
           >
             <span className="flex items-baseline justify-between gap-2">
-              <span className="truncate text-[13px] font-semibold text-(--text-strong)">
+              <span className="truncate text-[13px] font-semibold text-ink-strong">
                 {chat.title}
               </span>
               <span
                 className={`shrink-0 text-[10px] ${
-                  active ? 'font-medium text-accent-500' : 'text-(--text-soft)'
+                  active ? 'font-medium text-accent' : 'text-ink-soft'
                 }`}
               >
                 {chat.when}
               </span>
             </span>
-            <span className="mt-0.5 block truncate text-xs text-(--text-soft)">{chat.snippet}</span>
+            <span className="mt-0.5 block truncate text-xs text-ink-soft">{chat.snippet}</span>
           </button>
         )
       })}

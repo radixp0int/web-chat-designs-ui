@@ -102,14 +102,12 @@ export function WidgetPanel({
 
   return (
     <>
-      <header className="flex items-center gap-2.5 border-b border-(--panel-border) px-4 py-3">
+      <header className="flex items-center gap-2.5 border-b border-line px-4 py-3">
         <span className="orb block size-6 shrink-0 rounded-full" aria-hidden />
         <div className="flex min-w-0 flex-col">
-          <span className="text-sm leading-tight font-semibold text-(--text-strong)">
-            {appName}
-          </span>
+          <span className="text-sm leading-tight font-semibold text-ink-strong">{appName}</span>
           {name && (
-            <span className="truncate text-[11px] leading-tight text-(--text-soft)">
+            <span className="truncate text-[11px] leading-tight text-ink-soft">
               {name}
               {loginId ? ` · ${loginId}` : ''}
             </span>
@@ -162,20 +160,20 @@ export function WidgetPanel({
             ) : (
               <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
                 <span className="orb block size-12 rounded-full animate-orb-drift" aria-hidden />
-                <p className="mt-3 text-base font-semibold text-(--text-strong)">
+                <p className="mt-3 text-base font-semibold text-ink-strong">
                   {firstName ? `Hi, ${firstName}` : `Hi, I'm ${appName}`}
                 </p>
-                <p className="text-sm text-(--text-soft)">
+                <p className="text-sm text-ink-soft">
                   {firstName ? `I'm ${appName} — how can I help?` : `Ask ${appName} anything.`}
                 </p>
-                {loginId && <p className="text-xs text-(--text-soft)/70">Signed in as {loginId}</p>}
+                {loginId && <p className="text-xs text-ink-soft/70">Signed in as {loginId}</p>}
                 <div className="mt-4 flex flex-col items-stretch gap-2 self-stretch px-2">
                   {starters.map((prompt) => (
                     <button
                       key={prompt}
                       type="button"
                       onClick={() => onSubmit(prompt)}
-                      className="glass rounded-full px-4 py-2 text-xs font-semibold text-(--text-body) transition hover:border-accent-500/50 hover:text-(--text-strong)"
+                      className="glass rounded-full px-4 py-2 text-xs font-semibold text-ink transition hover:border-accent/50 hover:text-ink-strong"
                     >
                       {prompt}
                     </button>
@@ -195,13 +193,13 @@ export function WidgetPanel({
               persona={persona}
               onPersonaChange={setPersona}
             />
-            <p className="mt-1.5 text-center text-[10px] text-(--text-soft)/70">{disclaimer}</p>
+            <p className="mt-1.5 text-center text-[10px] text-ink-soft/70">{disclaimer}</p>
           </div>
 
           {/* Side-tab panel — slides over the chat column, next to the rail. */}
           {hasRail && (
             <div
-              className={`absolute inset-0 z-10 flex flex-col bg-(--panel-solid) transition-[opacity,translate] duration-300 ease-out ${
+              className={`absolute inset-0 z-10 flex flex-col bg-panel-solid transition-[opacity,translate] duration-300 ease-out ${
                 openTab
                   ? 'translate-x-0 opacity-100'
                   : 'pointer-events-none -translate-x-2 opacity-0'
@@ -222,7 +220,7 @@ export function WidgetPanel({
           <ResizableColumn
             initial={360}
             aria-label="Resize reference panel"
-            className="hidden flex-col border-l border-(--panel-border) sm:flex"
+            className="hidden flex-col border-l border-line sm:flex"
           >
             <ReferencePanel
               sources={citation.sources}
@@ -236,7 +234,7 @@ export function WidgetPanel({
 
         {/* Mobile: the panel is full-screen, so the frame slides over the chat. */}
         <div
-          className={`absolute inset-0 z-10 flex flex-col bg-(--panel-solid) transition-transform duration-300 ease-out sm:hidden ${
+          className={`absolute inset-0 z-10 flex flex-col bg-panel-solid transition-transform duration-300 ease-out sm:hidden ${
             citation ? 'translate-x-0' : 'pointer-events-none translate-x-full'
           }`}
           inert={!citation}

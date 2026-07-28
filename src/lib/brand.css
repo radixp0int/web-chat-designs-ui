@@ -1,0 +1,358 @@
+/* ============================================================================
+   brand.css — every color decision in the library lives here.
+   ============================================================================
+
+   Three tiers:
+
+     1. RAMPS + SURFACES   a theme declares these  (§3, §4)
+     2. SEMANTIC TOKENS    derived from tier 1     (§1 light, §2 dark)
+     3. TAILWIND NAMES     `@theme inline` in styles.css maps tier 2 onto
+                           utilities, so `bg-accent` compiles straight to
+                           `var(--accent)` with no `:root` pinning — which is
+                           what lets any scope re-theme the whole tree.
+
+   HOW A CONSUMING APP PICKS A THEME
+   ---------------------------------
+   Put the theme class (or data attribute) on the element that also carries
+   `dark`/`light` — `<html>` for a normal app, the widget wrapper for the
+   embedded widget (see the `themeClass` mount option):
+
+     <html class="chat-theme-aristotle2 dark">
+     <html data-chat-theme="aristotle2" class="dark">
+
+   Both forms work for every theme. Theme class names MUST start with
+   `chat-theme-` — the derivation blocks below match on that prefix.
+
+   ADDING A THEME
+   --------------
+   Copy the commented template at the bottom of §4. A theme is ONE block: it
+   declares its ramps plus its light *and* dark surface/ink values (the
+   `-light` / `-dark` suffixed inputs), and everything else derives. Nothing
+   needs to be added to §1/§2 — they already match any `chat-theme-*` class.
+
+   A theme may also override any tier-2 token directly; §3/§4 come after
+   §1/§2 so equal-specificity overrides win.
+   ========================================================================= */
+
+/* ---------------------------------------------------------------------------
+   §1  SEMANTIC TOKENS — LIGHT
+   `:host` is required: inside the widget's shadow root `:root` never matches.
+   ------------------------------------------------------------------------ */
+:root,
+:host,
+[class*='chat-theme'],
+[data-chat-theme] {
+  /* typography */
+  --font-brand: var(--font-brand-family);
+  --font-display: var(--font-display-family, var(--font-brand-family));
+
+  /* surfaces */
+  --canvas: var(--canvas-light);
+  --panel: var(--panel-light);
+  --panel-solid: var(--panel-solid-light);
+  --line: color-mix(in srgb, var(--brand-800) 10%, transparent);
+  --scrim: var(--brand-950);
+  --canvas-glow-a: color-mix(in srgb, var(--brand-600) 8%, transparent);
+  --canvas-glow-b: color-mix(in srgb, var(--accent-500) 7%, transparent);
+
+  /* text */
+  --ink-strong: var(--ink-strong-light);
+  --ink: var(--ink-light);
+  --ink-soft: var(--ink-soft-light);
+
+  /* neutral wash — the single hover/active tint. Used with an opacity
+     modifier (`hover:bg-tint/8`) so one token covers every step, and the
+     old `dark:hover:bg-white/8` counterparts disappear. */
+  --tint: var(--brand-600);
+
+  /* sunken surfaces (inline code, code blocks) */
+  --code: color-mix(in oklab, var(--brand-600) 8%, transparent);
+  --code-block: color-mix(in oklab, var(--brand-950) 4%, transparent);
+
+  /* accent — the action / attention colour */
+  --accent: var(--accent-500);
+  --accent-hover: var(--accent-600);
+  --on-accent: #ffffff;
+  /* Accent as *text* on --canvas. A brand orange at full saturation is ~3:1
+     there, so this is a step darker than the solid fill — the fills below keep
+     the exact brand value. */
+  --accent-fg: var(--accent-700);
+  --highlight: var(--accent-500); /* <mark> */
+  /* WCAG 2.2 wants 3:1 for a focus indicator; accent-500 lands just under. */
+  --focus-ring: var(--accent-600);
+  --selection: color-mix(in srgb, var(--accent-500) 28%, transparent);
+
+  /* brand — the identity colour */
+  --brand-fg: var(--brand-500); /* brand legible on --canvas (links, tints) */
+  --brand-fg-hover: var(--brand-600);
+  --brand-solid: var(--brand-600); /* solid brand fill (avatar) */
+  --on-brand-solid: #ffffff;
+  --selected: var(--brand-600); /* selected pill */
+  --on-selected: #ffffff;
+  --chip: color-mix(in oklab, var(--brand-600) 10%, transparent); /* chip fill */
+  --chip-hover: color-mix(in oklab, var(--brand-600) 20%, transparent);
+  --chip-fg: var(--brand-600);
+  --bubble: var(--brand-600); /* user message bubble */
+  --on-bubble: #ffffff;
+
+  /* status */
+  --danger: var(--danger-500);
+  --danger-fg: var(--danger-700);
+  --danger-fg-soft: var(--danger-600);
+
+  /* shadows (consumed as `shadow-(color:--shadow-…)`) */
+  --shadow-soft: color-mix(in oklab, var(--brand-600) 5%, transparent);
+  --shadow-raised: color-mix(in oklab, var(--brand-600) 10%, transparent);
+  --shadow-bubble: color-mix(in oklab, var(--brand-600) 20%, transparent);
+  --shadow-accent: color-mix(in oklab, var(--accent-500) 30%, transparent);
+  --shadow-menu: color-mix(in oklab, var(--brand-950) 20%, transparent);
+  --shadow-deep: color-mix(in oklab, var(--brand-950) 25%, transparent);
+
+  /* the orb logo mark — five stacked radial gradients, see .orb in styles.css */
+  --orb-sheen: #ffffff;
+  --orb-1: var(--accent-300);
+  --orb-2: var(--accent-500);
+  --orb-3: var(--brand-500);
+  --orb-core-from: var(--brand-300);
+  --orb-core-to: var(--brand-600);
+  --orb-shade: var(--brand-950);
+  --orb-glow: color-mix(in srgb, var(--brand-600) 35%, transparent);
+  --on-orb: #ffffff;
+}
+
+/* ---------------------------------------------------------------------------
+   §2  SEMANTIC TOKENS — DARK  (only what differs from §1)
+
+   Three selectors: the themed element is itself `.dark` (app root / widget
+   wrapper), the shadow host is `.dark`, or a theme root sits inside a `.dark`
+   ancestor. A theme that needs its own dark overrides must use a two-class
+   selector (`.chat-theme-x.dark` or `.dark .chat-theme-x`) to outrank the
+   third one.
+   ------------------------------------------------------------------------ */
+.dark,
+:host(.dark),
+.dark :is([class*='chat-theme'], [data-chat-theme]) {
+  --canvas: var(--canvas-dark);
+  --panel: var(--panel-dark);
+  --panel-solid: var(--panel-solid-dark);
+  --line: color-mix(in srgb, var(--brand-200) 14%, transparent);
+  --canvas-glow-a: color-mix(in srgb, var(--brand-500) 16%, transparent);
+  --canvas-glow-b: color-mix(in srgb, var(--accent-500) 10%, transparent);
+
+  --ink-strong: var(--ink-strong-dark);
+  --ink: var(--ink-dark);
+  --ink-soft: var(--ink-soft-dark);
+
+  /* on a dark canvas the neutral wash lifts rather than deepens */
+  --tint: #ffffff;
+  --code: color-mix(in oklab, #ffffff 10%, transparent);
+  --code-block: color-mix(in oklab, #ffffff 5%, transparent);
+
+  --accent-fg: var(--accent-400);
+  --highlight: var(--accent-400);
+  --focus-ring: var(--accent-400);
+
+  --brand-fg: var(--brand-300);
+  --brand-fg-hover: var(--brand-200);
+  --selected: var(--brand-300);
+  --on-selected: var(--brand-950);
+  --chip: color-mix(in oklab, var(--brand-300) 15%, transparent);
+  --chip-hover: color-mix(in oklab, var(--brand-300) 25%, transparent);
+  --chip-fg: var(--brand-200);
+  --bubble: var(--brand-500);
+
+  --danger-fg: var(--danger-300);
+  --danger-fg-soft: var(--danger-400);
+
+  /* a brand-tinted shadow disappears on a dark canvas; use real black */
+  --shadow-soft: color-mix(in oklab, #000000 20%, transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   §3  DEFAULT THEME — PNC (brand blue / accent orange)
+   Also the fallback for `:root` and `:host` when no theme class is set.
+
+   Values marked ✔ are taken from pnc.com's live stylesheets, by frequency of
+   use. The rest are tints/shades derived from those anchors.
+   ------------------------------------------------------------------------ */
+:root,
+:host,
+.chat-theme-default,
+[data-chat-theme='default'] {
+  --font-brand-family: 'Libre Franklin', ui-sans-serif, system-ui, sans-serif;
+
+  --brand-50: #eef4fb;
+  --brand-100: #d9e6f5;
+  --brand-200: #aecbe9;
+  --brand-300: #7dabdb;
+  --brand-400: #3d7fc4;
+  --brand-500: #0069aa; /* ✔ PNC secondary blue */
+  --brand-600: #004c97; /* ✔ PNC primary blue */
+  --brand-700: #003f7e; /* ✔ */
+  --brand-800: #003365; /* ✔ */
+  --brand-900: #002a52;
+  --brand-950: #001932; /* ✔ */
+
+  --accent-300: #ffb27a;
+  --accent-400: #f58025; /* ✔ */
+  --accent-500: #ef6a00; /* ✔ PNC primary orange */
+  --accent-600: #c85400; /* solid-fill hover, focus ring */
+  --accent-700: #b04800; /* accent as text (see --accent-fg) */
+
+  --danger-300: oklch(80.8% 0.114 19.571);
+  --danger-400: oklch(70.4% 0.191 22.216);
+  --danger-500: oklch(63.7% 0.237 25.331);
+  --danger-600: oklch(57.7% 0.245 27.325);
+  --danger-700: oklch(50.5% 0.213 27.518);
+
+  --canvas-light: #f5f7f9;
+  --panel-light: rgba(255, 255, 255, 0.62);
+  --panel-solid-light: #ffffff;
+  --ink-strong-light: #1c2733;
+  --ink-light: #2d3943; /* ✔ PNC body ink */
+  --ink-soft-light: #64727e; /* ✔ PNC secondary ink */
+
+  --canvas-dark: #001932;
+  --panel-dark: rgba(0, 42, 82, 0.55);
+  --panel-solid-dark: #002a52;
+  --ink-strong-dark: #f2f6fa;
+  --ink-dark: #e5ebf2;
+  --ink-soft-dark: #93a5b6;
+}
+
+/* ---------------------------------------------------------------------------
+   §4  ALTERNATE THEMES
+   Each is a single block. Nothing else in this file (or the library) changes.
+   ------------------------------------------------------------------------ */
+
+/* Aristotle 1 — the palette this library shipped with before the default was
+   realigned to PNC's live brand values. Same blue, a lighter orange
+   (#f7841f rather than #ef6a00), and a slightly desaturated navy. */
+.chat-theme-aristotle1,
+[data-chat-theme='aristotle1'] {
+  --font-brand-family: 'Libre Franklin', ui-sans-serif, system-ui, sans-serif;
+
+  --brand-50: #eef4fb;
+  --brand-100: #d9e6f5;
+  --brand-200: #aecbe9;
+  --brand-300: #7dabdb;
+  --brand-400: #3d7fc4;
+  --brand-500: #0069aa;
+  --brand-600: #004c97;
+  --brand-700: #003d7a;
+  --brand-800: #0d2f56;
+  --brand-900: #0e2238;
+  --brand-950: #0a1828;
+
+  --accent-300: #ffc48a;
+  --accent-400: #fb9c47;
+  --accent-500: #f7841f;
+  --accent-600: #db6c0d;
+  --accent-700: #a85408;
+
+  --danger-300: oklch(80.8% 0.114 19.571);
+  --danger-400: oklch(70.4% 0.191 22.216);
+  --danger-500: oklch(63.7% 0.237 25.331);
+  --danger-600: oklch(57.7% 0.245 27.325);
+  --danger-700: oklch(50.5% 0.213 27.518);
+
+  --canvas-light: #f3f6fa;
+  --panel-light: rgba(255, 255, 255, 0.62);
+  --panel-solid-light: #ffffff;
+  --ink-strong-light: #1c2733;
+  --ink-light: #2d3943;
+  --ink-soft-light: #64727e;
+
+  --canvas-dark: #0a1828;
+  --panel-dark: rgba(14, 34, 56, 0.55);
+  --panel-solid-dark: #0e2238;
+  --ink-strong-dark: #f2f6fa;
+  --ink-dark: #e5ebf2;
+  --ink-soft-dark: #93a5b6;
+}
+
+/* Aristotle 2 — PNC's corporate & institutional look: the deep navy the
+   Corporate & Institutional page bands its hero with, same PNC orange for
+   action. Deeper and cooler than the default's retail blue.
+   Values marked ✔ are taken from
+   pnc.com/en/corporate-and-institutional.html. */
+.chat-theme-aristotle2,
+[data-chat-theme='aristotle2'] {
+  --font-brand-family: 'Libre Franklin', ui-sans-serif, system-ui, sans-serif;
+
+  --brand-50: #eef3f7;
+  --brand-100: #d7e3ec;
+  --brand-200: #aac3d6;
+  --brand-300: #77a0bd;
+  --brand-400: #3d749a;
+  --brand-500: #16587f;
+  --brand-600: #084d77; /* ✔ */
+  --brand-700: #073d5f;
+  --brand-800: #063049;
+  --brand-900: #04263c;
+  --brand-950: #001e33; /* ✔ the hero band navy */
+
+  --accent-300: #ffb27a;
+  --accent-400: #f58025; /* ✔ */
+  --accent-500: #ef6a00; /* ✔ */
+  --accent-600: #c85400;
+  --accent-700: #b04800;
+
+  --danger-300: oklch(80.8% 0.114 19.571);
+  --danger-400: oklch(70.4% 0.191 22.216);
+  --danger-500: oklch(63.7% 0.237 25.331);
+  --danger-600: oklch(57.7% 0.245 27.325);
+  --danger-700: oklch(50.5% 0.213 27.518);
+
+  --canvas-light: #f2f5f8;
+  --panel-light: rgba(255, 255, 255, 0.64);
+  --panel-solid-light: #ffffff;
+  --ink-strong-light: #001e33; /* ✔ the hero navy, as heading ink */
+  --ink-light: #2d3943; /* ✔ */
+  --ink-soft-light: #5b6770; /* ✔ */
+
+  --canvas-dark: #001e33; /* ✔ */
+  --panel-dark: rgba(4, 38, 60, 0.6);
+  --panel-solid-dark: #04263c;
+  --ink-strong-dark: #ffffff; /* ✔ the hero band sets pure white on navy */
+  --ink-dark: #dbe6ef;
+  --ink-soft-dark: #8fa6b8;
+}
+
+/* ---------------------------------------------------------------------------
+   TEMPLATE — copy, rename, fill in. This is the complete set of values a
+   theme has to supply; every other token in §1/§2 derives from these.
+
+.chat-theme-yourbrand,
+[data-chat-theme='yourbrand'] {
+  --font-brand-family: …;                 // body face
+  --font-display-family: …;               // optional, defaults to --font-brand-family
+
+  --brand-50 … --brand-950:  …            // 11 steps, your identity hue
+                                          //   500/600 carry solid fills, 300 is the
+                                          //   dark-mode legible step, 950 the dark canvas
+  --accent-300 … --accent-700: …          // 5 steps, your action hue
+                                          //   500 is the primary button and every solid
+                                          //   fill, 600 its hover + the focus ring, 700
+                                          //   accent-as-text (pick it for ≥4.5:1 on
+                                          //   --canvas-light — a brand orange at full
+                                          //   saturation is usually ~3:1 there)
+  --danger-300 … --danger-700: …          // 5 steps, error states
+
+  --canvas-light: …                       // page background
+  --panel-light: …                        // translucent glass fill (needs alpha)
+  --panel-solid-light: …                  // opaque panel fill
+  --ink-strong-light: …                   // headings
+  --ink-light: …                          // body copy
+  --ink-soft-light: …                     // secondary copy
+
+  --canvas-dark / --panel-dark / --panel-solid-dark:  …
+  --ink-strong-dark / --ink-dark / --ink-soft-dark:   …
+}
+
+   You do not have to edit this file at all: declaring the same variables in
+   your own stylesheet, on `:root` or on any element, re-themes everything
+   below that element. Only the `chat-theme-` class prefix (or the
+   `data-chat-theme` attribute) is load-bearing, and only if you want §1/§2 to
+   re-derive at a scope other than the document root.
+   ------------------------------------------------------------------------ */

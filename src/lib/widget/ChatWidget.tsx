@@ -33,6 +33,8 @@ export type WidgetContent = {
 
 type ChatWidgetProps = WidgetContent & {
   initialTheme: ThemeMode
+  /** `chat-theme-*` class from brand.css, applied to the widget's own root. */
+  themeClass?: string
   position: WidgetPosition
   zIndex: number
   controller: WidgetController
@@ -51,6 +53,7 @@ export function ChatWidget({
   sidePanels,
   useProfile,
   initialTheme,
+  themeClass,
   position,
   zIndex,
   controller,
@@ -106,10 +109,13 @@ export function ChatWidget({
     setExpanded(!expanded)
   }
 
+  // The theme class and `dark` go on the same element: brand.css derives its
+  // light/dark tokens on whichever element carries the theme, and `:root`
+  // never matches inside the widget's shadow root.
   return (
     <BrandingProvider value={branding}>
       <div
-        className={`${dark ? 'dark' : ''} font-sans text-(--text-body) antialiased`}
+        className={`${dark ? 'dark' : ''} ${themeClass ?? ''} font-(family-name:--font-brand) text-ink antialiased`}
         style={{ colorScheme: dark ? 'dark' : 'light' }}
       >
         <UiSizeProvider value="compact">
@@ -118,7 +124,7 @@ export function ChatWidget({
             aria-label={`${branding.appName} chat`}
             inert={!open}
             style={{ zIndex }}
-            className={`fixed bottom-24 flex max-h-[calc(100dvh-7rem)] flex-col overflow-hidden rounded-3xl border border-(--panel-border) bg-(--panel-solid) shadow-2xl shadow-brand-950/25 transition-all duration-300 ease-out max-sm:top-0 max-sm:right-0 max-sm:bottom-0 max-sm:left-0 max-sm:h-auto max-sm:max-h-none max-sm:w-auto max-sm:rounded-none ${
+            className={`fixed bottom-24 flex max-h-[calc(100dvh-7rem)] flex-col overflow-hidden rounded-3xl border border-line bg-panel-solid shadow-2xl shadow-(color:--shadow-deep) transition-all duration-300 ease-out max-sm:top-0 max-sm:right-0 max-sm:bottom-0 max-sm:left-0 max-sm:h-auto max-sm:max-h-none max-sm:w-auto max-sm:rounded-none ${
               expanded ? 'h-[85dvh] w-[max(560px,calc(100vw-2.5rem))]' : 'h-[600px] w-[380px]'
             } ${right ? 'right-5 origin-bottom-right' : 'left-5 origin-bottom-left'} ${
               open
@@ -157,7 +163,7 @@ export function ChatWidget({
             aria-label={open ? 'Close chat' : `Chat with ${branding.appName}`}
             title={open ? 'Close chat' : `Chat with ${branding.appName}`}
             style={{ zIndex }}
-            className={`orb fixed bottom-5 flex size-14 items-center justify-center rounded-full text-white transition-transform duration-200 hover:scale-105 active:scale-95 ${
+            className={`orb fixed bottom-5 flex size-14 items-center justify-center rounded-full text-on-orb transition-transform duration-200 hover:scale-105 active:scale-95 ${
               right ? 'right-5' : 'left-5'
             } ${open ? 'max-sm:hidden' : ''}`}
           >

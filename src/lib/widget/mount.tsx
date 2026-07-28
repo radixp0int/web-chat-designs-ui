@@ -14,6 +14,13 @@ export type MountOptions = {
   target?: HTMLElement
   /** 'auto' (default) follows the host page's `dark` class / OS preference. */
   theme?: ThemeMode
+  /**
+   * Brand palette, as a `chat-theme-*` class from brand.css (e.g.
+   * 'chat-theme-aristotle2'). Applied to the widget's own root inside the shadow
+   * tree, so the host page's own theme class can't reach it and this is the
+   * only way to re-skin the widget. Omit for the default palette.
+   */
+  themeClass?: string
   position?: WidgetPosition
   zIndex?: number
 }
@@ -55,6 +62,7 @@ export function mountWidget(content: WidgetContent, options: MountOptions = {}):
   const {
     target = document.body,
     theme = 'auto',
+    themeClass,
     position = 'bottom-right',
     zIndex = 2147483000,
   } = options
@@ -78,6 +86,7 @@ export function mountWidget(content: WidgetContent, options: MountOptions = {}):
       <ChatWidget
         {...content}
         initialTheme={theme}
+        themeClass={themeClass}
         position={position}
         zIndex={zIndex}
         controller={controller}
