@@ -93,7 +93,7 @@ export function WidgetDemoPage() {
               <input
                 type="text"
                 data-aristotle-profile="name"
-                defaultValue="Secretariat"
+                defaultValue="Joe"
                 autoComplete="off"
                 className={field}
               />
