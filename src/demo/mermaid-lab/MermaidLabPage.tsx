@@ -6,6 +6,7 @@ import { RendererColumn } from './RendererColumn'
 import { SAMPLES, type Sample, type SampleKind } from './samples'
 import { ShadowHost } from './ShadowHost'
 import { Findings, Scorecard } from './Scorecard'
+import { SupportMatrix } from './SupportMatrix'
 import { useStreamReplay } from './useStreamReplay'
 
 const KIND_LABEL: Record<SampleKind, string> = {
@@ -201,7 +202,7 @@ export function MermaidLabPage() {
         </div>
 
         {/* ---- the comparison ---- */}
-        <div className="mb-6 grid min-w-0 gap-4 xl:grid-cols-3">
+        <div className="mb-6 grid min-w-0 gap-4 xl:grid-cols-2">
           {RENDERER_META.map((meta) => (
             <RendererColumn
               key={meta.key}
@@ -225,7 +226,7 @@ export function MermaidLabPage() {
             </div>
             <div className="rounded-2xl border border-dashed border-accent/40 p-3">
               <ShadowHost>
-                <div className="grid min-w-0 gap-4 xl:grid-cols-3">
+                <div className="grid min-w-0 gap-4 xl:grid-cols-2">
                   {RENDERER_META.map((meta) => (
                     <RendererColumn
                       key={meta.key}
@@ -244,6 +245,10 @@ export function MermaidLabPage() {
         <div className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <Scorecard />
           <Findings />
+        </div>
+
+        <div className="mt-4 max-w-3xl">
+          <SupportMatrix />
         </div>
       </div>
     </div>

@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react'
 /**
  * Bumps a counter whenever the `dark`/`light` class on <html> changes.
  *
- * Renderers that bake concrete colors into their SVG (official mermaid, and
- * react-markdown-mermaid through it) have to re-render on that signal.
- * beautiful-mermaid emits `var(--token)` references instead, so it deliberately
- * does *not* subscribe — that difference is one of the things the lab measures.
+ * Official mermaid bakes concrete colors into its SVG, so it has to re-render on
+ * that signal. beautiful-mermaid emits `var(--token)` references instead, so it
+ * deliberately does *not* subscribe — that difference is one of the things the
+ * lab measures.
  */
 export function useThemeEpoch(): number {
   const [epoch, setEpoch] = useState(0)

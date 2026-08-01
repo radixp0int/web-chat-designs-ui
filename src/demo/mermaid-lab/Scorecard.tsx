@@ -2,78 +2,66 @@
  * Decision table. Bundle numbers are *measured*, not estimated — see the
  * method note under the table.
  */
-const ROWS: { label: string; official: string; beautiful: string; markdown: string }[] = [
+const ROWS: { label: string; official: string; beautiful: string }[] = [
   {
     label: 'Diagram coverage',
-    official: 'All types',
-    beautiful: '6 types — no gantt / pie / mindmap / gitGraph / journey',
-    markdown: 'All types (v10 grammar)',
+    official: '23 / 23 — everything',
+    beautiful: '7 / 23 — flowchart, graph, sequence, class, state, ER, xychart',
   },
   {
     label: 'Isolated cost (gzip)',
     official: '919 kB',
     beautiful: '470 kB — of which elkjs is 441 kB',
-    markdown: '1,085 kB',
   },
   {
     label: 'Widget IIFE delta (gzip)',
     official: '+920 kB → 1,108 kB total (5.9×)',
     beautiful: '+471 kB → 659 kB total (3.5×)',
-    markdown: '+1,082 kB → 1,271 kB total (6.7×)',
   },
   {
     label: 'Page build behaviour',
     official: 'Code-splits — katex / cytoscape / per-diagram chunks load on demand',
     beautiful: 'Single static chunk, elkjs included',
-    markdown: 'Single static chunk, mermaid v10 eager',
   },
   {
     label: 'Shadow DOM',
     official: 'Works — injects nothing into document.head, styles are inlined in the SVG',
     beautiful: 'Works — pure string output, nothing to leak',
-    markdown: 'Renders, but with off-brand preset colors',
   },
   {
     label: 'Render model',
     official: 'async — needs a cancel guard per keystroke',
     beautiful: 'sync — plain useMemo, no race possible',
-    markdown: 'async, inside render phase — needs an error boundary',
   },
   {
     label: 'Theme switching',
     official: 'Re-render: colors are baked into the SVG',
     beautiful: 'None: colors stay as var(--token) on the <svg>',
-    markdown: 'Re-render, preset themes only (default / dark / forest / neutral)',
   },
   {
     label: 'Streaming resilience',
     official: 'Good — holds last good SVG, recovers when the source completes',
     beautiful: 'Best — never showed an error frame at all during replay',
-    markdown: 'Broken — one failure sticks permanently (see below)',
   },
   {
     label: 'Error recovery',
     official: 'Recovers on the next valid source',
     beautiful: 'Recovers on the next valid source',
-    markdown: 'Never clears its internal error state; only a remount resets it',
   },
   {
     label: 'Setup required',
     official: 'Resolve brand tokens to opaque hex — it rejects oklab() outright',
     beautiful: 'None — pass var(--token) straight through',
-    markdown: 'One rehypePlugins entry on the renderer we already ship',
   },
   {
     label: 'Brand fit',
     official: 'themeVariables accept resolved brand.css tokens',
     beautiful: 'Consumes brand.css tokens directly, unresolved',
-    markdown: 'Preset palettes only — no brand tokens',
   },
   {
     label: 'Maintenance',
     official: 'Upstream project, active',
     beautiful: 'Young (v1.1.3), small surface, 2 deps',
-    markdown: 'v0.0.3, 8 stars, 33 commits — pins mermaid ^10',
   },
 ]
 
@@ -93,9 +81,6 @@ export function Scorecard() {
               <th className="border-b border-line bg-tint/4 px-3 py-2 text-left font-semibold text-ink-strong">
                 beautiful-mermaid
               </th>
-              <th className="border-b border-line bg-tint/4 px-3 py-2 text-left font-semibold text-ink-strong">
-                react-markdown-mermaid
-              </th>
             </tr>
           </thead>
           <tbody>
@@ -110,18 +95,16 @@ export function Scorecard() {
                 <td className="border-b border-line/60 px-3 py-2 align-top text-ink-soft">
                   {row.beautiful}
                 </td>
-                <td className="border-b border-line/60 px-3 py-2 align-top text-ink-soft">
-                  {row.markdown}
-                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <p className="border-t border-line px-3 py-2 text-[11px] text-ink-soft">
+      <p className="border-t border-line px-3 py-2 text-[11px] leading-relaxed text-ink-soft">
         Bundle figures are measured, not estimated: each library was built alone as an IIFE, and
         again on top of the real widget entry, against a baseline widget of 188.73 kB gz. Timings in
-        the column headers are live from this page.
+        the column headers are live from this page. Removing react-markdown-mermaid took the page
+        entry chunk from 794.50 to 689.50 kB gz.
       </p>
     </div>
   )
@@ -129,12 +112,12 @@ export function Scorecard() {
 
 const FINDINGS = [
   {
-    title: 'react-markdown-mermaid never recovers from a parse error',
-    body: 'Its MermaidBlock sets an internal error state and has no path that clears it. Select Gantt (which fails on its mermaid v10 grammar), then switch to any valid diagram — the column still shows the Gantt error and renders nothing. During the streaming replay it stays broken for the whole run and after it completes. Only remounting resets it, which is why the dark-mode toggle appears to "fix" it. For a surface where a diagram arrives token by token and is invalid most of that time, this is disqualifying.',
+    title: 'Rejected and removed: react-markdown-mermaid',
+    body: 'Evaluated as a third candidate, then uninstalled — kept here so it is not re-proposed without re-doing the work. Three findings, all observed rather than read: (1) its MermaidBlock sets an internal error state with no code path that clears it, so one bad diagram breaks that message permanently — a valid diagram selected right after a failing one still rendered nothing, and it stayed broken through an entire streaming replay and after it completed; only a remount reset it. (2) onLoad, onError and onRender are destructured and listed in effect dependency arrays but never invoked. (3) It pinned mermaid ^10, installing a second engine beside v11 — the heaviest option at +1,082 kB gz, and 18/23 diagram types against v11’s 23/23.',
   },
   {
-    title: 'Its documented lifecycle callbacks are dead code',
-    body: 'onLoad, onError and onRender are destructured from props and listed in effect dependency arrays, but never invoked. The timing shown in that column is measured by a MutationObserver watching for the <svg> to appear, because the library reports nothing.',
+    title: 'beautiful-mermaid’s parse error under-reports what it supports',
+    body: "Every unsupported header falls through to its flowchart parser, so the message is always \"Invalid mermaid header: … Expected 'graph TD', 'flowchart LR', 'stateDiagram-v2', etc.\" — it never names sequence, class, ER or xychart even though all four render fine. Verified directly against the library: the six claimed types all work; gitGraph and pie genuinely do not. The message is a wart, not a narrower capability, but it should not be surfaced to end users as-is if we ship this.",
   },
   {
     title: 'Official mermaid rejects this codebase’s color tokens',
@@ -142,7 +125,7 @@ const FINDINGS = [
   },
   {
     title: 'The shadow-DOM risk turned out not to be real',
-    body: 'Mermaid v11 inlines its styles into the returned SVG string and injects nothing into document.head — measured at zero style tags. All three render correctly inside the widget’s shadow root. Bundle weight, not style isolation, is what the widget requirement actually decides.',
+    body: 'Mermaid v11 inlines its styles into the returned SVG string and injects nothing into document.head — measured at zero style tags. Both renderers work correctly inside the widget’s shadow root. Bundle weight, not style isolation, is what the widget requirement actually decides.',
   },
   {
     title: 'beautiful-mermaid is 94% elkjs',
