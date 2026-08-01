@@ -16,7 +16,7 @@ export type RendererProps = {
 }
 
 export type RendererMeta = {
-  key: 'official' | 'beautiful' | 'markdown'
+  key: 'official' | 'beautiful'
   name: string
   pkg: string
   version: string
@@ -40,13 +40,5 @@ export const RENDERER_META: RendererMeta[] = [
     version: '1.1.3',
     mode: 'sync',
     note: 'Zero-DOM, synchronous SVG string. Colors stay as CSS custom properties.',
-  },
-  {
-    key: 'markdown',
-    name: 'react-markdown-mermaid',
-    pkg: 'react-markdown-mermaid',
-    version: '0.0.3',
-    mode: 'async',
-    note: 'Rehype plugin over the existing pipeline. Pins mermaid ^10 — a second engine.',
   },
 ]

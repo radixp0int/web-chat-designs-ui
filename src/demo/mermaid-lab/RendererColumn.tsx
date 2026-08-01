@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react'
 import { OfficialMermaid } from './renderers/OfficialMermaid'
 import { BeautifulMermaid } from './renderers/BeautifulMermaid'
-import { MarkdownMermaid } from './renderers/MarkdownMermaid'
 import type { RendererMeta } from './renderers/types'
 
 type Props = {
@@ -45,7 +44,6 @@ export function RendererColumn({ meta, code, keepLastGood, paused }: Props) {
       <div className="min-w-0 flex-1">
         {meta.key === 'official' && <OfficialMermaid {...shared} />}
         {meta.key === 'beautiful' && <BeautifulMermaid {...shared} />}
-        {meta.key === 'markdown' && <MarkdownMermaid {...shared} />}
       </div>
     </section>
   )
