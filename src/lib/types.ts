@@ -53,6 +53,8 @@ export type Message = {
   tools?: ToolCall[]
   sources?: Source[]
   highlights?: Highlight[]
+  /** Suggested next prompts, written in the user's voice — picking one sends it verbatim. */
+  followups?: string[]
   error?: { message: string; recoverable: boolean }
 }
 
