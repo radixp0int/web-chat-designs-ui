@@ -25,6 +25,8 @@ function translate(event: WSEvent): ChatEvent[] {
       if (event.sources?.length)
         events.push({ type: 'sources', sources: event.sources, highlights: event.highlights })
       events.push({ type: 'done', fullText: event.text })
+      // Follow-ups come after done — they belong to the finished answer.
+      if (event.followups?.length) events.push({ type: 'followups', items: event.followups })
       return events
     }
     case 'tool': {

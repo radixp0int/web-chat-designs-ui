@@ -3,13 +3,20 @@ import { useCite } from '../../citations'
 import { CopyIcon, RefreshIcon, ThumbDownIcon, ThumbUpIcon, CheckIcon, XIcon } from '../icons'
 import { IconButton } from '../icon-button'
 import { Markdown } from '../markdown'
+import { FollowupChips } from '../followup-chips'
 import { SourceStrip } from '../source-strip'
 import { ThinkingBlock } from '../thinking-block'
 import { ToolCallChip } from '../tool-call-chip'
 import { useUiSize } from '../../uiSize'
 import type { ChatMessageProps } from './types'
 
-export function ChatMessage({ message, onRemoveQueued }: ChatMessageProps) {
+export function ChatMessage({
+  message,
+  onRemoveQueued,
+  onFollowup,
+  busy,
+  showActions = true,
+}: ChatMessageProps) {
   const compact = useUiSize() === 'compact'
   const cite = useCite()
   // Opening a citation carries the message's highlights so the reference frame
@@ -112,8 +119,14 @@ export function ChatMessage({ message, onRemoveQueued }: ChatMessageProps) {
           </div>
         )}
 
-        {!message.streaming && !message.thinkingActive && !message.error && message.content && (
-          <ActionRow content={message.content} />
+        {showActions &&
+          !message.streaming &&
+          !message.thinkingActive &&
+          !message.error &&
+          message.content && <ActionRow content={message.content} />}
+
+        {onFollowup && !message.streaming && message.followups && message.followups.length > 0 && (
+          <FollowupChips items={message.followups} onPick={onFollowup} disabled={busy} />
         )}
       </div>
     </div>

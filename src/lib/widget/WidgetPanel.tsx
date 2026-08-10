@@ -71,6 +71,8 @@ export function WidgetPanel({
   const [persona, setPersona] = useState<string>(personas[0]?.id ?? '')
   const scrollRef = useRef<HTMLDivElement>(null)
   const inChat = messages.length > 0
+  // Only the newest turn offers follow-ups, so branches don't stack up the thread.
+  const lastId = messages[messages.length - 1]?.id
 
   // Side rail: openTab drives visibility; lastTab keeps the panel's title and
   // content stable while the close animation plays.
@@ -154,7 +156,13 @@ export function WidgetPanel({
             {inChat ? (
               <div className="flex flex-col gap-5">
                 {messages.map((m) => (
-                  <ChatMessage key={m.id} message={m} onRemoveQueued={onRemoveQueued} />
+                  <ChatMessage
+                    key={m.id}
+                    message={m}
+                    onRemoveQueued={onRemoveQueued}
+                    onFollowup={m.id === lastId ? onSubmit : undefined}
+                    busy={busy}
+                  />
                 ))}
               </div>
             ) : (

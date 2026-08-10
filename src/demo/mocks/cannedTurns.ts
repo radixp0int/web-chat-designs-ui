@@ -69,6 +69,11 @@ export const cannedTurns: CannedTurn[] = [
     content:
       'Here is a synthesis drawn from a **50-document corpus** — the point of this turn is navigation, so the citations jump around on purpose.\n\nThe headline series sits near its five-year median [3], though the fee data tells a different story [17]. Three things stand out:\n\n1. Rate dispersion is widest in the upper band [8], and the pattern repeats across the quarterly cuts [23].\n2. The checklist-style docs [11] and [29] both flag quarter-over-quarter moves that exceed their thresholds — compare them against the summary in [36].\n3. The tail of the corpus is where the caveats live: methodology notes [42], the confidence table [47], and the final reconciliation [50].\n\nJump between [3] and [50] to feel the navigation, or open any middle document like [23] and arrow through its neighbors.',
     sources: makeStressSources(50),
+    followups: [
+      'Summarize just the tail documents',
+      'Which of these docs disagree with each other?',
+      'Show me the methodology notes',
+    ],
   },
   {
     thinking:
@@ -193,6 +198,12 @@ Keep a small starter buffer (**$1,000–$2,000**) even while attacking debt — 
 > The order is a default, not a law. A guaranteed 22% return from paying off a credit card beats any savings account; the reverse is rarely true.`,
       },
     ],
+    followups: [
+      'My surplus is $600 a month — turn this into a schedule',
+      'Should I pay down my card debt before saving?',
+      'How do I pick a high-yield account?',
+      'What counts as an emergency?',
+    ],
   },
   {
     thinking:
@@ -250,6 +261,11 @@ Assumes a **$750/month** base transfer, a small annual raise in month 7, and int
 - Drift **negative two months running**: raise the cadence by the average monthly shortfall.
 - One bad month is noise; two is a trend.`,
       },
+    ],
+    followups: [
+      'Yes, draft the month-by-month table',
+      'What should I do if I miss two months in a row?',
+      'Help me pick a target I can actually hit',
     ],
   },
   {
@@ -314,6 +330,11 @@ Internet, insurance, and phone plans are priced for inertia. A single retention 
 
 **Key detail:** promotions expire silently. Put the expiry date on your calendar the day you accept the offer.`,
       },
+    ],
+    followups: [
+      'Walk me through the subscription audit',
+      'Which bill is worth renegotiating first?',
+      'Draft what I should say on that call',
     ],
   },
 ]

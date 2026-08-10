@@ -122,6 +122,9 @@ export function useChat(responder: Responder) {
                 highlights: event.highlights,
               }))
               break
+            case 'followups':
+              patch(assistantId, () => ({ followups: event.items }))
+              break
             case 'error':
               patch(assistantId, () => ({
                 error: { message: event.message, recoverable: event.recoverable },

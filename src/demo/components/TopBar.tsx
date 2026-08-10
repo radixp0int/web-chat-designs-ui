@@ -1,6 +1,5 @@
 import { Link } from 'react-router'
-import { MODEL_NAME } from '../config'
-import { ChatIcon, ChevronDownIcon, MenuIcon } from '../../lib/components/icons'
+import { ChatIcon, MenuIcon } from '../../lib/components/icons'
 import { ThemeToggle } from './ThemeToggle'
 
 export function TopBar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
@@ -14,17 +13,10 @@ export function TopBar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
       >
         <MenuIcon />
       </button>
-      <button
-        type="button"
-        className="mx-auto flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold text-ink-strong transition hover:bg-tint/6"
-      >
-        {MODEL_NAME}
-        <ChevronDownIcon width={15} height={15} className="text-ink-soft" />
-      </button>
       <Link
         to="/widget-demo"
         title="See the embeddable widget demo"
-        className="glass flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink-soft transition hover:text-accent"
+        className="glass ml-auto flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink-soft transition hover:text-accent"
       >
         <ChatIcon width={16} height={16} />
         <span className="max-sm:hidden">Widget demo</span>

@@ -1,25 +1,44 @@
 import { APP_NAME } from '../config'
+import { personas } from '../personas'
 import {
   ChatIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  FolderIcon,
   LibraryIcon,
-  PlusIcon,
   SearchIcon,
+  SlidersIcon,
+  SparkleIcon,
   XIcon,
 } from '../../lib/components/icons'
 
-const folders = [
+/**
+ * Past conversations, grouped by the persona they were had with. A user is
+ * entitled to some subset of the personas — this one has three of the four, so
+ * Persona 4 never appears here. Names resolve from ../personas so renaming a
+ * persona renames its group.
+ *
+ * Newest first within each group; `when` is a short relative age because the
+ * rail is too narrow for a full date.
+ */
+const history: { personaId: string; chats: { title: string; when: string }[] }[] = [
   {
-    name: 'Wealth Planning',
-    tint: 'text-accent',
-    chats: ['Retirement glide path', 'College fund options', '529 vs custodial account'],
+    personaId: 'persona-1',
+    chats: [
+      { title: 'Retirement glide path', when: '2d' },
+      { title: 'College fund options', when: '5d' },
+      { title: '529 vs custodial account', when: '1w' },
+    ],
   },
   {
-    name: 'Small Business',
-    tint: 'text-brand-fg',
-    chats: ['Cash flow forecast', 'Line of credit questions'],
+    personaId: 'persona-2',
+    chats: [
+      { title: 'Cash flow forecast', when: '3d' },
+      { title: 'Line of credit questions', when: '2w' },
+    ],
+  },
+  {
+    personaId: 'persona-3',
+    chats: [{ title: 'Quarterly tax estimates', when: '3w' }],
   },
 ]
 
@@ -30,9 +49,19 @@ type SidebarProps = {
   onToggleCollapse: () => void
   onClose: () => void
   onNewChat: () => void
+  /** Opens the demo-features modal. The host app owns this menu, so it only
+   *  contributes the entry point — the features themselves live in the chat. */
+  onOpenDemoFeatures: () => void
 }
 
-export function Sidebar({ open, collapsed, onToggleCollapse, onClose, onNewChat }: SidebarProps) {
+export function Sidebar({
+  open,
+  collapsed,
+  onToggleCollapse,
+  onClose,
+  onNewChat,
+  onOpenDemoFeatures,
+}: SidebarProps) {
   return (
     <>
       {/* Mobile scrim */}
@@ -110,49 +139,56 @@ export function Sidebar({ open, collapsed, onToggleCollapse, onClose, onNewChat 
           <SidebarLink icon={<SearchIcon />} label="Search chat" collapsed={collapsed} />
           <SidebarLink icon={<LibraryIcon />} label="Library" collapsed={collapsed} />
 
-          {/* Folders — too detailed for the slim rail, so hidden when collapsed. */}
+          {/* Recent conversations — too detailed for the slim rail, so hidden
+              when collapsed. Each persona owns its own branch of history, so
+              every group carries its own spine rather than sharing one. */}
           <div className={collapsed ? 'lg:hidden' : ''}>
-            <div className="mt-5 mb-1 flex items-center justify-between px-2">
+            <div className="mt-5 mb-1 px-2">
               <span className="text-[11px] font-semibold tracking-[0.14em] text-ink-soft uppercase">
-                Folders
+                Recent
               </span>
-              <button
-                type="button"
-                className="rounded-md p-1 text-ink-soft transition hover:text-accent"
-                aria-label="New folder"
-              >
-                <PlusIcon width={15} height={15} />
-              </button>
             </div>
 
-            {folders.map((folder) => (
-              <div key={folder.name} className="mb-1.5">
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-2.5 rounded-xl px-2 py-2 text-sm font-medium text-ink transition hover:bg-panel"
-                >
-                  <FolderIcon className={folder.tint} width={17} height={17} />
-                  {folder.name}
-                </button>
-                <ul className="ml-[13px] border-l border-line pl-4">
-                  {folder.chats.map((chat) => (
-                    <li key={chat}>
-                      <button
-                        type="button"
-                        className="block w-full truncate rounded-lg px-2 py-1.5 text-left text-[13px] text-ink-soft transition hover:bg-panel hover:text-ink"
-                      >
-                        {chat}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+            {history.map(({ personaId, chats }) => {
+              const persona = personas.find((p) => p.id === personaId)
+              if (!persona) return null
+              return (
+                <div key={personaId} className="mb-1.5">
+                  {/* The persona names the group; the conversations are what you
+                      act on, so this is a heading and not a button. */}
+                  <h3
+                    title={persona.hint}
+                    className="flex items-center gap-2.5 px-2 py-2 text-sm font-medium text-ink"
+                  >
+                    <SparkleIcon className="shrink-0 text-accent" width={17} height={17} />
+                    <span className="truncate">{persona.name}</span>
+                  </h3>
+                  <ul className="ml-[13px] border-l border-ink-soft/25 pl-4">
+                    {chats.map(({ title, when }) => (
+                      <li key={title}>
+                        <button
+                          type="button"
+                          title={title}
+                          className="group flex w-full items-baseline gap-2 rounded-lg px-2 py-1.5 text-left transition hover:bg-panel"
+                        >
+                          <span className="min-w-0 flex-1 truncate text-[13px] text-ink-soft transition group-hover:text-ink">
+                            {title}
+                          </span>
+                          <span className="shrink-0 text-[11px] text-ink-soft/70">{when}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            })}
           </div>
         </nav>
 
+        {/* The slim rail is too narrow for the profile and the demo control side
+            by side, so the footer stacks there — same trick as the header. */}
         <div className={`border-t border-line px-5 py-4 ${collapsed ? 'lg:px-3' : ''}`}>
-          <div className={`flex items-center gap-3 ${collapsed ? 'lg:justify-center' : ''}`}>
+          <div className={`flex items-center gap-3 ${collapsed ? 'lg:flex-col lg:gap-2.5' : ''}`}>
             <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-solid text-xs font-bold text-on-brand-solid">
               JO
             </span>
@@ -160,6 +196,17 @@ export function Sidebar({ open, collapsed, onToggleCollapse, onClose, onNewChat 
               <div className="truncate font-semibold text-ink-strong">John Ozzo</div>
               <div className="truncate text-ink-soft">Performance plan</div>
             </div>
+            <button
+              type="button"
+              onClick={onOpenDemoFeatures}
+              aria-label="Demo features"
+              title="Demo features"
+              className={`shrink-0 rounded-lg p-1.5 text-ink-soft transition hover:bg-panel hover:text-ink-strong ${
+                collapsed ? 'lg:ml-0' : 'ml-auto'
+              }`}
+            >
+              <SlidersIcon width={17} height={17} />
+            </button>
           </div>
         </div>
       </aside>

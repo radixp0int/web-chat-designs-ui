@@ -14,6 +14,8 @@ type ConversationViewProps = {
   onSteer: (text: string) => void
   onRemoveQueued: (id: number) => void
   personas: Persona[]
+  /** Demo toggle: the copy / regenerate / vote row under a finished answer. */
+  showActions?: boolean
 }
 
 /**
@@ -29,10 +31,13 @@ export function ConversationView({
   onSteer,
   onRemoveQueued,
   personas,
+  showActions = true,
 }: ConversationViewProps) {
   const [persona, setPersona] = useState<string>(personas[0].id)
   const scrollRef = useRef<HTMLDivElement>(null)
   const inChat = messages.length > 0
+  // Only the newest turn offers follow-ups, so branches don't stack up the thread.
+  const lastId = messages[messages.length - 1]?.id
 
   // Keep the newest message in view while it streams.
   useEffect(() => {
@@ -63,7 +68,14 @@ export function ConversationView({
           {inChat ? (
             <div className="flex flex-col gap-7">
               {messages.map((m) => (
-                <ChatMessage key={m.id} message={m} onRemoveQueued={onRemoveQueued} />
+                <ChatMessage
+                  key={m.id}
+                  message={m}
+                  onRemoveQueued={onRemoveQueued}
+                  onFollowup={m.id === lastId ? onSubmit : undefined}
+                  busy={busy}
+                  showActions={showActions}
+                />
               ))}
             </div>
           ) : (

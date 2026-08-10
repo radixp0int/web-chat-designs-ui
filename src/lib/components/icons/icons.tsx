@@ -136,6 +136,16 @@ export const FunnelIcon = (p: IconProps) => (
   </svg>
 )
 
+/** Three tracks with offset handles — "adjust these", not "app preferences". */
+export const SlidersIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M4 7h6M14 7h6M4 12h12M4 17h3M11 17h9" />
+    <circle cx="12" cy="7" r="2" />
+    <circle cx="18" cy="12" r="2" />
+    <circle cx="9" cy="17" r="2" />
+  </svg>
+)
+
 export const HistoryIcon = (p: IconProps) => (
   <svg {...base(p)}>
     <path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1M3.5 4.5V9H8" />

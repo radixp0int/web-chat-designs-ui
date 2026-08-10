@@ -90,6 +90,8 @@ export interface SummaryEvent extends StreamComplete {
   sources?: WSSource[]
   /** Passages to highlight in the cited source docs, keyed by referenceNumber. */
   highlights?: WSHighlight[]
+  /** Suggested next prompts, phrased as the user would type them. */
+  followups?: string[]
 }
 
 /** Where a tool call is in its life. */

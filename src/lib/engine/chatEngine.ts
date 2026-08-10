@@ -19,6 +19,7 @@ export type ChatEvent =
   | { type: 'done'; fullText?: string }
   | { type: 'tool'; toolCall: ToolCall }
   | { type: 'sources'; sources: Source[]; highlights?: Highlight[] }
+  | { type: 'followups'; items: string[] }
   | { type: 'error'; message: string; recoverable: boolean }
 
 export type Responder = (prompt: string, signal: AbortSignal) => AsyncGenerator<ChatEvent>
@@ -29,6 +30,8 @@ export type CannedTurn = {
   sources?: Source[]
   /** Passages to highlight in this turn's cited source docs (by referenceNumber). */
   highlights?: Highlight[]
+  /** Suggested next prompts, phrased as the user would type them. */
+  followups?: string[]
   /** When set, a prompt matching this pattern plays this turn instead of the
    *  next one in the cycle — handy for demo turns you want on demand. */
   match?: RegExp
@@ -92,5 +95,9 @@ export function createCannedResponder(turns: CannedTurn[]): Responder {
       await sleep(PACING.perContentWord, signal)
     }
     yield { type: 'done' }
+
+    // Follow-ups land last: nothing in the answer text resolves against them,
+    // and they only make sense once the reader has the whole answer.
+    if (turn.followups?.length) yield { type: 'followups', items: turn.followups }
   }
 }
