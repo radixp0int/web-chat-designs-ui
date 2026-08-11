@@ -92,7 +92,7 @@ export function MermaidLabPage() {
                       onClick={() => setSample(s)}
                       className={`rounded-full px-3 py-1 text-xs font-medium transition ${
                         sample.id === s.id
-                          ? 'bg-selected text-on-selected'
+                          ? 'bg-brand-solid text-on-brand-solid'
                           : 'bg-tint/8 text-ink-soft hover:bg-tint/16 hover:text-ink-strong'
                       }`}
                     >

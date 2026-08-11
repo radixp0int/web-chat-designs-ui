@@ -10,6 +10,7 @@ import {
   SparkleIcon,
   XIcon,
 } from '../../lib/components/icons'
+import { IconButton } from '../../lib/components/icon-button'
 
 /**
  * Past conversations, grouped by the persona they were had with. A user is
@@ -106,15 +107,16 @@ export function Sidebar({
           >
             {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </button>
-          {/* Mobile close */}
-          <button
-            type="button"
+          {/* Mobile close — touch-only, so it takes the 44px variant. */}
+          <IconButton
+            size="lg"
+            shape="rounded"
             onClick={onClose}
-            className="ml-auto rounded-lg p-1.5 text-ink-soft hover:text-ink-strong lg:hidden"
+            className="ml-auto lg:hidden"
             aria-label="Close sidebar"
           >
             <XIcon />
-          </button>
+          </IconButton>
         </div>
 
         <div className={`px-4 ${collapsed ? 'lg:px-3' : ''}`}>

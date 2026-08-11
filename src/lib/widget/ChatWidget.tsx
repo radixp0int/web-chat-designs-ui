@@ -69,7 +69,7 @@ export function ChatWidget({
   const dark = useHostTheme(themeMode)
   const profile = useProfile()
 
-  const { messages, busy, send, stop, steer, removeQueued, reset } = useChat(responder)
+  const { messages, busy, send, stop, steer, retry, removeQueued, reset } = useChat(responder)
 
   useEffect(() => {
     controller.current = {
@@ -148,6 +148,7 @@ export function ChatWidget({
                 onStop={stop}
                 onSteer={steer}
                 onRemoveQueued={removeQueued}
+                onRetry={retry}
                 onReset={newChat}
                 onToggleExpand={toggleExpand}
                 onMinimize={minimize}

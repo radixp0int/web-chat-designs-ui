@@ -24,7 +24,15 @@ function translate(event: WSEvent): ChatEvent[] {
       const events: ChatEvent[] = []
       if (event.sources?.length)
         events.push({ type: 'sources', sources: event.sources, highlights: event.highlights })
-      events.push({ type: 'done', fullText: event.text })
+      events.push({
+        type: 'done',
+        fullText: event.text,
+        model: event.model,
+        tokens: event.tokens,
+        // Faults the server tallied rather than streamed. `type` isn't part of
+        // the fault shape, and `recoverable` rides alongside it on the client.
+        errors: event.errors?.map(({ recoverable: _r, ...fault }) => fault),
+      })
       // Follow-ups come after done — they belong to the finished answer.
       if (event.followups?.length) events.push({ type: 'followups', items: event.followups })
       return events
@@ -33,8 +41,12 @@ function translate(event: WSEvent): ChatEvent[] {
       const { name, toolCallId, status, input, output, error } = event
       return [{ type: 'tool', toolCall: { name, toolCallId, status, input, output, error } }]
     }
-    case 'error':
-      return [{ type: 'error', message: event.message, recoverable: event.recoverable }]
+    case 'error': {
+      // Everything but the envelope and `recoverable` is the fault itself, so
+      // `code`/`source`/`count`/`detail` all survive to the UI.
+      const { type: _t, streamId: _s, timestamp: _ts, recoverable, ...fault } = event
+      return [{ type: 'error', fault, recoverable }]
+    }
     default:
       return []
   }
@@ -72,7 +84,11 @@ export function createWsResponder(url: string): Responder {
       if (socket.readyState !== WebSocket.OPEN) {
         push({
           type: 'error',
-          message: `Demo server not reachable at ${url}. Start it with \`npm run dev\` in chat-ws-server.`,
+          fault: {
+            message: `Demo server not reachable at ${url}. Start it with \`npm run dev\` in chat-ws-server.`,
+            code: 'SOCKET_UNREACHABLE',
+            source: 'transport',
+          },
           recoverable: false,
         })
       }

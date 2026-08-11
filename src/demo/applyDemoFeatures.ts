@@ -10,7 +10,8 @@ import type { DemoFlags } from './demoFeatures'
  * `actions` has no field to strip; it rides the ChatMessage `showActions` prop.
  */
 export function applyDemoFeatures(messages: Message[], flags: DemoFlags): Message[] {
-  if (flags.thinking && flags.tools && flags.sources && flags.followups) return messages
+  if (flags.thinking && flags.tools && flags.sources && flags.followups && flags.trace)
+    return messages
 
   return messages.map((m) => {
     if (m.role !== 'assistant') return m
@@ -28,6 +29,9 @@ export function applyDemoFeatures(messages: Message[], flags: DemoFlags): Messag
       delete next.highlights
     }
     if (!flags.followups) delete next.followups
+    // Only the trace goes — a failed turn keeps its error alert, which is a
+    // recovery path rather than a detail the presenter would switch off.
+    if (!flags.trace) delete next.trace
     return next
   })
 }

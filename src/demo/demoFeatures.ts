@@ -9,7 +9,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from 'rea
  * happens by stripping message fields (see applyDemoFeatures) so no shared
  * component has to know a flag exists.
  */
-export type DemoFeatureId = 'thinking' | 'tools' | 'sources' | 'followups' | 'actions'
+export type DemoFeatureId = 'thinking' | 'tools' | 'sources' | 'followups' | 'actions' | 'trace'
 
 export type DemoFlags = Record<DemoFeatureId, boolean>
 
@@ -19,6 +19,7 @@ export const DEFAULT_FLAGS: DemoFlags = {
   sources: true,
   followups: true,
   actions: true,
+  trace: true,
 }
 
 export const DEMO_FEATURES: Record<DemoFeatureId, { label: string; hint: string }> = {
@@ -42,6 +43,10 @@ export const DEMO_FEATURES: Record<DemoFeatureId, { label: string; hint: string 
     label: 'Message actions',
     hint: 'Copy, regenerate, and the thumbs-up / thumbs-down vote.',
   },
+  trace: {
+    label: 'Turn details',
+    hint: 'The answer’s duration, opening onto a timeline of what the turn did.',
+  },
 }
 
 /** Grouped by where the feature lands in a streamed turn — the order a
@@ -49,7 +54,7 @@ export const DEMO_FEATURES: Record<DemoFeatureId, { label: string; hint: string 
 export const DEMO_FEATURE_GROUPS: { phase: string; features: DemoFeatureId[] }[] = [
   { phase: 'Before the answer', features: ['thinking', 'tools'] },
   { phase: 'In the answer', features: ['sources'] },
-  { phase: 'After the answer', features: ['followups', 'actions'] },
+  { phase: 'After the answer', features: ['followups', 'actions', 'trace'] },
 ]
 
 const STORAGE_KEY = 'demo-features'

@@ -10,6 +10,73 @@ export type ToolCall = {
   error?: string
 }
 
+/**
+ * One problem reported during a turn — a dropped connection, a failed tool, a
+ * degraded subsystem.
+ *
+ * Responders report these two ways and both end up here: streamed as they
+ * happen (which is how the fault earns a place on the timeline), or listed in
+ * bulk when the answer completes (which is how a server that only tallies
+ * problems at the end reports them). Everything past `message` is optional, so
+ * a responder that knows nothing but the text still works.
+ */
+export type TurnFault = {
+  message: string
+  /** Stable machine code, when the responder supplies one. Also the identity
+   *  used to dedupe a fault that arrives by both routes. */
+  code?: string
+  /** Which part of the turn it came from — 'retrieval', 'tool:live_quote'. */
+  source?: string
+  /** Times it occurred, when the responder collapses repeats. */
+  count?: number
+  /** Structured payload; the row expands to show it as JSON. */
+  detail?: Record<string, unknown>
+}
+
+/**
+ * One phase of an assistant turn, timed from the turn's start. Reasoning,
+ * answering, and each tool call get a step; so does any fault, which is the
+ * only kind carrying a `fault` payload.
+ */
+export type TurnStep = {
+  /** Unique within a turn. Tool steps use their toolCallId. */
+  id: string
+  /** 'Reasoning', 'Answering', or the tool's own name. */
+  label: string
+  kind: 'thinking' | 'tool' | 'content' | 'fault'
+  /**
+   * Milliseconds from the turn's start. Absent on a fault the server reported
+   * only at the end — we genuinely don't know when it happened, and inventing
+   * a timestamp would put it in the wrong place on the timeline.
+   */
+  at?: number
+  /** How long the step ran; absent while it is still open. */
+  ms?: number
+  /** Only on 'fault' steps. */
+  fault?: TurnFault
+}
+
+/**
+ * What happened during one assistant turn: how long it took, and what it did
+ * along the way.
+ *
+ * `status` is the turn's outcome, which a single error flag can't express:
+ * 'recovered' means something went wrong mid-stream but the answer still
+ * arrived, so the reader has nothing to act on; 'stopped' means they ended it
+ * themselves. Only 'failed' means there is no answer — and only 'failed' sets
+ * `Message.error`.
+ */
+export type TurnTrace = {
+  status: 'ok' | 'recovered' | 'stopped' | 'failed'
+  /** Epoch ms the turn started; every step's `at` is relative to this. */
+  startedAt: number
+  /** Total wall time; absent while the turn is still streaming. */
+  ms?: number
+  model?: string
+  tokens?: number
+  steps: TurnStep[]
+}
+
 /** A reference document the assistant cites with inline [n] markers. */
 export type Source = {
   id: number
@@ -55,7 +122,17 @@ export type Message = {
   highlights?: Highlight[]
   /** Suggested next prompts, written in the user's voice — picking one sends it verbatim. */
   followups?: string[]
-  error?: { message: string; recoverable: boolean }
+  /** What the turn did and how long it took. Assistant messages only. */
+  trace?: TurnTrace
+  /**
+   * Set only when the turn produced no answer. A recoverable fault is not an
+   * error the reader has to act on — it lands on `trace` as a 'fault' step
+   * instead, so a turn that stumbled and then answered still reads as answered.
+   *
+   * Carries the same shape as a recoverable fault, so a fatal error gets a code
+   * and a source too.
+   */
+  error?: TurnFault
 }
 
 /** A selectable assistant persona shown in the composer's persona menu. */
