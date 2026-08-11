@@ -1,4 +1,4 @@
-/** Error state shared by all three renderer panels. */
+/** Error state shared by both renderer panels. */
 export function ErrorBox({ message, stale }: { message: string; stale?: boolean }) {
   return (
     <div className="rounded-xl border border-danger/30 bg-danger/8 p-3">

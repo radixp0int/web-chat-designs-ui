@@ -224,5 +224,3 @@ export const SAMPLES: Sample[] = [
   style C fill:#e0f2fe,stroke:#0284c7`,
   },
 ]
-
-export const SAMPLES_BY_ID = new Map(SAMPLES.map((s) => [s.id, s]))
