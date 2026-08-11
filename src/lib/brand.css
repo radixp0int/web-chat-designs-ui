@@ -51,6 +51,13 @@
   --panel: var(--panel-light);
   --panel-solid: var(--panel-solid-light);
   --line: color-mix(in srgb, var(--brand-800) 10%, transparent);
+  /* The rail down the inside of a turn (reasoning, tool payloads, the trace
+     timeline). It carries meaning rather than decoration, so WCAG 2.2 SC 1.4.11
+     applies and it needs 3:1 — which the accent can't reach even at full
+     strength (~3.04:1 here, the same shortfall noted for --focus-ring below).
+     The alpha is baked in on purpose: components use a bare `border-rail`, so
+     no one can reintroduce an opacity modifier and quietly break the ratio. */
+  --rail: color-mix(in srgb, var(--brand-600) 70%, transparent);
   --scrim: var(--brand-950);
   --canvas-glow-a: color-mix(in srgb, var(--brand-600) 8%, transparent);
   --canvas-glow-b: color-mix(in srgb, var(--accent-500) 7%, transparent);
@@ -85,10 +92,12 @@
   /* brand — the identity colour */
   --brand-fg: var(--brand-500); /* brand legible on --canvas (links, tints) */
   --brand-fg-hover: var(--brand-600);
-  --brand-solid: var(--brand-600); /* solid brand fill (avatar) */
+  /* Every solid brand fill: the send/stop button, the sidebar avatar, a
+     selected row. One pair rather than three — this and the old --selected
+     resolved to the same two values here, and duplicate names are three places
+     to remember when re-theming instead of one. */
+  --brand-solid: var(--brand-600);
   --on-brand-solid: #ffffff;
-  --selected: var(--brand-600); /* selected pill */
-  --on-selected: #ffffff;
   --chip: color-mix(in oklab, var(--brand-600) 10%, transparent); /* chip fill */
   --chip-hover: color-mix(in oklab, var(--brand-600) 20%, transparent);
   --chip-fg: var(--brand-600);
@@ -145,6 +154,9 @@
 
   /* on a dark canvas the neutral wash lifts rather than deepens */
   --tint: #ffffff;
+  /* Same lift for the rail — a light neutral rather than the brand blue, which
+     goes muddy against a navy canvas. 45% clears 3:1 in every shipped theme. */
+  --rail: color-mix(in srgb, #ffffff 45%, transparent);
   --code: color-mix(in oklab, #ffffff 10%, transparent);
   --code-block: color-mix(in oklab, #ffffff 5%, transparent);
 
@@ -154,8 +166,13 @@
 
   --brand-fg: var(--brand-300);
   --brand-fg-hover: var(--brand-200);
-  --selected: var(--brand-300);
-  --on-selected: var(--brand-950);
+  /* A solid fill has two contrast constraints at once — the fill against the
+     panel, and the glyph against the fill — and no blue in the ramp clears both
+     on a dark canvas (600 is 1.89:1 on the panel, 300 drops a white glyph to
+     2.41:1). So dark inverts instead: a near-white fill with a deep glyph, the
+     same lift --rail and --tint already make. Don't "fix" this back to blue. */
+  --brand-solid: var(--brand-50);
+  --on-brand-solid: var(--brand-950);
   --chip: color-mix(in oklab, var(--brand-300) 15%, transparent);
   --chip-hover: color-mix(in oklab, var(--brand-300) 25%, transparent);
   --chip-fg: var(--brand-200);

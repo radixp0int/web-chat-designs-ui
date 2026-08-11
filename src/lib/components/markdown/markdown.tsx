@@ -121,9 +121,7 @@ export function Markdown({
     ),
     tr: ({ children }) => <tr className="last:[&>td]:border-b-0">{children}</tr>,
     blockquote: ({ children }) => (
-      <blockquote className="my-3 border-l-2 border-accent/40 pl-4 text-ink-soft italic">
-        {children}
-      </blockquote>
+      <blockquote className="turn-rail my-3 pl-4 text-ink-soft italic">{children}</blockquote>
     ),
     hr: () => <hr className="my-4 border-line" />,
   }

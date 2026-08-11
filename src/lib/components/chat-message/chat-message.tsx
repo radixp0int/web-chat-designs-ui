@@ -7,13 +7,16 @@ import { FollowupChips } from '../followup-chips'
 import { SourceStrip } from '../source-strip'
 import { ThinkingBlock } from '../thinking-block'
 import { ToolCallChip } from '../tool-call-chip'
+import { TurnTraceFailure, TurnTraceHandle, TurnTracePanel } from '../turn-trace'
 import { useUiSize } from '../../uiSize'
+import type { TurnTrace as Trace } from '../../types'
 import type { ChatMessageProps } from './types'
 
 export function ChatMessage({
   message,
   onRemoveQueued,
   onFollowup,
+  onRetry,
   busy,
   showActions = true,
 }: ChatMessageProps) {
@@ -39,15 +42,14 @@ export function ChatMessage({
           <div className="mt-1 flex items-center gap-1 text-[11px] text-ink-soft">
             <span>Queued</span>
             {onRemoveQueued && (
-              <button
-                type="button"
+              <IconButton
+                size="sm"
                 onClick={() => onRemoveQueued(message.id)}
                 aria-label="Remove from queue"
                 title="Remove from queue"
-                className="rounded-full p-0.5 transition hover:bg-tint/10 hover:text-ink-strong"
               >
                 <XIcon width={12} height={12} />
-              </button>
+              </IconButton>
             )}
           </div>
         )}
@@ -105,25 +107,27 @@ export function ChatMessage({
           <SourceStrip sources={message.sources} onCite={onCite} />
         )}
 
+        {/* Only a turn that produced no answer lands here — a recoverable
+            hiccup is recorded on the trace instead, so a good answer is never
+            wrapped in a red box. */}
         {message.error && (
-          <div
-            role="alert"
-            className={`mt-3 rounded-2xl border border-danger/30 bg-danger/8 text-danger-fg ${
-              compact ? 'px-3 py-2 text-xs' : 'px-4 py-2.5 text-[13px]'
-            }`}
-          >
-            <span className="font-medium">
-              {message.error.recoverable ? 'Hiccup in the stream. ' : 'Something went wrong. '}
-            </span>
-            {message.error.message}
-          </div>
+          <TurnTraceFailure
+            reason={message.error.message}
+            trace={message.trace}
+            onRetry={onRetry && (() => onRetry(message.id))}
+            busy={busy}
+          />
         )}
 
+        {/* A failed turn is deliberately excluded: its own block owns the
+            recovery action, and a Regenerate button sitting under a Retry makes
+            two controls compete for the same job. Recovered turns are unaffected
+            — a hiccup no longer sets `error`, so they keep their actions. */}
         {showActions &&
           !message.streaming &&
           !message.thinkingActive &&
           !message.error &&
-          message.content && <ActionRow content={message.content} />}
+          message.content && <ActionRow content={message.content} trace={message.trace} />}
 
         {onFollowup && !message.streaming && message.followups && message.followups.length > 0 && (
           <FollowupChips items={message.followups} onPick={onFollowup} disabled={busy} />
@@ -133,63 +137,82 @@ export function ChatMessage({
   )
 }
 
-function ActionRow({ content }: { content: string }) {
+function ActionRow({ content, trace }: { content: string; trace?: Trace }) {
   const compact = useUiSize() === 'compact'
   const [copied, setCopied] = useState(false)
   const [vote, setVote] = useState<'up' | 'down' | null>(null)
+  // Held here rather than inside TurnTrace so the handle can sit at the row's
+  // right edge while its panel expands full-width underneath.
+  const [traceOpen, setTraceOpen] = useState(false)
 
   const iconSize = compact ? 14 : 15
   const actionSize = compact ? 'sm' : 'md'
 
   return (
-    <div className="mt-3 flex items-center gap-0.5">
-      <IconButton
-        shape="rounded"
-        size={actionSize}
-        onClick={() => {
-          navigator.clipboard?.writeText(content)
-          setCopied(true)
-          setTimeout(() => setCopied(false), 1500)
-        }}
-        aria-label="Copy response"
-        title="Copy"
-      >
-        {copied ? (
-          <CheckIcon width={iconSize} height={iconSize} className="text-accent" />
-        ) : (
-          <CopyIcon width={iconSize} height={iconSize} />
+    <div className="mt-3">
+      {/* gap-1 rather than gap-0.5: the targets are 36px now, and abutting hit
+          areas make a mis-tap land on the neighbouring action. */}
+      <div className="flex items-center gap-1">
+        <IconButton
+          shape="rounded"
+          size={actionSize}
+          onClick={() => {
+            navigator.clipboard?.writeText(content)
+            setCopied(true)
+            setTimeout(() => setCopied(false), 1500)
+          }}
+          aria-label="Copy response"
+          title="Copy"
+        >
+          {copied ? (
+            <CheckIcon width={iconSize} height={iconSize} className="text-accent" />
+          ) : (
+            <CopyIcon width={iconSize} height={iconSize} />
+          )}
+        </IconButton>
+        <IconButton
+          shape="rounded"
+          size={actionSize}
+          aria-label="Regenerate response"
+          title="Regenerate"
+        >
+          <RefreshIcon width={iconSize} height={iconSize} />
+        </IconButton>
+        <IconButton
+          shape="rounded"
+          size={actionSize}
+          active={vote === 'up'}
+          onClick={() => setVote(vote === 'up' ? null : 'up')}
+          aria-label="Good response"
+          aria-pressed={vote === 'up'}
+          title="Good response"
+        >
+          <ThumbUpIcon width={iconSize} height={iconSize} />
+        </IconButton>
+        <IconButton
+          shape="rounded"
+          size={actionSize}
+          active={vote === 'down'}
+          onClick={() => setVote(vote === 'down' ? null : 'down')}
+          aria-label="Poor response"
+          aria-pressed={vote === 'down'}
+          title="Poor response"
+        >
+          <ThumbDownIcon width={iconSize} height={iconSize} />
+        </IconButton>
+
+        {trace && (
+          <div className="ml-auto">
+            <TurnTraceHandle
+              trace={trace}
+              open={traceOpen}
+              onToggle={() => setTraceOpen((o) => !o)}
+            />
+          </div>
         )}
-      </IconButton>
-      <IconButton
-        shape="rounded"
-        size={actionSize}
-        aria-label="Regenerate response"
-        title="Regenerate"
-      >
-        <RefreshIcon width={iconSize} height={iconSize} />
-      </IconButton>
-      <IconButton
-        shape="rounded"
-        size={actionSize}
-        active={vote === 'up'}
-        onClick={() => setVote(vote === 'up' ? null : 'up')}
-        aria-label="Good response"
-        aria-pressed={vote === 'up'}
-        title="Good response"
-      >
-        <ThumbUpIcon width={iconSize} height={iconSize} />
-      </IconButton>
-      <IconButton
-        shape="rounded"
-        size={actionSize}
-        active={vote === 'down'}
-        onClick={() => setVote(vote === 'down' ? null : 'down')}
-        aria-label="Poor response"
-        aria-pressed={vote === 'down'}
-        title="Poor response"
-      >
-        <ThumbDownIcon width={iconSize} height={iconSize} />
-      </IconButton>
+      </div>
+
+      {trace && <TurnTracePanel trace={trace} open={traceOpen} />}
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { useBranding } from '../../branding'
 import { XIcon } from '../icons'
+import { IconButton } from '../icon-button'
 import type { FiltersPanelProps } from './types'
 
 /** Currently selected filter chips, grouped by facet. UI only for now. */
@@ -42,18 +43,20 @@ export function FiltersPanel({ filters, onRemove, onClear }: FiltersPanelProps) 
               .map((f) => (
                 <span
                   key={f.id}
-                  className="flex items-center gap-1 rounded-lg border border-line py-1 pr-1 pl-2 text-xs text-ink"
+                  className="flex items-center gap-1 rounded-lg border border-line py-0.5 pr-0.5 pl-2.5 text-xs text-ink"
                 >
                   {f.label}
-                  <button
-                    type="button"
+                  {/* The chip hugs the button rather than the glyph — the X stays
+                      11px, but its target is 32. */}
+                  <IconButton
+                    size="sm"
+                    shape="rounded"
                     onClick={() => onRemove(f.id)}
                     aria-label={`Remove ${f.label} filter`}
                     title="Remove"
-                    className="rounded p-0.5 text-ink-soft transition hover:bg-tint/8 hover:text-ink-strong"
                   >
                     <XIcon width={11} height={11} />
-                  </button>
+                  </IconButton>
                 </span>
               ))}
           </div>

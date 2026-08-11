@@ -59,9 +59,7 @@ export function ToolCallChip({ tool }: ToolCallChipProps) {
       )}
 
       {expandable && open && (
-        <div
-          className={`mt-1.5 ml-[7px] space-y-1.5 border-l-2 border-accent/40 ${compact ? 'pl-3' : 'pl-4'}`}
-        >
+        <div className={`turn-rail mt-1.5 space-y-1.5 ${compact ? 'pl-3' : 'pl-4'}`}>
           {tool.input !== undefined && <ToolPayload label="Input" value={tool.input} />}
           {tool.output !== undefined && <ToolPayload label="Output" value={tool.output} />}
         </div>

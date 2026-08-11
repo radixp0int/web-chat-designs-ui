@@ -32,7 +32,7 @@ function App() {
   )
   const [citation, setCitation] = useState<CitationState>(null)
   const [demoOpen, setDemoOpen] = useState(false)
-  const { messages, busy, send, stop, steer, removeQueued, reset } = useChat(responder)
+  const { messages, busy, send, stop, steer, retry, removeQueued, reset } = useChat(responder)
   // Held here rather than read from context: the shell needs the flags in its
   // own render to gate the messages, and provides the same object below.
   const demo = useDemoFeatureState()
@@ -85,6 +85,7 @@ function App() {
                   onStop={stop}
                   onSteer={steer}
                   onRemoveQueued={removeQueued}
+                  onRetry={retry}
                   personas={personas}
                 />
               </div>

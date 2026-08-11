@@ -37,6 +37,7 @@ type WidgetPanelProps = {
   onStop: () => void
   onSteer: (text: string) => void
   onRemoveQueued: (id: number) => void
+  onRetry: (id: number) => void
   onReset: () => void
   onToggleExpand: () => void
   onMinimize: () => void
@@ -62,6 +63,7 @@ export function WidgetPanel({
   onStop,
   onSteer,
   onRemoveQueued,
+  onRetry,
   onReset,
   onToggleExpand,
   onMinimize,
@@ -160,6 +162,7 @@ export function WidgetPanel({
                     key={m.id}
                     message={m}
                     onRemoveQueued={onRemoveQueued}
+                    onRetry={onRetry}
                     onFollowup={m.id === lastId ? onSubmit : undefined}
                     busy={busy}
                   />

@@ -337,7 +337,37 @@ Internet, insurance, and phone plans are priced for inertia. A single retention 
       'Draft what I should say on that call',
     ],
   },
+  // Kept out of the cycle (it has a `match`) and played on demand: the answer
+  // survives a mid-stream drop, so the turn ends up 'recovered' rather than
+  // failed. Exercises the one state that is easy to get wrong — a good answer
+  // that must not be dressed up as a problem.
+  {
+    match: /hiccup|recover|drop|flaky|glitch/i,
+    thinking:
+      'The user wants to see what a turn looks like when the stream stumbles partway through. The answer itself is unremarkable — the point is that nothing about it should look alarming afterwards.',
+    content:
+      'Here is a normal answer that happens to arrive over an unreliable connection.\n\nThe stream drops partway through this paragraph and picks up again where it left off. Nothing is lost, and nothing is repeated — the reconnect is invisible in the text itself.\n\nWhen it finishes, the only trace of the interruption is the word **recovered** next to the duration under this message. Open it to see where the drop landed on the timeline. There is no badge, no warning tint, and the copy and regenerate controls stay exactly where they were, because from your side nothing actually went wrong.',
+    followups: ['What happens when the stream fails completely?', 'Show me a normal turn again'],
+    fault: { at: 0.35, message: 'Connection dropped and resumed' },
+  },
+  // The other half of the pair: the same drop, except it never comes back. The
+  // turn keeps what it streamed and the rail frays where the answer stops.
+  {
+    match: /fail|fatal|dead|completely|break/i,
+    thinking:
+      'This one is meant to die partway. What matters is what the reader is left with: enough of the answer to see where it got to, and a way to run it again.',
+    content:
+      'A turn can also stop for good. This sentence is as far as this one gets before the connection goes',
+    fault: { at: 0.72, message: 'Connection lost. The model stopped responding.', fatal: true },
+  },
 ]
+
+// Illustrative metadata for the trace panel. Applied after the fact, like the
+// highlights below, so the turn literals above stay about their content.
+for (const turn of cannedTurns) {
+  turn.model = 'Claude Sonnet 5'
+  turn.tokens = Math.round((turn.thinking.length + turn.content.length) / 4)
+}
 
 // Highlights are attached after the fact so each spec resolves against that
 // turn's own source markdown — offsets index the source doc, not the answer.

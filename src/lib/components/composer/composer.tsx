@@ -90,20 +90,19 @@ export function Composer({
           {attachments.map((name) => (
             <span
               key={name}
-              className={`flex items-center gap-1.5 rounded-full bg-chip py-1 pr-1.5 pl-3 font-medium text-chip-fg ${
+              className={`flex items-center gap-1.5 rounded-full bg-chip py-0.5 pr-0.5 pl-3 font-medium text-chip-fg ${
                 compact ? 'text-[11px]' : 'text-xs'
               }`}
             >
               <PaperclipIcon width={13} height={13} />
               <span className={compact ? 'max-w-28 truncate' : 'max-w-40 truncate'}>{name}</span>
-              <button
-                type="button"
+              <IconButton
+                size="sm"
                 onClick={() => setAttachments((a) => a.filter((n) => n !== name))}
-                className="rounded-full p-0.5 hover:bg-tint/15"
                 aria-label={`Remove ${name}`}
               >
                 <XIcon width={12} height={12} />
-              </button>
+              </IconButton>
             </span>
           ))}
         </div>
@@ -180,13 +179,13 @@ export function Composer({
             title="Voice to text"
             className={`relative rounded-full transition ${compact ? 'p-1.5' : 'p-2'} ${
               speech.listening
-                ? 'bg-accent/15 text-accent-fg'
+                ? 'bg-brand-fg/15 text-brand-fg'
                 : 'text-ink-soft hover:bg-tint/8 hover:text-ink-strong'
             }`}
           >
             {speech.listening && (
               <span
-                className="absolute inset-0 animate-ping rounded-full bg-accent/30"
+                className="absolute inset-0 animate-ping rounded-full bg-brand-fg/30"
                 aria-hidden
               />
             )}
@@ -210,7 +209,7 @@ export function Composer({
                 onClick={() => submit({ steer: true })}
                 aria-label="Send now, interrupting the current response"
                 title="Send now — interrupts the current response (⌘Enter)"
-                className={`flex items-center justify-center rounded-full border border-accent/40 text-accent-fg transition hover:bg-accent/10 ${
+                className={`flex items-center justify-center rounded-full border border-brand-fg/40 text-brand-fg transition hover:bg-brand-fg/10 ${
                   compact ? 'size-8' : 'size-9'
                 }`}
               >
@@ -222,7 +221,7 @@ export function Composer({
               onClick={onStop}
               aria-label="Stop response"
               title="Stop response (Enter queues)"
-              className={`flex items-center justify-center rounded-full bg-accent text-on-accent shadow-md shadow-(color:--shadow-accent) transition hover:bg-accent-hover ${
+              className={`flex items-center justify-center rounded-full bg-brand-solid text-on-brand-solid shadow-md shadow-(color:--shadow-raised) transition hover:brightness-95 ${
                 compact ? 'size-8' : 'size-9'
               }`}
             >
@@ -235,7 +234,7 @@ export function Composer({
             onClick={() => submit()}
             disabled={!value.trim() || disabled}
             aria-label="Send message"
-            className={`ml-auto flex items-center justify-center rounded-full bg-accent text-on-accent shadow-md shadow-(color:--shadow-accent) transition hover:bg-accent-hover disabled:opacity-35 disabled:shadow-none ${
+            className={`ml-auto flex items-center justify-center rounded-full bg-brand-solid text-on-brand-solid shadow-md shadow-(color:--shadow-raised) transition hover:brightness-95 disabled:opacity-35 disabled:shadow-none ${
               compact ? 'size-8' : 'size-9'
             }`}
           >

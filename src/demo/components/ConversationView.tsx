@@ -13,6 +13,7 @@ type ConversationViewProps = {
   onStop: () => void
   onSteer: (text: string) => void
   onRemoveQueued: (id: number) => void
+  onRetry: (id: number) => void
   personas: Persona[]
   /** Demo toggle: the copy / regenerate / vote row under a finished answer. */
   showActions?: boolean
@@ -30,6 +31,7 @@ export function ConversationView({
   onStop,
   onSteer,
   onRemoveQueued,
+  onRetry,
   personas,
   showActions = true,
 }: ConversationViewProps) {
@@ -72,6 +74,7 @@ export function ConversationView({
                   key={m.id}
                   message={m}
                   onRemoveQueued={onRemoveQueued}
+                  onRetry={onRetry}
                   onFollowup={m.id === lastId ? onSubmit : undefined}
                   busy={busy}
                   showActions={showActions}

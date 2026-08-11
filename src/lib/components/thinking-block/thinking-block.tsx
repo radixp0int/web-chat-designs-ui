@@ -33,9 +33,7 @@ export function ThinkingBlock({ text, active, durationSec }: ThinkingBlockProps)
         }`}
       >
         <div className="overflow-hidden">
-          <div
-            className={`mt-1.5 ml-[7px] border-l-2 border-accent/40 ${compact ? 'pl-3' : 'pl-4'}`}
-          >
+          <div className={`turn-rail mt-1.5 ${compact ? 'pl-3' : 'pl-4'}`}>
             <p
               className={`leading-relaxed whitespace-pre-line text-ink-soft italic ${compact ? 'text-xs' : 'text-[13px]'}`}
             >

@@ -1,18 +1,22 @@
 import { Link } from 'react-router'
 import { ChatIcon, MenuIcon } from '../../lib/components/icons'
+import { IconButton } from '../../lib/components/icon-button'
 import { ThemeToggle } from './ThemeToggle'
 
 export function TopBar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
   return (
     <header className="flex items-center gap-3 px-5 py-4">
-      <button
-        type="button"
+      {/* lg:hidden — this control only ever exists on a touch screen, so it
+          takes the 44px variant rather than the default. */}
+      <IconButton
+        size="lg"
+        shape="rounded"
         onClick={onOpenSidebar}
-        className="rounded-lg p-1.5 text-ink-soft hover:text-ink-strong lg:hidden"
+        className="lg:hidden"
         aria-label="Open sidebar"
       >
         <MenuIcon />
-      </button>
+      </IconButton>
       <Link
         to="/widget-demo"
         title="See the embeddable widget demo"

@@ -159,7 +159,7 @@ export function ReferencePanel({
                 title={source.title}
                 className={`grid size-7 shrink-0 place-items-center rounded-full text-xs font-semibold transition ${
                   isActive
-                    ? 'bg-selected text-on-selected'
+                    ? 'bg-brand-solid text-on-brand-solid'
                     : 'border border-line text-ink-soft hover:bg-tint/8 hover:text-ink-strong'
                 }`}
               >

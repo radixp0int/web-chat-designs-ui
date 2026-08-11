@@ -1,9 +1,19 @@
 import type { IconButtonProps } from './types'
 
-const sizePadding: Record<NonNullable<IconButtonProps['size']>, string> = {
-  sm: 'p-1',
-  md: 'p-1.5',
-  lg: 'p-2',
+/**
+ * Fixed boxes, not padding. The size a finger has to hit must not depend on
+ * what `width`/`height` a caller happened to pass its icon — that is how this
+ * component ended up rendering 22px targets. The glyph is centred in the box
+ * and can stay as small as the design wants.
+ *
+ *   sm  32  clears WCAG 2.2 SC 2.5.8 (24 minimum)
+ *   md  36  the default for message and panel actions
+ *   lg  44  Apple HIG minimum — use for touch-only controls
+ */
+const sizeBox: Record<NonNullable<IconButtonProps['size']>, string> = {
+  sm: 'size-8',
+  md: 'size-9',
+  lg: 'size-11',
 }
 
 const ghost =
@@ -13,6 +23,10 @@ const ghost =
  * Icon-only ghost button — the recurring control in the chat UI (header actions,
  * reference nav, message actions, panel close). Consolidates a Tailwind class
  * string that was previously copy-pasted across half a dozen components.
+ *
+ * Every variant has a guaranteed minimum target (see `sizeBox`), so prefer this
+ * over a hand-rolled `p-*` button even for a tiny glyph: an inline 12px close
+ * icon still gets a 32px box.
  *
  * `active` applies the accent tint used by toggle controls (e.g. the like/dislike
  * buttons). Disabled styling is always present but only shows when `disabled` is
@@ -28,8 +42,9 @@ export function IconButton({
   ...rest
 }: IconButtonProps) {
   const cls = [
+    'inline-grid shrink-0 place-items-center',
     shape === 'circle' ? 'rounded-full' : 'rounded-lg',
-    sizePadding[size],
+    sizeBox[size],
     ghost,
     active ? 'text-accent' : '',
     className,
