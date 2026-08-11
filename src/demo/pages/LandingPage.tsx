@@ -18,7 +18,7 @@ const demos = [
   },
 ]
 
-/** Simple entry page linking to the two demos. */
+/** Simple entry page linking to each demo route. */
 export function LandingPage() {
   return (
     <div className="relative min-h-dvh overflow-hidden">
@@ -33,7 +33,7 @@ export function LandingPage() {
         <h1 className="mt-6 text-3xl font-bold tracking-tight text-ink-strong sm:text-4xl">
           {APP_NAME}
         </h1>
-        <p className="mt-2 text-base text-ink-soft">Two ways to see the chat UI.</p>
+        <p className="mt-2 text-base text-ink-soft">Ways to see the chat UI.</p>
 
         <div className="mt-10 grid w-full gap-4 sm:grid-cols-2">
           {demos.map(({ to, icon: Icon, title, body }) => (
@@ -75,7 +75,7 @@ export function LandingPage() {
               </span>
             </span>
             <span className="block text-xs text-ink-soft">
-              Three diagram libraries side by side. Temporary — delete after we pick one.
+              Two diagram libraries side by side. Temporary — delete after we pick one.
             </span>
           </span>
           <ChevronRightIcon width={16} height={16} className="shrink-0 text-ink-soft" />

@@ -68,25 +68,6 @@ export const ImageIcon = (p: IconProps) => (
   </svg>
 )
 
-export const VideoIcon = (p: IconProps) => (
-  <svg {...base(p)}>
-    <rect x="3" y="5" width="13" height="14" rx="2" />
-    <path d="m16 10 5-3v10l-5-3" />
-  </svg>
-)
-
-export const CodeIcon = (p: IconProps) => (
-  <svg {...base(p)}>
-    <path d="m8 8-4 4 4 4M16 8l4 4-4 4M13 5l-2 14" />
-  </svg>
-)
-
-export const FolderIcon = (p: IconProps) => (
-  <svg {...base(p)}>
-    <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
-  </svg>
-)
-
 export const SparkleIcon = (p: IconProps) => (
   <svg {...base(p)}>
     <path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18" />

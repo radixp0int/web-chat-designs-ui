@@ -16,7 +16,7 @@ const KIND_LABEL: Record<SampleKind, string> = {
 }
 
 const KIND_HINT: Record<SampleKind, string> = {
-  common: 'All three renderers claim support — this is the fidelity comparison.',
+  common: 'Both renderers claim support — this is the fidelity comparison.',
   probe: 'Not implemented by beautiful-mermaid. Expected to fail in that column.',
   realistic: 'Quoted labels, <br/>, subgraphs, emoji, style directives.',
 }
@@ -62,9 +62,9 @@ export function MermaidLabPage() {
               </h1>
             </div>
             <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-ink-soft">
-              Three renderers, one diagram corpus. Temporary — once we pick one, this folder and the
-              two losing dependencies get deleted, and the winner goes into the shared markdown
-              renderer's <code className="font-mono text-ink-strong">code</code> override.{' '}
+              Two renderers, one diagram corpus. Temporary — once we pick one, this folder and the
+              losing dependency get deleted, and the winner goes into the shared markdown renderer's{' '}
+              <code className="font-mono text-ink-strong">code</code> override.{' '}
               <Link to="/" className="text-brand-fg underline underline-offset-2">
                 Back to demos
               </Link>
@@ -130,8 +130,8 @@ export function MermaidLabPage() {
                 Streaming replay
               </h2>
               <p className="mt-1 text-[11px] leading-relaxed text-ink-soft">
-                Feeds a growing prefix to all three at once. Every intermediate value is invalid
-                mermaid — the same thing that reaches the renderer while a message streams.
+                Feeds a growing prefix to both at once. Every intermediate value is invalid mermaid
+                — the same thing that reaches the renderer while a message streams.
               </p>
             </div>
 
@@ -219,7 +219,7 @@ export function MermaidLabPage() {
             <div className="mb-2 flex items-baseline gap-2">
               <h2 className="text-sm font-semibold text-ink-strong">Inside a shadow root</h2>
               <span className="text-[11px] text-ink-soft">
-                Same three renderers, mounted the way <code className="font-mono">mount.tsx</code>{' '}
+                Same two renderers, mounted the way <code className="font-mono">mount.tsx</code>{' '}
                 mounts the widget: styles.css injected as a &lt;style&gt;, theme class on the inner
                 root.
               </span>

@@ -55,7 +55,7 @@ export function SupportMatrix() {
         <h2 className="text-sm font-semibold text-ink-strong">Diagram-type support</h2>
         <p className="mt-1 text-[11px] leading-relaxed text-ink-soft">
           Measured by parsing a minimal example of every mermaid diagram type through each engine.
-          The first seven rows are the overlap — everything all three can draw.
+          The first seven rows are the overlap — everything both renderers can draw.
         </p>
       </div>
 
