@@ -86,7 +86,7 @@ export function HeroSuggestions({ onPrompt }: { onPrompt: (text: string) => void
               key={chat.title}
               type="button"
               onClick={() => onPrompt(`Continue our chat about: ${chat.title}`)}
-              className="glass group rounded-2xl p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg hover:shadow-(color:--shadow-raised)"
+              className="glass group rounded-lg p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg hover:shadow-(color:--shadow-raised)"
             >
               <h3 className="text-[15px] font-semibold text-ink-strong">{chat.title}</h3>
               <p className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-ink-soft">

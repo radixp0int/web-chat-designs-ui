@@ -124,7 +124,7 @@ export function ChatWidget({
             aria-label={`${branding.appName} chat`}
             inert={!open}
             style={{ zIndex }}
-            className={`fixed bottom-24 flex max-h-[calc(100dvh-7rem)] flex-col overflow-hidden rounded-3xl border border-line bg-panel-solid shadow-2xl shadow-(color:--shadow-deep) transition-all duration-300 ease-out max-sm:top-0 max-sm:right-0 max-sm:bottom-0 max-sm:left-0 max-sm:h-auto max-sm:max-h-none max-sm:w-auto max-sm:rounded-none ${
+            className={`fixed bottom-24 flex max-h-[calc(100dvh-7rem)] flex-col overflow-hidden rounded-xl border border-line bg-panel-solid shadow-2xl shadow-(color:--shadow-deep) transition-all duration-300 ease-out max-sm:top-0 max-sm:right-0 max-sm:bottom-0 max-sm:left-0 max-sm:h-auto max-sm:max-h-none max-sm:w-auto max-sm:rounded-none ${
               expanded ? 'h-[85dvh] w-[max(560px,calc(100vw-2.5rem))]' : 'h-[600px] w-[380px]'
             } ${right ? 'right-5 origin-bottom-right' : 'left-5 origin-bottom-left'} ${
               open

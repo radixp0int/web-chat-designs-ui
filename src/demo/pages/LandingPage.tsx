@@ -40,7 +40,7 @@ export function LandingPage() {
             <Link
               key={to}
               to={to}
-              className="glass group flex flex-col rounded-3xl p-6 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg hover:shadow-(color:--shadow-raised)"
+              className="glass group flex flex-col rounded-xl p-6 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg hover:shadow-(color:--shadow-raised)"
             >
               <span className="flex size-11 items-center justify-center rounded-2xl bg-chip text-chip-fg">
                 <Icon width={20} height={20} className="text-accent" />

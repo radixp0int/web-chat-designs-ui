@@ -59,7 +59,7 @@ export function PersonaMenu({ personas, persona, onChange, compact }: PersonaMen
         <ul
           role="listbox"
           aria-label="Chat persona"
-          className="absolute bottom-full left-0 z-20 mb-2 w-56 overflow-hidden rounded-2xl border border-line bg-panel-solid p-1.5 shadow-xl shadow-(color:--shadow-menu)"
+          className="absolute bottom-full left-0 z-20 mb-2 w-56 overflow-hidden rounded-lg border border-line bg-panel-solid p-1.5 shadow-xl shadow-(color:--shadow-menu)"
         >
           {personas.map((p) => (
             <li key={p.id} role="option" aria-selected={p.id === persona}>

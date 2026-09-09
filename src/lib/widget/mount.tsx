@@ -34,7 +34,7 @@ export type WidgetHandle = {
 
 const FONT_LINKS_ID = 'chat-widget-fonts'
 const FONT_HREF =
-  'https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap'
+  'https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap'
 
 // @font-face rules don't register from inside a shadow root, so the widget's
 // font stylesheet goes into the host document's head. The family is only ever

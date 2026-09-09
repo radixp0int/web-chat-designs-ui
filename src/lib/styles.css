@@ -70,7 +70,7 @@
 
 /* Not brand-owned: motion is shared by every theme. */
 @theme {
-  --font-sans: 'Libre Franklin', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Nunito Sans', ui-sans-serif, system-ui, sans-serif;
 
   --animate-orb-drift: orb-drift 9s ease-in-out infinite;
   --animate-fade-up: fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
