@@ -74,7 +74,7 @@ function App() {
           <CitationsProvider
             value={(sources, id, highlights) => setCitation({ sources, activeId: id, highlights })}
           >
-            <main className="glass relative flex min-w-0 flex-1 overflow-hidden rounded-3xl">
+            <main className="glass relative flex min-w-0 flex-1 overflow-hidden rounded-xl">
               <div className="flex min-w-0 flex-1 flex-col">
                 <TopBar onOpenSidebar={() => setSidebarOpen(true)} />
                 <ConversationView
@@ -123,7 +123,7 @@ function App() {
                 className="fixed inset-0 z-30 bg-scrim/40 backdrop-blur-sm lg:hidden"
               />
               <aside
-                className="glass fixed inset-y-0 right-0 z-40 flex w-[min(26rem,100vw)] animate-fade-up flex-col overflow-hidden rounded-l-3xl lg:hidden"
+                className="glass fixed inset-y-0 right-0 z-40 flex w-[min(26rem,100vw)] animate-fade-up flex-col overflow-hidden rounded-l-xl lg:hidden"
                 aria-label="References"
               >
                 <ReferencePanel

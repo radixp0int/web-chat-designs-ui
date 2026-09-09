@@ -82,7 +82,7 @@ export function Composer({
   return (
     <div
       className={`glass w-full shadow-lg shadow-(color:--shadow-soft) transition-shadow duration-300 focus-within:shadow-xl focus-within:shadow-(color:--shadow-raised) ${
-        compact ? 'rounded-2xl' : 'rounded-3xl'
+        compact ? 'rounded-lg' : 'rounded-xl'
       } ${docked ? '' : 'shadow-xl'}`}
     >
       {attachments.length > 0 && (
