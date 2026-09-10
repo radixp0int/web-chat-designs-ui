@@ -81,7 +81,10 @@ export function Composer({
 
   return (
     <div
-      className={`glass w-full shadow-lg shadow-(color:--shadow-soft) transition-shadow duration-300 focus-within:shadow-xl focus-within:shadow-(color:--shadow-raised) ${
+      // Named so PersonaMenu (and anything else nested here) can query this
+      // row's actual rendered width — e.g. when a resizable panel squeezes
+      // the chat column — rather than the app-wide compact/default density.
+      className={`glass @container/composer w-full shadow-lg shadow-(color:--shadow-soft) transition-shadow duration-300 focus-within:shadow-xl focus-within:shadow-(color:--shadow-raised) ${
         compact ? 'rounded-lg' : 'rounded-xl'
       } ${docked ? '' : 'shadow-xl'}`}
     >
