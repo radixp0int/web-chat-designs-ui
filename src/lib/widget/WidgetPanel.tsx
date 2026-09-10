@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { useBranding } from '../branding'
 import { ChatMessage } from '../components/chat-message'
 import { Composer } from '../components/composer'
@@ -12,7 +12,9 @@ import {
 import { IconButton } from '../components/icon-button'
 import { ReferencePanel } from '../components/reference-panel'
 import { ResizableColumn } from '../components/resizable-column'
+import { ScrollToBottomButton } from '../components/scroll-to-bottom-button'
 import { SideTabPanel, SideTabRail, type SideTab } from '../components/side-tabs'
+import { useStickToBottom } from '../hooks/useStickToBottom'
 import type { Highlight, Message, Persona, SidePanel, Source } from '../types'
 
 /** Host-provided profile shown in the header and greeting. */
@@ -71,7 +73,7 @@ export function WidgetPanel({
 }: WidgetPanelProps) {
   const { appName, disclaimer } = useBranding()
   const [persona, setPersona] = useState<string>(personas[0]?.id ?? '')
-  const scrollRef = useRef<HTMLDivElement>(null)
+  const { containerRef, contentRef, atBottom, scrollToBottom } = useStickToBottom()
   const inChat = messages.length > 0
   // Only the newest turn offers follow-ups, so branches don't stack up the thread.
   const lastId = messages[messages.length - 1]?.id
@@ -98,11 +100,13 @@ export function WidgetPanel({
   const { name, loginId } = profile
   const firstName = name.split(' ')[0]
 
-  // Keep the newest message in view while it streams.
-  useEffect(() => {
-    if (messages.length === 0) return
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
-  }, [messages])
+  // A message the reader sends themselves always comes into view, even if
+  // they'd scrolled up to reread earlier turns — streamed replies then keep
+  // following automatically because this also re-arms `atBottom`.
+  const submit = (text: string) => {
+    onSubmit(text)
+    scrollToBottom()
+  }
 
   return (
     <>
@@ -154,43 +158,57 @@ export function WidgetPanel({
         {hasRail && <SideTabRail tabs={sideTabs} activeId={openTab} onSelect={selectTab} />}
 
         <div className="relative flex min-w-0 flex-1 flex-col">
-          <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto scroll-smooth px-4 py-4">
-            {inChat ? (
-              <div className="flex flex-col gap-5">
-                {messages.map((m) => (
-                  <ChatMessage
-                    key={m.id}
-                    message={m}
-                    onRemoveQueued={onRemoveQueued}
-                    onRetry={onRetry}
-                    onFollowup={m.id === lastId ? onSubmit : undefined}
-                    busy={busy}
-                  />
-                ))}
+          <div className="relative min-h-0 flex-1">
+            <div ref={containerRef} className="h-full overflow-y-auto scroll-smooth px-4 py-4">
+              <div ref={contentRef}>
+                {inChat ? (
+                  <div className="flex flex-col gap-5">
+                    {messages.map((m) => (
+                      <ChatMessage
+                        key={m.id}
+                        message={m}
+                        onRemoveQueued={onRemoveQueued}
+                        onRetry={onRetry}
+                        onFollowup={m.id === lastId ? submit : undefined}
+                        busy={busy}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
+                    <span
+                      className="orb block size-12 rounded-full animate-orb-drift"
+                      aria-hidden
+                    />
+                    <p className="mt-3 text-base font-semibold text-ink-strong">
+                      {firstName ? `Hi, ${firstName}` : `Hi, I'm ${appName}`}
+                    </p>
+                    <p className="text-sm text-ink-soft">
+                      {firstName ? `I'm ${appName} — how can I help?` : `Ask ${appName} anything.`}
+                    </p>
+                    {loginId && <p className="text-xs text-ink-soft/70">Signed in as {loginId}</p>}
+                    <div className="mt-4 flex flex-col items-stretch gap-2 self-stretch px-2">
+                      {starters.map((prompt) => (
+                        <button
+                          key={prompt}
+                          type="button"
+                          onClick={() => submit(prompt)}
+                          className="glass rounded-full px-4 py-2 text-xs font-semibold text-ink transition hover:border-accent/50 hover:text-ink-strong"
+                        >
+                          {prompt}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
-                <span className="orb block size-12 rounded-full animate-orb-drift" aria-hidden />
-                <p className="mt-3 text-base font-semibold text-ink-strong">
-                  {firstName ? `Hi, ${firstName}` : `Hi, I'm ${appName}`}
-                </p>
-                <p className="text-sm text-ink-soft">
-                  {firstName ? `I'm ${appName} — how can I help?` : `Ask ${appName} anything.`}
-                </p>
-                {loginId && <p className="text-xs text-ink-soft/70">Signed in as {loginId}</p>}
-                <div className="mt-4 flex flex-col items-stretch gap-2 self-stretch px-2">
-                  {starters.map((prompt) => (
-                    <button
-                      key={prompt}
-                      type="button"
-                      onClick={() => onSubmit(prompt)}
-                      className="glass rounded-full px-4 py-2 text-xs font-semibold text-ink transition hover:border-accent/50 hover:text-ink-strong"
-                    >
-                      {prompt}
-                    </button>
-                  ))}
-                </div>
-              </div>
+            </div>
+
+            {inChat && (
+              <ScrollToBottomButton
+                visible={!atBottom}
+                onClick={() => scrollToBottom({ smooth: true })}
+              />
             )}
           </div>
 
@@ -199,7 +217,14 @@ export function WidgetPanel({
               docked
               streaming={busy}
               onStop={onStop}
-              onSubmit={(text, opts) => (opts?.steer ? onSteer(text) : onSubmit(text))}
+              onSubmit={(text, opts) => {
+                if (opts?.steer) {
+                  onSteer(text)
+                  scrollToBottom()
+                } else {
+                  submit(text)
+                }
+              }}
               personas={personas}
               persona={persona}
               onPersonaChange={setPersona}

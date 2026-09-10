@@ -23,15 +23,15 @@ One folder per component — `index.ts`, `<name>.tsx`, `types.ts`.
 
 **Conversation**
 
-| Component       | What it is                                                                                                                                                                                                                              |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ChatMessage`   | One turn. Composes the thinking block, tool chips, markdown body, source strip, trace handle, and action row.                                                                                                                           |
-| `Markdown`      | GFM renderer that rewrites `[n]` markers into `CitationChip`s. Only numbers matching a real source id are rewritten, so `[sic]` passes through; a half-received trailing `[12` is hidden mid-stream so it never flickers as plain text. |
-| `ThinkingBlock` | The collapsible "Thought for Ns" panel above an answer.                                                                                                                                                                                 |
-| `ToolCallChip`  | One tool call as a status chip — pulsing while running, check when done, red with the reason when it fails. Finished calls expand to their input/output JSON.                                                                           |
-| `Composer`      | The input: auto-growing textarea, expand toggle, attachments, mic, persona menu, send/stop. `Enter` queues while streaming, `Cmd/Ctrl+Enter` steers.                                                                                    |
-| `FollowupChips` | Suggested next prompts, drawn as branches off the answer above them — a hairline spine through the orb gutter with a node per chip.                                                                                                     |
-| `PersonaMenu`   | Persona picker; labelled pill, or icon-only when compact.                                                                                                                                                                               |
+| Component       | What it is                                                                                                                                                                                                                                                   |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ChatMessage`   | One turn. Composes the thinking block, tool chips, markdown body, source strip, trace handle, and action row.                                                                                                                                                |
+| `Markdown`      | GFM renderer that rewrites `[n]` markers into `CitationChip`s. Only numbers matching a real source id are rewritten, so `[sic]` passes through; a half-received trailing `[12` is hidden mid-stream so it never flickers as plain text.                      |
+| `ThinkingBlock` | The collapsible "Thought for Ns" panel above an answer.                                                                                                                                                                                                      |
+| `ToolCallChip`  | One tool call as a status chip — pulsing while running, check when done, red with the reason when it fails. Finished calls expand to their input/output JSON.                                                                                                |
+| `Composer`      | The input: auto-growing textarea, expand toggle, attachments, mic, persona menu, send/stop. `Enter` queues while streaming, `Cmd/Ctrl+Enter` steers.                                                                                                         |
+| `FollowupChips` | Suggested next prompts, drawn as branches off the answer above them — a hairline spine through the orb gutter with a node per chip.                                                                                                                          |
+| `PersonaMenu`   | Persona picker; labelled pill, or icon-only when compact. The labelled pill also collapses to an icon-only circle on its own — a `@container` query on `Composer`'s wrapper, independent of the `compact` prop — once the row is squeezed too narrow for it. |
 
 **Citations**
 
@@ -59,6 +59,7 @@ three encode.
 | `SideTabRail` / `SideTabPanel` | Vertical icon rail with slide-in panels. Generic — a tab is an id + icon + label (+ optional count badge), and the host supplies the panel content.                                                                                 |
 | `ResizableColumn`              | A right-hand column with a drag handle on its left edge, for splitting a card into chat + document panes. Clamps so the sibling column keeps `minRemainder` px. Used by both the demo's reference pane and the widget's split view. |
 | `ResizeHandle`                 | The grip itself. Presentational only — state lives in `useResizablePanel`.                                                                                                                                                          |
+| `ScrollToBottomButton`         | The "New messages" pill shown once the reader scrolls away from a stream. Presentational only — visibility and the scroll itself come from `useStickToBottom`. Used by both `ConversationView` (demo) and `WidgetPanel`.            |
 | `IconButton`                   | Fixed hit boxes, not padding: `sm` 32 (clears WCAG 2.2 SC 2.5.8), `md` 36, `lg` 44 (Apple HIG touch minimum). The glyph can stay as small as the design wants.                                                                      |
 | `FiltersPanel`                 | Selected filter chips grouped by facet. Presentational — selection is UI-only.                                                                                                                                                      |
 | `RecentChatsPanel`             | Recent conversations to switch between. Presentational — selection is UI-only.                                                                                                                                                      |
@@ -94,13 +95,14 @@ changes.
 
 ### Hooks
 
-| Hook                   | What it does                                                                                                                                                                |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `useChat(responder)`   | Owns the conversation. Returns `{ messages, busy, send, stop, steer, retry, removeQueued, reset }`, and derives each turn's `TurnTrace` from the event stream.              |
-| `useSpeechRecognition` | Wraps the browser Speech Recognition API as a toggle. `supported` is `false` where the API is missing, so callers hide the control entirely.                                |
-| `useAutoGrowTextarea`  | Grows a textarea with its content up to the active cap, recomputing on resize when expanded.                                                                                |
-| `useHighlights`        | Memoized highlight ranges for the active reference, resolved against the doc text.                                                                                          |
-| `useResizablePanel`    | Owns a panel's width and the pointer-drag lifecycle. The caller supplies `computeWidth(clientX)`, so the hook stays layout-agnostic. Works inside the widget's shadow root. |
+| Hook                   | What it does                                                                                                                                                                                              |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `useChat(responder)`   | Owns the conversation. Returns `{ messages, busy, send, stop, steer, retry, removeQueued, reset }`, and derives each turn's `TurnTrace` from the event stream.                                            |
+| `useSpeechRecognition` | Wraps the browser Speech Recognition API as a toggle. `supported` is `false` where the API is missing, so callers hide the control entirely.                                                              |
+| `useAutoGrowTextarea`  | Grows a textarea with its content up to the active cap, recomputing on resize when expanded.                                                                                                              |
+| `useHighlights`        | Memoized highlight ranges for the active reference, resolved against the doc text.                                                                                                                        |
+| `useResizablePanel`    | Owns a panel's width and the pointer-drag lifecycle. The caller supplies `computeWidth(clientX)`, so the hook stays layout-agnostic. Works inside the widget's shadow root.                               |
+| `useStickToBottom`     | Keeps a scroll region pinned to its bottom edge while `contentRef` grows, but only while the reader hasn't scrolled away — tracked via `ResizeObserver`, no app types. Pairs with `ScrollToBottomButton`. |
 
 `useResizablePanel` is the one hook **not** re-exported from `src/lib/index.ts` —
 it reaches consumers through `ResizableColumn`. Import it by deep path if you
