@@ -11,6 +11,7 @@ export * from './hooks/useChat'
 export * from './hooks/useSpeechRecognition'
 export * from './hooks/useAutoGrowTextarea'
 export * from './hooks/useHighlights'
+export * from './hooks/useStickToBottom'
 
 // Context + shared types
 export * from './branding'
@@ -38,6 +39,7 @@ export * from './components/filters-panel'
 export * from './components/recent-chats-panel'
 export * from './components/resizable-column'
 export * from './components/resize-handle'
+export * from './components/scroll-to-bottom-button'
 
 // Widget shell
 export * from './widget/ChatWidget'
