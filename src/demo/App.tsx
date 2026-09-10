@@ -37,8 +37,8 @@ function App() {
   // own render to gate the messages, and provides the same object below.
   const demo = useDemoFeatureState()
   // Memoized on identity: with a flag off the mapper rebuilds the array, and a
-  // fresh array every render would re-fire ConversationView's scroll-to-bottom
-  // effect and fight the reader's scroll position.
+  // fresh array every render would make every ChatMessage below re-render
+  // (none of them are memoized) even when nothing about them changed.
   const shownMessages = useMemo(
     () => applyDemoFeatures(messages, demo.flags),
     [messages, demo.flags],
