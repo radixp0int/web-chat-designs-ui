@@ -63,16 +63,17 @@ three encode.
 | `IconButton`                   | Fixed hit boxes, not padding: `sm` 32 (clears WCAG 2.2 SC 2.5.8), `md` 36, `lg` 44 (Apple HIG touch minimum). The glyph can stay as small as the design wants.                                                                      |
 | `FiltersPanel`                 | Selected filter chips grouped by facet. Presentational — selection is UI-only.                                                                                                                                                      |
 | `RecentChatsPanel`             | Recent conversations to switch between. Presentational — selection is UI-only.                                                                                                                                                      |
+| `PersonaPanel`                 | Persona select plus the stacked prompt templates in force. Ordered by each layer's `priority` field, not by array order. The textareas are `readOnly` rather than `disabled`, so the text stays selectable and keyboard-reachable.  |
 | Icons                          | 33 stroke icons as React components (`SendIcon`, `SparkleIcon`, …), all taking `width`/`height`/`className`.                                                                                                                        |
 
 **Widget shell**
 
-| Export         | What it is                                                                                                                                                                                 |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `ChatWidget`   | The floating launcher orb plus the pop-in panel. Chat state lives here, and the panel is hidden with CSS rather than unmounted — the conversation and draft survive closing and reopening. |
-| `WidgetPanel`  | The panel's interior: header, greeting, conversation, composer, side tabs, split reference view.                                                                                           |
-| `mountWidget`  | Mounts `ChatWidget` into a shadow root and returns an `open`/`close`/`setTheme`/`destroy` handle.                                                                                          |
-| `useHostTheme` | Follows the host page's `dark` class / OS preference when the widget runs in `auto`.                                                                                                       |
+| Export         | What it is                                                                                                                                                                                                                                                   |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ChatWidget`   | The floating launcher plus the pop-in panel. Chat state lives here, and the panel is hidden with CSS rather than unmounted — the conversation and draft survive closing and reopening. Owns the launcher's three states (see [The launcher](#the-launcher)). |
+| `WidgetPanel`  | The panel's interior: header, greeting, conversation, composer, side tabs, split reference view.                                                                                                                                                             |
+| `mountWidget`  | Mounts `ChatWidget` into a shadow root and returns an `open`/`close`/`setTheme`/`destroy` handle.                                                                                                                                                            |
+| `useHostTheme` | Follows the host page's `dark` class / OS preference when the widget runs in `auto`.                                                                                                                                                                         |
 
 ### Engine
 
@@ -115,10 +116,10 @@ need it directly.
 | `branding.ts`   | `BrandingProvider` — `appName`, `modelName`, `disclaimer`. The library has no baked-in brand.                                                                                                        |
 | `citations.ts`  | `CitationsProvider` — lets a chip deep inside a message open the reference frame owned by the surface, without prop drilling. Defaults to a no-op, so `ChatMessage` renders fine outside a provider. |
 | `uiSize.ts`     | `UiSizeProvider` — `'default'` or `'compact'`. The widget wraps its tree in `compact` to shrink fonts, paddings, and controls without touching a single call site.                                   |
-| `types.ts`      | `Message`, `TurnTrace`, `TurnStep`, `TurnFault`, `ToolCall`, `Source`, `Highlight`, `Persona`, `ActiveFilter`, `RecentChat`, `SidePanel`.                                                            |
+| `types.ts`      | `Message`, `TurnTrace`, `TurnStep`, `TurnFault`, `ToolCall`, `Source`, `Highlight`, `Persona`, `ActiveFilter`, `RecentChat`, `PromptTemplate`, `SidePanel`.                                          |
 | `highlights.ts` | Resolving highlight phrases to character offsets in source markdown.                                                                                                                                 |
 | `brand.css`     | Every colour value, as swappable themes.                                                                                                                                                             |
-| `styles.css`    | Tailwind wiring, base layer, and the `.glass` / `.orb` / `.turn-rail` / `.shimmer-text` utilities.                                                                                                   |
+| `styles.css`    | Tailwind wiring, base layer, and the `.glass` / `.orb` / `.turn-rail` / `.launcher-label` / `.shimmer-text` utilities.                                                                               |
 
 ---
 
@@ -338,13 +339,30 @@ theme. `index.html`'s pre-paint script and the widget already do this.
 
 The palette reads by one rule:
 
-> **Blue is what you act on. Orange is the system telling you something.**
+> **One blue carries the product. Warmth is spent in two places, deliberately.**
 
-Blue (`--brand-*`) covers the send and stop buttons, selected rows, the sidebar
-avatar, links, and hover affordances. Orange (`--accent-*`) is status only — the
-orb, the tool-running dot, the streaming caret, the persona sparkle, check marks,
-the side-tab count badge. If you find yourself reaching for accent on something
-clickable, that is the signal you want brand instead.
+It did not always. The palette used to run brand blue against an action orange,
+and the orange failed where it mattered: `#ef6a00` behind a white glyph is
+**3.12:1**, under the 4.5:1 text bar, which is what the side-tab count badge and
+the Recent chats "Active now" row were both doing. `--accent-*` is now aliased
+to each theme's `--brand-*` ramp with `var()` rather than copied hex, so the two
+cannot drift.
+
+That leaves two warm values, and they are not interchangeable:
+
+| Token                      | Where                       | Contrast rules                                                                                                                                                     |
+| -------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `--ember-*`                | the orb's two blooms, only  | **Exempt** — the mark is `aria-hidden` decoration. Never reuse these for text, icons, or state; that is what the other one is for.                                 |
+| `--notify` / `--on-notify` | the launcher's unread badge | **Checked.** Fill 3.12:1 light / 5.00:1 dark against its panel; the count uses the deep ink at 5.46:1, because white on ember is the 3.12:1 that started all this. |
+
+A theme that declares no `--ember-*` falls back to its accent, so the orb is
+never undefined.
+
+`--accent` also inverts in dark, for the same reason `--brand-solid` does below:
+a mid-ramp blue fill sits at ~2.0–2.8:1 against a dark panel and the badge simply
+vanishes, so dark uses `--accent-200` with an `--accent-700` glyph. And
+`--accent-fg` steps to `--accent-300` on dark — `400` lands at 3.1–3.9:1 across
+the shipped themes, under the text bar.
 
 `--brand-solid` / `--on-brand-solid` is the **single** solid brand fill; there is
 deliberately no second name for it. It **inverts in dark**: a solid fill has two
@@ -356,11 +374,11 @@ make. Don't "fix" it back to blue.
 
 ### The three tiers
 
-| Tier | Where                         | What                                                                                |
-| ---- | ----------------------------- | ----------------------------------------------------------------------------------- |
-| 1    | a theme block in brand.css    | raw ramps (`--brand-50…950`, `--accent-300…700`, `--danger-*`) + surfaces           |
-| 2    | §1/§2 of brand.css            | semantic tokens (`--accent`, `--ink-soft`, `--line`, `--rail`, `--tint`, `--orb-*`) |
-| 3    | `@theme inline` in styles.css | Tailwind names — `--color-accent: var(--accent)` → `bg-accent`                      |
+| Tier | Where                         | What                                                                                   |
+| ---- | ----------------------------- | -------------------------------------------------------------------------------------- |
+| 1    | a theme block in brand.css    | raw ramps (`--brand-50…950`, `--accent-200…700`, `--danger-*`, `--ember-*`) + surfaces |
+| 2    | §1/§2 of brand.css            | semantic tokens (`--accent`, `--ink-soft`, `--line`, `--rail`, `--tint`, `--orb-*`)    |
+| 3    | `@theme inline` in styles.css | Tailwind names — `--color-accent: var(--accent)` → `bg-accent`                         |
 
 Tier 3 uses `@theme inline` deliberately: it makes `bg-accent` compile to
 `var(--accent)` rather than a `:root`-pinned `var(--color-accent)`, which is
@@ -509,6 +527,107 @@ Two things to check, because they are what the design is for:
 
 **Richer failures** — the server's `degraded`, `error`, and `fail` scenarios put
 tool calls and multi-fault tallies in the mix. Use those once it's running.
+
+---
+
+## The launcher
+
+The floating control has three states, and one of them is gated on the
+conversation.
+
+| State         | Looks like                              | When                                       |
+| ------------- | --------------------------------------- | ------------------------------------------ |
+| Rest          | the bare 50px sphere, no glyph          | always                                     |
+| Hover / focus | sphere plus a label opening to its left | **only while `messages.length === 0`**     |
+| Open          | white disc with a blue `X`              | panel showing                              |
+| Minimised     | sphere with an unread count             | a turn finished while the panel was closed |
+
+Three decisions in there are worth knowing before you change any of it.
+
+**The sphere carries no glyph.** It is the mark; anything drawn on it competes
+with its own highlight. The white chat icon that used to sit there measured
+**2.93:1** against the gradient beneath it — under the 3:1 a control glyph needs.
+Open swaps the sphere for a plain disc rather than tinting the glyph, because a
+blue `X` on the orb itself is ~1.9:1. On the disc it is 7.67:1.
+
+**The label opens away from the anchored edge, and the sphere never moves.** The
+launcher is pinned bottom-right, so a label that pushed the sphere left would
+pull it out from under the cursor that triggered the hover — which drops the
+hover, which collapses the label, which puts the sphere back under the cursor.
+A flicker loop. There is also an 80ms close delay so crossing the label's edge
+doesn't chatter. `bottom-left` mirrors with `flex-row-reverse`.
+
+**The label is an empty-thread affordance, not onboarding.** `fresh` is literally
+`messages.length === 0`, so it resets on reload by design: someone returning to a
+blank widget is told what it is again. If you ever want once-per-visitor instead,
+that is a persisted flag and a different feature.
+
+`launcherLabel` on `WidgetContent` sets the text; it defaults to
+`Chat with <appName>`. The width animates with `grid-template-columns: 0fr → 1fr`
+rather than a fixed px value, so a longer label is not clipped.
+
+### Testing it
+
+```sh
+npm run dev          # then open /widget-demo
+```
+
+**The label.** Hover the sphere on a fresh conversation — it should widen and
+the label fade in, with the sphere stationary. Send anything, minimise, hover
+again: no label. That is the gate working, not a bug.
+
+Two ways to see nothing and think it's broken:
+
+- **Touch, or DevTools device emulation.** The expansion lives inside
+  `@media (hover: hover)`. A coarse pointer never matches, deliberately — on
+  touch `:hover` sticks after a tap and the label would never close again.
+- **Keyboard.** `Tab` to the launcher and it expands on `:focus-visible`. This is
+  not decoration: the label is the button's only visible name.
+
+**The unread badge** is the fiddly one, because it needs a turn to _finish_ while
+the panel is closed:
+
+1. Comment out `VITE_WS_URL` and **restart** the dev server (see
+   [Seeing each state](#seeing-each-state) — Vite reads `.env` only at startup).
+   The canned responder streams word by word, which gives you a window to work in;
+   with the socket version the turn fails in well under a second and you will not
+   beat it.
+2. Open the widget, send a prompt, and minimise **while it is still streaming**.
+3. Wait for it to finish. The badge appears with the count, and the button's
+   `aria-label` becomes `Ask Aristotle — 1 new reply`.
+4. Reopen. The badge clears and stays clear on the next minimise.
+
+If you minimise _after_ the answer lands, there is correctly no badge — you read
+it. Any finished turn counts, including one that failed: the reader still has
+something to come back to.
+
+The count is derived from the thread rather than accumulated in state, against a
+watermark of the last _settled_ message. That word is load-bearing:
+`useChat` appends the assistant message **empty, with `streaming` undefined**, and
+only sets it `true` once content starts — so both a falsy `!m.streaming` check and
+a plain last-id watermark mark a turn read before it has produced a word, and the
+badge never fires. `isSettled` compares `streaming === false`, which every
+terminal path in `useChat` sets (done, fault, abort, responder throw).
+
+## The persona side panel
+
+Third tab on the widget's rail. A persona `<select>` over the stacked prompt
+templates in force.
+
+The select is native on purpose: it keeps the OS picker and its keyboard
+handling working inside the widget's shadow root, where a custom popup would
+have to re-solve outside-click and portalling. The widget root already sets
+`colorScheme`, so the native list follows the theme.
+
+To test: open the rail's sparkle tab, change the persona and confirm the hint
+line and the textarea placeholder both follow. The template layers are read-only
+— clicking into one and typing should change nothing, while the text stays
+selectable and the field still takes focus.
+
+Ordering comes from each layer's `priority`, not from array order. To prove it,
+reverse the `priority` values in `demoPromptTemplates`
+(`src/demo/mocks/sideTabData.ts`) and leave the array alone: the panel re-orders,
+the array does not.
 
 ---
 

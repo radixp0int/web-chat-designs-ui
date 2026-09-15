@@ -1,6 +1,6 @@
 import { createCannedResponder } from '../../lib/engine/chatEngine'
 import { createWsResponder } from '../../lib/engine/wsResponder'
-import { FunnelIcon, HistoryIcon } from '../../lib/components/icons'
+import { FunnelIcon, HistoryIcon, SparkleIcon } from '../../lib/components/icons'
 import type { SidePanel } from '../../lib/types'
 import type { WidgetContent, WidgetPosition } from '../../lib/widget/ChatWidget'
 import { mountWidget, type MountOptions, type WidgetHandle } from '../../lib/widget/mount'
@@ -9,7 +9,7 @@ import { aristotleBranding } from '../config'
 import { cannedTurns } from '../mocks/cannedTurns'
 import { demoFilters } from '../mocks/sideTabData'
 import { personas } from '../personas'
-import { DemoFiltersPanel, DemoRecentChatsPanel } from './sidePanels'
+import { DemoFiltersPanel, DemoPersonaPanel, DemoRecentChatsPanel } from './sidePanels'
 import { useHostProfile } from './useHostProfile'
 
 // Short starters sized for the narrow panel — the full Hero doesn't fit here.
@@ -29,6 +29,13 @@ function buildSidePanels(): SidePanel[] {
       badge: demoFilters.length,
       title: 'Filters',
       content: <DemoFiltersPanel />,
+    },
+    {
+      id: 'persona',
+      label: 'Persona',
+      icon: <SparkleIcon width={16} height={16} />,
+      title: 'Persona selection',
+      content: <DemoPersonaPanel />,
     },
     {
       id: 'recents',
@@ -51,6 +58,7 @@ function buildContent(): WidgetContent {
     personas,
     starters,
     sidePanels: buildSidePanels(),
+    launcherLabel: 'Ask Aristotle',
     useProfile: useHostProfile,
   }
 }

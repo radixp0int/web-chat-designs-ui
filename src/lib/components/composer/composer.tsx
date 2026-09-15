@@ -19,7 +19,7 @@ import type { ComposerProps } from './types'
 
 // Textarea growth behavior per density. `expandThreshold` is the draft length
 // at which the expand button appears; `expandedCap` is the max height while
-// expanded. Compact caps are fixed because the widget panel is ~600px tall.
+// expanded. Compact caps are fixed because the widget panel is ~660px tall.
 const SIZING: Record<
   UiSize,
   { expandThreshold: number; collapsed: number; expandedCap: () => number }
