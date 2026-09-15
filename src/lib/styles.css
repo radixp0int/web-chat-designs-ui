@@ -46,6 +46,8 @@
   --color-on-orb: var(--on-orb);
 
   /* status */
+  --color-notify: var(--notify);
+  --color-on-notify: var(--on-notify);
   --color-danger: var(--danger);
   --color-danger-fg: var(--danger-fg);
   --color-danger-fg-soft: var(--danger-fg-soft);
@@ -186,6 +188,44 @@
       inset 0 -6px 14px color-mix(in srgb, var(--orb-shade) 35%, transparent),
       inset 0 4px 10px color-mix(in srgb, var(--orb-sheen) 50%, transparent),
       0 10px 30px var(--orb-glow);
+  }
+
+  /* The launcher's first-run label. Collapsed to a zero-width grid column and
+     revealed on hover or focus — 0fr/1fr rather than a fixed width so it sizes
+     to whatever label the host passes instead of clipping a longer one.
+     The sphere is NOT inside this, so it never moves: a label that pushed the
+     sphere would drop the hover that opened it, collapse, and chatter.
+     Hover is gated on a real pointer — on touch :hover sticks after a tap and
+     the label would never close again. Focus-visible is not optional: this
+     label is the button's only visible name. */
+  .launcher-label {
+    display: grid;
+    grid-template-columns: 0fr;
+    transition: grid-template-columns 180ms cubic-bezier(0.22, 1, 0.36, 1) 80ms;
+  }
+  .launcher-label > span {
+    min-width: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 120ms ease-out;
+  }
+  @media (hover: hover) {
+    .launcher-expandable:hover .launcher-label {
+      grid-template-columns: 1fr;
+      transition-delay: 0ms;
+    }
+    .launcher-expandable:hover .launcher-label > span {
+      opacity: 1;
+      transition-delay: 60ms;
+    }
+  }
+  .launcher-expandable:focus-visible .launcher-label {
+    grid-template-columns: 1fr;
+    transition-delay: 0ms;
+  }
+  .launcher-expandable:focus-visible .launcher-label > span {
+    opacity: 1;
+    transition-delay: 60ms;
   }
 
   .shimmer-text {

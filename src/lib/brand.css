@@ -53,9 +53,7 @@
   --line: color-mix(in srgb, var(--brand-800) 10%, transparent);
   /* The rail down the inside of a turn (reasoning, tool payloads, the trace
      timeline). It carries meaning rather than decoration, so WCAG 2.2 SC 1.4.11
-     applies and it needs 3:1 — which the accent can't reach even at full
-     strength (~3.04:1 here, the same shortfall noted for --focus-ring below).
-     The alpha is baked in on purpose: components use a bare `border-rail`, so
+     applies and it needs 3:1. The alpha is baked in on purpose: components use a bare `border-rail`, so
      no one can reintroduce an opacity modifier and quietly break the ratio. */
   --rail: color-mix(in srgb, var(--brand-600) 70%, transparent);
   --scrim: var(--brand-950);
@@ -80,12 +78,12 @@
   --accent: var(--accent-500);
   --accent-hover: var(--accent-600);
   --on-accent: #ffffff;
-  /* Accent as *text* on --canvas. A brand orange at full saturation is ~3:1
-     there, so this is a step darker than the solid fill — the fills below keep
-     the exact brand value. */
+  /* Accent as *text* on --canvas — a step darker than the solid fill, so it
+     clears 4.5:1 rather than the ~3:1 a mid-ramp step manages. Kept as its own
+     token so a fill value is never reused as text (the mistake this fixes). */
   --accent-fg: var(--accent-700);
   --highlight: var(--accent-500); /* <mark> */
-  /* WCAG 2.2 wants 3:1 for a focus indicator; accent-500 lands just under. */
+  /* WCAG 2.2 wants 3:1 for a focus indicator; 600 clears it with room. */
   --focus-ring: var(--accent-600);
   --selection: color-mix(in srgb, var(--accent-500) 28%, transparent);
 
@@ -104,6 +102,15 @@
   --bubble: var(--brand-600); /* user message bubble */
   --on-bubble: #ffffff;
 
+  /* Activity marker on the launcher — the one place the warm hue carries
+     meaning rather than decoration, so unlike the raw --ember-* ramp it is
+     contrast-checked. The fill clears 3:1 on both panels (3.12:1 light,
+     5.00:1 dark); the count needs the deep ink, because WHITE on ember is
+     3.12:1 and fails the 4.5:1 text bar. Don't "simplify" --on-notify to
+     white. Themes without an ember fall back to their accent. */
+  --notify: var(--ember-500, var(--accent-500));
+  --on-notify: var(--brand-950);
+
   /* status */
   --danger: var(--danger-500);
   --danger-fg: var(--danger-700);
@@ -117,10 +124,16 @@
   --shadow-menu: color-mix(in oklab, var(--brand-950) 20%, transparent);
   --shadow-deep: color-mix(in oklab, var(--brand-950) 25%, transparent);
 
-  /* the orb logo mark — five stacked radial gradients, see .orb in styles.css */
+  /* the orb logo mark — five stacked radial gradients, see .orb in styles.css.
+     Its two warm blooms come from --ember-*, which is deliberately NOT part of
+     the accent ramp: the mark is aria-hidden decoration, so it can carry a hue
+     that would never clear 4.5:1 as text. Keep it that way — a warm value
+     wanted for UI state gets its own contrast-checked token instead (see
+     --notify above, which is the only such case). Themes that declare no
+     ember fall back to their accent. */
   --orb-sheen: #ffffff;
-  --orb-1: var(--accent-300);
-  --orb-2: var(--accent-500);
+  --orb-1: var(--ember-300, var(--accent-300));
+  --orb-2: var(--ember-500, var(--accent-500));
   --orb-3: var(--brand-500);
   --orb-core-from: var(--brand-300);
   --orb-core-to: var(--brand-600);
@@ -160,9 +173,17 @@
   --code: color-mix(in oklab, #ffffff 10%, transparent);
   --code-block: color-mix(in oklab, #ffffff 5%, transparent);
 
-  --accent-fg: var(--accent-400);
+  /* Blue as text on a dark panel needs the 300 step — 400 lands ~3.1-3.9:1,
+     under the 4.5:1 text bar in every shipped theme. */
+  --accent-fg: var(--accent-300);
   --highlight: var(--accent-400);
+  /* A focus indicator only needs 3:1, which 400 clears. */
   --focus-ring: var(--accent-400);
+  /* Solid accent fills invert on dark for the same reason --brand-solid does
+     below: a mid-ramp blue sits at ~2.0-2.8:1 against the panel and the badge
+     simply disappears. Pale fill, deep glyph — both ends clear then. */
+  --accent: var(--accent-200);
+  --on-accent: var(--accent-700);
 
   --brand-fg: var(--brand-300);
   --brand-fg-hover: var(--brand-200);
@@ -186,7 +207,7 @@
 }
 
 /* ---------------------------------------------------------------------------
-   §3  DEFAULT THEME — PNC (brand blue / accent orange)
+   §3  DEFAULT THEME — PNC (brand blue, used for accent too)
    Also the fallback for `:root` and `:host` when no theme class is set.
 
    Values marked ✔ are taken from pnc.com's live stylesheets, by frequency of
@@ -210,11 +231,18 @@
   --brand-900: #002a52;
   --brand-950: #001932; /* ✔ */
 
-  --accent-300: #ffb27a;
-  --accent-400: #f58025; /* ✔ */
-  --accent-500: #ef6a00; /* ✔ PNC primary orange */
-  --accent-600: #c85400; /* solid-fill hover, focus ring */
-  --accent-700: #b04800; /* accent as text (see --accent-fg) */
+  /* accent — the action hue. Aliased to the brand blue: this product runs one
+     hue, and the orange it replaced failed 4.5:1 as text and behind a white
+     glyph (~3.1:1 both). var() rather than copied hex so the two can't drift. */
+  --accent-200: var(--brand-200); /* dark-mode solid fill (see §2) */
+  --accent-300: var(--brand-300);
+  --accent-400: var(--brand-400);
+  --accent-500: var(--brand-500);
+  --accent-600: var(--brand-600);
+  --accent-700: var(--brand-700);
+  /* decorative warm blooms for the orb only — see --orb-1/--orb-2 in §1 */
+  --ember-300: #ffb27a;
+  --ember-500: #ef6a00;
 
   --danger-300: oklch(80.8% 0.114 19.571);
   --danger-400: oklch(70.4% 0.191 22.216);
@@ -243,8 +271,9 @@
    ------------------------------------------------------------------------ */
 
 /* Aristotle 1 — the palette this library shipped with before the default was
-   realigned to PNC's live brand values. Same blue, a lighter orange
-   (#f7841f rather than #ef6a00), and a slightly desaturated navy. */
+   realigned to PNC's live brand values. Same blue, a slightly desaturated
+   navy. (Its lighter orange went the way of the default's — see the accent
+   block below.) */
 .chat-theme-aristotle1,
 [data-chat-theme='aristotle1'] {
   --font-brand-family: 'Nunito Sans', ui-sans-serif, system-ui, sans-serif;
@@ -261,11 +290,18 @@
   --brand-900: #0e2238;
   --brand-950: #0a1828;
 
-  --accent-300: #ffc48a;
-  --accent-400: #fb9c47;
-  --accent-500: #f7841f;
-  --accent-600: #db6c0d;
-  --accent-700: #a85408;
+  /* accent — the action hue. Aliased to the brand blue: this product runs one
+     hue, and the orange it replaced failed 4.5:1 as text and behind a white
+     glyph (~3.1:1 both). var() rather than copied hex so the two can't drift. */
+  --accent-200: var(--brand-200); /* dark-mode solid fill (see §2) */
+  --accent-300: var(--brand-300);
+  --accent-400: var(--brand-400);
+  --accent-500: var(--brand-500);
+  --accent-600: var(--brand-600);
+  --accent-700: var(--brand-700);
+  /* decorative warm blooms for the orb only — see --orb-1/--orb-2 in §1 */
+  --ember-300: #ffc48a;
+  --ember-500: #f7841f;
 
   --danger-300: oklch(80.8% 0.114 19.571);
   --danger-400: oklch(70.4% 0.191 22.216);
@@ -289,8 +325,8 @@
 }
 
 /* Aristotle 2 — PNC's corporate & institutional look: the deep navy the
-   Corporate & Institutional page bands its hero with, same PNC orange for
-   action. Deeper and cooler than the default's retail blue.
+   Corporate & Institutional page bands its hero with. Deeper and cooler than
+   the default's retail blue.
    Values marked ✔ are taken from
    pnc.com/en/corporate-and-institutional.html. */
 .chat-theme-aristotle2,
@@ -309,11 +345,18 @@
   --brand-900: #04263c;
   --brand-950: #001e33; /* ✔ the hero band navy */
 
-  --accent-300: #ffb27a;
-  --accent-400: #f58025; /* ✔ */
-  --accent-500: #ef6a00; /* ✔ */
-  --accent-600: #c85400;
-  --accent-700: #b04800;
+  /* accent — the action hue. Aliased to the brand blue: this product runs one
+     hue, and the orange it replaced failed 4.5:1 as text and behind a white
+     glyph (~3.1:1 both). var() rather than copied hex so the two can't drift. */
+  --accent-200: var(--brand-200); /* dark-mode solid fill (see §2) */
+  --accent-300: var(--brand-300);
+  --accent-400: var(--brand-400);
+  --accent-500: var(--brand-500);
+  --accent-600: var(--brand-600);
+  --accent-700: var(--brand-700);
+  /* decorative warm blooms for the orb only — see --orb-1/--orb-2 in §1 */
+  --ember-300: #ffb27a;
+  --ember-500: #ef6a00;
 
   --danger-300: oklch(80.8% 0.114 19.571);
   --danger-400: oklch(70.4% 0.191 22.216);
@@ -348,13 +391,22 @@
   --brand-50 … --brand-950:  …            // 11 steps, your identity hue
                                           //   500/600 carry solid fills, 300 is the
                                           //   dark-mode legible step, 950 the dark canvas
-  --accent-300 … --accent-700: …          // 5 steps, your action hue
+  --accent-200 … --accent-700: …          // 6 steps, your action hue — alias them to
+                                          //   the brand ramp if you run a single hue
                                           //   500 is the primary button and every solid
-                                          //   fill, 600 its hover + the focus ring, 700
-                                          //   accent-as-text (pick it for ≥4.5:1 on
-                                          //   --canvas-light — a brand orange at full
-                                          //   saturation is usually ~3:1 there)
+                                          //   light-mode fill, 600 its hover + the focus
+                                          //   ring, 700 accent-as-text (pick it for
+                                          //   ≥4.5:1 on --canvas-light — a saturated
+                                          //   mid-ramp step is usually only ~3:1 there),
+                                          //   300 accent-as-text on dark, 200 the solid
+                                          //   fill on dark (pale fill, deep glyph)
   --danger-300 … --danger-700: …          // 5 steps, error states
+
+  --ember-300 / --ember-500: …            // optional, decoration only: the orb's two warm
+                                          //   blooms. Exempt from contrast rules because the
+                                          //   mark is aria-hidden — so never reuse these for
+                                          //   text, icons or state. Omit to let the orb take
+                                          //   your accent hue instead.
 
   --canvas-light: …                       // page background
   --panel-light: …                        // translucent glass fill (needs alpha)

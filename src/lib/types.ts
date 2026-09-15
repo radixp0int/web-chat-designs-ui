@@ -157,6 +157,20 @@ export type RecentChat = {
   when: string
 }
 
+/**
+ * One layer of the stacked prompt template shown in the widget's Persona side
+ * panel. Layers apply in ascending `priority` — 1 is the base every later layer
+ * builds on — so the panel orders by that field rather than by array order.
+ */
+export type PromptTemplate = {
+  id: string
+  /** 1 applies first. Ties keep their given order. */
+  priority: number
+  /** What this layer contributes ("Base persona", "Compliance"). */
+  label?: string
+  body: string
+}
+
 /** A side-rail tab plus its panel, injected into the widget by the host. */
 export type SidePanel = {
   id: string
