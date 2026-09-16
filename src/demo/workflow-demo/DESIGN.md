@@ -41,7 +41,7 @@ reader can still tell agent work from human work at 40%.
 0.7-1.0 zoom its text reaches the screen at 5-7px. Two letters also have to stay
 inside the circle's inscribed square (diameter × 0.707) or they crowd the curve —
 "DW" bold measures ~1.86× its font size, so the font is 0.36 × the diameter.
-Below `INITIALS_MIN` in [StepNode.tsx](./StepNode.tsx) the avatar falls back to a
+Below `INITIALS_MIN` in [StepNode.tsx](./canvas/KindIcon.tsx) the avatar falls back to a
 filled person glyph, which reads at any scale; in practice only the run panel's
 34px avatar keeps its letters. The name itself lives in the node's text and the
 inspector, where there is room to read it. A _dashed_ outline person is something
@@ -59,7 +59,7 @@ don't "fix" it to white.
 ## Zoom: drop content, don't shrink text
 
 At 60% zoom a 13.5px label renders at 8px. So each tier down drops content and
-counter-scales what is left ([zoom.ts](./zoom.ts)):
+counter-scales what is left ([zoom.ts](./canvas/zoom.ts)):
 
 | Tier         | Zoom    | Shows                                          |
 | ------------ | ------- | ---------------------------------------------- |
