@@ -148,12 +148,13 @@ npm run dev
 
 ### Routes
 
-| Route          | What it is                                                                                                                                          |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`            | Landing page linking to the demos                                                                                                                   |
-| `/chat`        | Full-page assistant — sidebar, streaming, inline citations + reference reader                                                                       |
-| `/widget-demo` | A host page ("Alder & Finch") with the chat embedded as a floating widget                                                                           |
-| `/mermaid-lab` | **Temporary.** Two mermaid renderers side by side against one diagram corpus. Deleted, along with the losing dependency, once a renderer is picked. |
+| Route            | What it is                                                                                                                                                              |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`              | Landing page linking to the demos                                                                                                                                       |
+| `/chat`          | Full-page assistant — sidebar, streaming, inline citations + reference reader                                                                                           |
+| `/widget-demo`   | A host page ("Alder & Finch") with the chat embedded as a floating widget                                                                                               |
+| `/workflow-demo` | A multi-step agentic run with a human approval step — React Flow canvas, normal/compact views, zoom levels of detail. See [DESIGN.md](src/demo/workflow-demo/DESIGN.md) |
+| `/mermaid-lab`   | **Temporary.** Two mermaid renderers side by side against one diagram corpus. Deleted, along with the losing dependency, once a renderer is picked.                     |
 
 ### Project structure
 
@@ -178,6 +179,7 @@ src/
     mocks/                 client-side fallback data — cannedTurns, sideTabData
     widget/                Aristotle widget bootstrap (font inject, auto-init, side panels)
     pages/                 LandingPage, WidgetDemoPage
+    workflow-demo/         agentic run canvas (React Flow) — see its DESIGN.md
     mermaid-lab/           temporary renderer bake-off
   main.tsx                 router entry
 ```
