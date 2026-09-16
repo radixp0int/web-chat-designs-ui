@@ -16,6 +16,12 @@ const demos = [
     title: 'Embedded widget',
     body: 'The same chat as a floating widget dropped onto a host page with a single script tag — shadow-DOM isolated and theme-synced.',
   },
+  {
+    to: '/workflow-demo',
+    icon: PlanIcon,
+    title: 'Agentic workflow',
+    body: 'A multi-step run that stops for a human approval — stage columns, a compact view for big runs, and nodes that simplify as you zoom out.',
+  },
 ]
 
 /** Simple entry page linking to each demo route. */
