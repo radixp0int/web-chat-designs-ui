@@ -248,8 +248,14 @@
   .demo-marker {
     /* 28px of ribbon left on screen at rest. Because it is anchored right and
        slid right, what stays visible is its INNER end — so the tab you see is
-       the notched tip, and the flat edge is the part off-screen. */
-    transform: translateX(calc(100% - 28px));
+       the notched tip, and the flat edge is the part off-screen.
+
+       `top` and the -50% centring both live here rather than as utilities: a
+       `-translate-y-1/2` class would write the whole `transform` and clobber
+       the slide, and `top` has to be overridable by the touch block below,
+       which a utility in this same layer could not be relied on to lose to. */
+    top: 50%;
+    transform: translate(calc(100% - 28px), -50%);
     filter: drop-shadow(0 1px 1.5px var(--shadow-menu));
     transition:
       transform 380ms cubic-bezier(0.34, 1.48, 0.52, 1),
@@ -269,7 +275,7 @@
   @media (hover: hover) {
     .demo-marker:hover,
     .demo-marker:focus-visible {
-      transform: translateX(0);
+      transform: translate(0, -50%);
       filter: drop-shadow(0 7px 12px var(--shadow-deep));
     }
     .demo-marker:hover .demo-marker-label,
@@ -278,10 +284,16 @@
     }
   }
   /* Touch has no hover to reveal it with, so it is parked open instead. The
-     label sheds its first word below `sm` — see DemoFrame. */
+     label sheds its first word below `sm` — see DemoFrame.
+
+     That makes it permanent furniture rather than something you summon, so it
+     cannot keep the centre of the edge: there it sat straight on top of the
+     chat composer. Up under the header, where the pointer version used to be,
+     is out of everything's way. */
   @media (hover: none) {
     .demo-marker {
-      transform: translateX(0);
+      top: 5.5rem;
+      transform: translate(0, 0);
     }
     .demo-marker-label {
       opacity: 1;
