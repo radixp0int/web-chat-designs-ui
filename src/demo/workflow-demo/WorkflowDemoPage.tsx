@@ -21,6 +21,7 @@ import { RunLog } from './panels/RunLog'
 import { RunSidebar, type NeedsItem } from './panels/RunSidebar'
 import { RunTopBar } from './panels/RunTopBar'
 import { StageInspector } from './panels/StageInspector'
+import { StepDetail } from './panels/StepDetail'
 import { StepInspector } from './panels/StepInspector'
 import { useRun, type Decision, type RunSource } from './run'
 import type { View } from './canvas'
@@ -48,6 +49,10 @@ export function WorkflowDemoPage({ source }: { source: RunSource }) {
   const [runPanelOpen, setRunPanelOpen] = useState(true)
   const [detailsOpen, setDetailsOpen] = useState(true)
   const [logOpen, setLogOpen] = useState(false)
+  /* The selected step, shown as a page instead of in the panel. A boolean, not
+     a second id: it is always the step the panel is on, so the two can never
+     disagree about what is being decided. */
+  const [expanded, setExpanded] = useState(false)
 
   const stageOf = useCallback(
     (stepId: string | null) => (stepId && graph?.stepById.get(stepId)?.stageId) || null,
@@ -62,9 +67,24 @@ export function WorkflowDemoPage({ source }: { source: RunSource }) {
       setSelectedStageId(stageOf(id))
       setPanelShows('step')
       setUserPicked(id !== null)
+      setExpanded(false)
       if (id) setDetailsOpen(true)
     },
     [stageOf],
+  )
+
+  /* Opening a step from the sidebar also frames its stage. `selectStep` on its
+     own deliberately does not — a live run moves the selection by itself, and
+     framing on every selection change would yank the viewport several times a
+     second (see `stageFocusSeq` in WorkflowCanvas). But a click in "Needs you"
+     is a deliberate act, exactly like a click on a stage row, so it gets the
+     same treatment: the stage lights up AND the canvas goes there. */
+  const openStepFromSidebar = useCallback(
+    (id: string) => {
+      selectStep(id)
+      setStageFocusSeq((n) => n + 1)
+    },
+    [selectStep],
   )
 
   /* Picking a stage clears the step, so the panel shows the stage rather than
@@ -79,6 +99,7 @@ export function WorkflowDemoPage({ source }: { source: RunSource }) {
       setPanelShows(next ? 'stage' : 'step')
       setUserPicked(true)
       setStageFocusSeq((n) => n + 1)
+      setExpanded(false)
       setDetailsOpen(true)
     },
     [selectedStageId],
@@ -166,7 +187,8 @@ export function WorkflowDemoPage({ source }: { source: RunSource }) {
           variants={run.variants}
           variantId={graph.variantId}
           onVariant={run.start}
-          onOpenStep={selectStep}
+          onOpenStep={openStepFromSidebar}
+          selectedStepId={selectedId}
           onCollapse={() => setRunPanelOpen(false)}
         />
       </CollapsiblePanel>
@@ -219,6 +241,18 @@ export function WorkflowDemoPage({ source }: { source: RunSource }) {
           />
         </div>
 
+        {expanded && selectedStep && (
+          <StepDetail
+            step={selectedStep}
+            status={selectedId ? statuses[selectedId] : undefined}
+            runTitle={graph.title}
+            decisions={(selectedId && decisionsFor[selectedId]) || []}
+            busy={busyStepId === selectedId}
+            onClose={() => setExpanded(false)}
+            onDecide={onDecide}
+          />
+        )}
+
         <CollapsiblePanel open={detailsOpen} width="w-[400px]">
           {selectedStage ? (
             <StageInspector
@@ -236,6 +270,7 @@ export function WorkflowDemoPage({ source }: { source: RunSource }) {
               decisions={(selectedId && decisionsFor[selectedId]) || []}
               busy={busyStepId === selectedId}
               onClose={() => setDetailsOpen(false)}
+              onExpand={() => setExpanded(true)}
               onDecide={onDecide}
             />
           )}
