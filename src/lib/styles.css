@@ -241,8 +241,18 @@
      could not be relied on to lose to.
 
      The slide is transform-only, so it never reflows the page beneath it.
+
+     The easing MUST NOT overshoot. A springy curve — this had
+     cubic-bezier(0.34, 1.48, 0.52, 1) — carries the tab past its target and
+     lets it settle back, and the tab is its own hover target: that sweep
+     crosses any cursor parked in the overshoot band, takes the hover, then
+     retracts out from under it and loses the hover again, flipping on every
+     pass. A monotonic curve can never reach past where hovering keeps it, so
+     the state cannot oscillate. This is the curve fade-up and .launcher-label
+     already use.
+
      Reduced motion is already handled: the global rule in @layer base collapses
-     every transition-duration, so this snaps rather than overshooting. */
+     every transition-duration. */
   .demo-marker {
     top: 50%;
     /* 28px left on screen at rest. Anchored left and slid left, so what stays
@@ -259,7 +269,7 @@
     border-radius: 0 22px 22px 0;
     box-shadow: 0 1px 2px var(--shadow-menu);
     transition:
-      transform 380ms cubic-bezier(0.34, 1.48, 0.52, 1),
+      transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 260ms ease;
   }
   .demo-marker-label {
