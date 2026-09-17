@@ -53,9 +53,6 @@ export function WidgetDemoPage() {
           Private wealth counsel
         </span>
         <nav className="ml-auto flex items-center gap-4 text-sm">
-          <Link to="/" className="underline-offset-4 hover:underline">
-            All demos
-          </Link>
           <Link to="/chat" className="underline-offset-4 hover:underline">
             Full chat
           </Link>

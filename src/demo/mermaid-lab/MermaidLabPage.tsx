@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { RENDERER_META } from './renderers/types'
 import { RendererColumn } from './RendererColumn'
@@ -64,10 +63,7 @@ export function MermaidLabPage() {
             <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-ink-soft">
               Two renderers, one diagram corpus. Temporary — once we pick one, this folder and the
               losing dependency get deleted, and the winner goes into the shared markdown renderer's{' '}
-              <code className="font-mono text-ink-strong">code</code> override.{' '}
-              <Link to="/" className="text-brand-fg underline underline-offset-2">
-                Back to demos
-              </Link>
+              <code className="font-mono text-ink-strong">code</code> override.
             </p>
           </div>
           <ThemeToggle />

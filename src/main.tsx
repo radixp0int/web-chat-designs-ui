@@ -12,17 +12,22 @@ import { MermaidLabPage } from './demo/mermaid-lab/MermaidLabPage.tsx'
 import { WorkflowRoute } from './demo/workflow-demo/WorkflowRoute.tsx'
 // The same page, driven by workflow-ws-server instead of the hard-coded run.
 import { WorkflowLiveRoute } from './demo/workflow-demo/WorkflowLiveRoute.tsx'
+// The shell the demo routes share — see the layout route below.
+import { DemoFrame } from './demo/components/DemoFrame.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/chat" element={<App />} />
-        <Route path="/widget-demo" element={<WidgetDemoPage />} />
-        <Route path="/workflow-demo" element={<WorkflowRoute />} />
-        <Route path="/workflow-live" element={<WorkflowLiveRoute />} />
-        <Route path="/mermaid-lab" element={<MermaidLabPage />} />
+        {/* Everything below the landing page gets the back-to-demos bookmark. */}
+        <Route element={<DemoFrame />}>
+          <Route path="/chat" element={<App />} />
+          <Route path="/widget-demo" element={<WidgetDemoPage />} />
+          <Route path="/workflow-demo" element={<WorkflowRoute />} />
+          <Route path="/workflow-live" element={<WorkflowLiveRoute />} />
+          <Route path="/mermaid-lab" element={<MermaidLabPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   </StrictMode>,

@@ -102,14 +102,23 @@
   --bubble: var(--brand-600); /* user message bubble */
   --on-bubble: #ffffff;
 
-  /* Activity marker on the launcher — the one place the warm hue carries
-     meaning rather than decoration, so unlike the raw --ember-* ramp it is
-     contrast-checked. The fill clears 3:1 on both panels (3.12:1 light,
+  /* Activity marker on the launcher — one of the two places the warm hue
+     carries meaning rather than decoration (--marker below is the other), so
+     unlike the raw --ember-* ramp it is contrast-checked. The fill clears 3:1 on both panels (3.12:1 light,
      5.00:1 dark); the count needs the deep ink, because WHITE on ember is
      3.12:1 and fails the 4.5:1 text bar. Don't "simplify" --on-notify to
      white. Themes without an ember fall back to their accent. */
   --notify: var(--ember-500, var(--accent-500));
   --on-notify: var(--brand-950);
+
+  /* The demo shell's back-to-demos bookmark (see `.demo-marker` in
+     styles.css). The second place the warm hue carries meaning rather than
+     decoration, so like --notify it is contrast-checked and unlike the raw
+     --ember-* ramp it may not be swapped for a prettier step: the 600 is the
+     shallowest one that clears 4.5:1 behind a white label (5.2:1), where the
+     500 manages only ~3.5:1. Dark inverts — see §2. */
+  --marker: var(--ember-600, var(--accent-600));
+  --on-marker: #ffffff;
 
   /* status */
   --danger: var(--danger-500);
@@ -129,7 +138,7 @@
      the accent ramp: the mark is aria-hidden decoration, so it can carry a hue
      that would never clear 4.5:1 as text. Keep it that way — a warm value
      wanted for UI state gets its own contrast-checked token instead (see
-     --notify above, which is the only such case). Themes that declare no
+     --notify and --marker above, which are the only such cases). Themes that declare no
      ember fall back to their accent. */
   --orb-sheen: #ffffff;
   --orb-1: var(--ember-300, var(--accent-300));
@@ -199,6 +208,14 @@
   --chip-fg: var(--brand-200);
   --bubble: var(--brand-500);
 
+  /* The same inversion --brand-solid makes above, for the same reason: the
+     deep 600 orange sits at ~1.9:1 against a navy panel and the tab simply
+     disappears. Bright fill, deep glyph — 5.1:1 for the fill on the canvas,
+     4.9:1 for the label on the fill. Don't "simplify" --on-marker to white:
+     white on the 500 is 3.5:1 and fails the text bar. */
+  --marker: var(--ember-500, var(--accent-500));
+  --on-marker: #2b1000;
+
   --danger-fg: var(--danger-300);
   --danger-fg-soft: var(--danger-400);
 
@@ -240,9 +257,13 @@
   --accent-500: var(--brand-500);
   --accent-600: var(--brand-600);
   --accent-700: var(--brand-700);
-  /* decorative warm blooms for the orb only — see --orb-1/--orb-2 in §1 */
+  /* The warm ramp. 300/500 are decoration — the orb's two blooms (--orb-1 /
+     --orb-2 in §1) and the activity count's fill; 600 is not, it backs the
+     demo shell's bookmark (--marker) behind a white label, so it is picked for
+     contrast rather than for looks. */
   --ember-300: #ffb27a;
   --ember-500: #ef6a00;
+  --ember-600: #c2410c;
 
   --danger-300: oklch(80.8% 0.114 19.571);
   --danger-400: oklch(70.4% 0.191 22.216);
@@ -299,9 +320,13 @@
   --accent-500: var(--brand-500);
   --accent-600: var(--brand-600);
   --accent-700: var(--brand-700);
-  /* decorative warm blooms for the orb only — see --orb-1/--orb-2 in §1 */
+  /* The warm ramp. 300/500 are decoration — the orb's two blooms (--orb-1 /
+     --orb-2 in §1) and the activity count's fill; 600 is not, it backs the
+     demo shell's bookmark (--marker) behind a white label, so it is picked for
+     contrast rather than for looks. */
   --ember-300: #ffc48a;
   --ember-500: #f7841f;
+  --ember-600: #b45309;
 
   --danger-300: oklch(80.8% 0.114 19.571);
   --danger-400: oklch(70.4% 0.191 22.216);
@@ -354,9 +379,13 @@
   --accent-500: var(--brand-500);
   --accent-600: var(--brand-600);
   --accent-700: var(--brand-700);
-  /* decorative warm blooms for the orb only — see --orb-1/--orb-2 in §1 */
+  /* The warm ramp. 300/500 are decoration — the orb's two blooms (--orb-1 /
+     --orb-2 in §1) and the activity count's fill; 600 is not, it backs the
+     demo shell's bookmark (--marker) behind a white label, so it is picked for
+     contrast rather than for looks. */
   --ember-300: #ffb27a;
   --ember-500: #ef6a00;
+  --ember-600: #c2410c;
 
   --danger-300: oklch(80.8% 0.114 19.571);
   --danger-400: oklch(70.4% 0.191 22.216);
@@ -402,11 +431,13 @@
                                           //   fill on dark (pale fill, deep glyph)
   --danger-300 … --danger-700: …          // 5 steps, error states
 
-  --ember-300 / --ember-500: …            // optional, decoration only: the orb's two warm
-                                          //   blooms. Exempt from contrast rules because the
-                                          //   mark is aria-hidden — so never reuse these for
-                                          //   text, icons or state. Omit to let the orb take
-                                          //   your accent hue instead.
+  --ember-300 / --ember-500 / --ember-600: …
+                                          // optional, your warm hue. 300/500 are decoration:
+                                          //   the orb's two blooms, exempt from contrast rules
+                                          //   because the mark is aria-hidden — never reuse
+                                          //   those for text. 600 IS text-bearing (--marker),
+                                          //   so pick it for ≥4.5:1 behind white. Omit the set
+                                          //   to let both take your accent hue instead.
 
   --canvas-light: …                       // page background
   --panel-light: …                        // translucent glass fill (needs alpha)
