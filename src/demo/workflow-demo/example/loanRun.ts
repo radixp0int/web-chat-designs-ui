@@ -13,15 +13,16 @@ import {
   type StatusMap,
   type StepSeed,
 } from '../canvas'
+import type { RunDetail } from '../run/wireProtocol'
 
-/** What this example puts in the detail panel. The canvas only carries it. */
-export type LoanDetail = {
-  summary: string
-  rows: [string, string][]
-  recommendation?: { from: string; verdict: string; figures: [string, string][] }
-  exception?: { text: string; mitigant: string }
-  trace?: [string, string, string][]
-}
+/**
+ * What this example puts in the detail panel. The canvas only carries it.
+ *
+ * It is now the shape every run uses, wire included, so it lives with the
+ * protocol — this alias is kept because "LoanDetail" is what reads right in a
+ * file about a loan.
+ */
+export type LoanDetail = RunDetail
 
 export const STAGES: StageSeed[] = [
   { id: 'intake', name: 'Intake', sub: '2 steps · 0:48', status: 'done' },

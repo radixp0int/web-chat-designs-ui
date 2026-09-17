@@ -1,7 +1,14 @@
 import { Link } from 'react-router'
-import { ChatIcon, ChevronRightIcon, PlanIcon, SparkleIcon } from '../../lib/components/icons'
+import {
+  ChatIcon,
+  ChevronRightIcon,
+  HistoryIcon,
+  PlanIcon,
+  SparkleIcon,
+} from '../../lib/components/icons'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { APP_NAME } from '../config'
+import { AmbientGlow } from '../components/AmbientGlow'
 
 const demos = [
   {
@@ -21,6 +28,12 @@ const demos = [
     icon: PlanIcon,
     title: 'Agentic workflow',
     body: 'A multi-step run that stops for a human approval — stage columns, a compact view for big runs, and nodes that simplify as you zoom out.',
+  },
+  {
+    to: '/workflow-live',
+    icon: HistoryIcon,
+    title: 'Live workflow runs',
+    body: 'The same canvas driven by a server: three different workflows stream in, the run log fills as work happens, and your approval goes back over the socket.',
   },
 ]
 
@@ -92,15 +105,3 @@ export function LandingPage() {
 }
 
 /** Soft brand-colored wash bleeding in from the page corners. */
-function AmbientGlow() {
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 -z-10"
-      style={{
-        background: `radial-gradient(60rem 40rem at 80% -10%, var(--canvas-glow-a), transparent 60%),
-          radial-gradient(50rem 35rem at -10% 110%, var(--canvas-glow-b), transparent 60%)`,
-      }}
-    />
-  )
-}

@@ -16,6 +16,7 @@ import { aristotleBranding } from './config'
 import { DemoFeaturesProvider, useDemoFeatureState } from './demoFeatures'
 import { cannedTurns } from './mocks/cannedTurns'
 import { personas } from './personas'
+import { AmbientGlow } from './components/AmbientGlow'
 
 // With VITE_WS_URL set (see .env.development), responses stream from the
 // mock WebSocket server in ../chat-ws-server; otherwise fall back to the
@@ -145,17 +146,5 @@ function App() {
 }
 
 /** Soft brand-colored wash bleeding in from the page corners. */
-function AmbientGlow() {
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 -z-10"
-      style={{
-        background: `radial-gradient(60rem 40rem at 80% -10%, var(--canvas-glow-a), transparent 60%),
-          radial-gradient(50rem 35rem at -10% 110%, var(--canvas-glow-b), transparent 60%)`,
-      }}
-    />
-  )
-}
 
 export default App

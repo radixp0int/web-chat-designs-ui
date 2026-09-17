@@ -4,14 +4,14 @@
 import { lazy, Suspense } from 'react'
 import { WorkflowSkeleton } from './WorkflowSkeleton'
 
-const WorkflowDemoPage = lazy(() =>
-  import('./WorkflowDemoPage').then((m) => ({ default: m.WorkflowDemoPage })),
+const StaticWorkflow = lazy(() =>
+  import('./StaticWorkflow').then((m) => ({ default: m.StaticWorkflow })),
 )
 
 export function WorkflowRoute() {
   return (
     <Suspense fallback={<WorkflowSkeleton />}>
-      <WorkflowDemoPage />
+      <StaticWorkflow />
     </Suspense>
   )
 }

@@ -70,6 +70,13 @@ export const PauseIcon = (p: IconProps) => (
   </svg>
 )
 
+/** Pause's counterpart, for a run that is stopped and can be let go again. */
+export const PlayIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M7.5 5.5 18 12 7.5 18.5Z" />
+  </svg>
+)
+
 /** Show or hide the details panel down the right-hand side. */
 export const PanelRightIcon = (p: IconProps) => (
   <svg {...base(p)}>

@@ -10,7 +10,7 @@ import { KindIcon } from './KindIcon'
 import { StatusMark } from './StatusMark'
 import { DEFAULT_STATUS_LABEL } from './types'
 import { StageMarker } from './StageMarker'
-import { useSelectStep } from './selection'
+import { useSelectStage, useSelectStep } from './selection'
 import type { StageNodeType } from './types'
 
 const handleStyle = {
@@ -21,22 +21,42 @@ const handleStyle = {
 }
 
 function StageNodeView({ data }: NodeProps<StageNodeType>) {
-  const { name, sub, status, steps, expanded, statuses, selectedId } = data
+  const { stageId, name, sub, status, steps, expanded, statuses, selectedId, selected } = data
   const current = status === 'current'
   const selectStep = useSelectStep()
+  const selectStage = useSelectStage()
   const waitingStep = steps.find((s) => statuses[s.id] === 'waiting')
 
   return (
     <div
-      className={`relative box-border flex flex-col rounded-2xl border border-line ${
+      className={`relative box-border flex flex-col rounded-2xl border transition-shadow ${
         current
-          ? 'bg-panel-solid/90 ring-2 ring-accent/35 shadow-lg shadow-(color:--shadow-raised)'
+          ? 'bg-panel-solid/90 shadow-lg shadow-(color:--shadow-raised)'
           : 'bg-panel shadow-sm shadow-(color:--shadow-soft)'
+      } ${
+        /* Two rings mean two different things, so they must not look alike:
+           `current` is where the run has got to, `selected` is where the reader
+           is looking. The reader's own choice is the louder of the two. */
+        selected
+          ? 'border-accent ring-2 ring-accent'
+          : current
+            ? 'border-line ring-2 ring-accent/35'
+            : 'border-line'
       }`}
     >
       <Handle type="target" position={Position.Left} style={handleStyle} />
 
-      <div className="flex h-14 items-center gap-2.5 border-b border-line pr-4 pl-[18px]">
+      {/* The header picks the whole stage; the rows below pick one step. Same
+          `nodrag` + stopPropagation rules as those rows. */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation()
+          selectStage(stageId)
+        }}
+        aria-pressed={selected}
+        className="nodrag flex h-14 w-full items-center gap-2.5 rounded-t-2xl border-b border-line pr-4 pl-[18px] text-left transition hover:bg-tint/6"
+      >
         <StageMarker status={status} />
         <div className="flex min-w-0 flex-col">
           <span className="text-[13.5px] leading-[18px] font-bold whitespace-nowrap text-ink-strong">
@@ -53,7 +73,7 @@ function StageNodeView({ data }: NodeProps<StageNodeType>) {
             <ChevronRightIcon width={16} height={16} />
           )}
         </span>
-      </div>
+      </button>
 
       <div className={expanded ? 'p-4' : 'px-4 py-1.5'}>
         {steps.map((step) => {
