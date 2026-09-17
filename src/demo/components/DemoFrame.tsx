@@ -1,5 +1,5 @@
 // The shell every demo route sits inside. Its whole job is the bookmark: a
-// ribbon parked off the right edge that slides out on hover and goes home.
+// rounded tab parked off the left edge that slides out on hover and goes home.
 //
 // One copy, mounted as a layout route in main.tsx, because the pages had three
 // different answers to the same question — a footer link in the workflow
@@ -15,28 +15,28 @@ export function DemoFrame() {
   return (
     <>
       <Outlet />
-      {/* Right edge rather than left: the left edge is a collapsible panel on
-          two of these pages, but so is the right, and this is the side a
-          bookmark reads from. Centred rather than high: the theme toggle owns
-          every page's top-right corner, and on /workflow-demo anything high on
-          that edge lands beside the inspector's "Needs approval" badge, which
-          is the same ember hue. The middle of the edge is clear of that and of
-          the decision buttons at the bottom — `.demo-marker` owns `top`, and
-          moves it up out of the composer's way on touch. z-20 keeps it under
-          the mobile
-          slide-overs (z-30 scrim, z-40 panel), which should cover it while
-          they are open.
+      {/* Left edge, centred. Centred because the theme toggle owns every page's
+          top-right corner and, high on either side, the tab collided with page
+          chrome — on /workflow-demo with the inspector's "Needs approval"
+          badge, which is the same ember hue. The middle is clear of that and of
+          the decision buttons at the bottom. `.demo-marker` owns `top`, and
+          moves it up out of the composer's way on touch.
+
+          z-20 keeps it under the mobile slide-overs (z-30 scrim, z-40 panel),
+          which should cover it while they are open.
 
           No aria-label: the label is opacity-0 at rest, not display-none, so it
           is still the link's accessible name. */}
-      <Link to="/" title="Back to Demos" className="demo-marker fixed right-0 z-20">
-        <span className="demo-marker-body flex h-11 items-center gap-2 pr-4 pl-6.5 text-[13.5px] font-bold tracking-[0.012em] whitespace-nowrap">
-          <ChevronLeftIcon width={14} height={14} className="demo-marker-label shrink-0" />
-          <span className="demo-marker-label">
-            {/* Touch parks the ribbon open, so on a phone this is permanent
-                furniture and earns less of the edge. */}
-            <span className="max-sm:hidden">Back to </span>Demos
-          </span>
+      <Link
+        to="/"
+        title="Back to Demos"
+        className="demo-marker fixed left-0 z-20 flex h-11 items-center gap-2 pr-6 pl-4 text-[13.5px] font-bold tracking-[0.012em] whitespace-nowrap"
+      >
+        <ChevronLeftIcon width={14} height={14} className="demo-marker-label shrink-0" />
+        <span className="demo-marker-label">
+          {/* Touch parks the tab open, so on a phone this is permanent
+              furniture and earns less of the edge. */}
+          <span className="max-sm:hidden">Back to </span>Demos
         </span>
       </Link>
     </>
