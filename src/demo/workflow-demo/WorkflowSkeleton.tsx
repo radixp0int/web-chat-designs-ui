@@ -4,6 +4,8 @@
 // before it could be shown would defeat the point. It draws the shell the real
 // page resolves into (panel, canvas, inspector) so the layout doesn't jump, and
 // it borrows the app's own motion: the drifting orb and the shimmer sweep.
+import { AmbientGlow } from '../components/AmbientGlow'
+
 export function WorkflowSkeleton() {
   return (
     <div className="relative flex h-dvh gap-4 overflow-hidden bg-canvas p-4" aria-hidden>
@@ -94,15 +96,3 @@ function Bar({ className = '', style }: { className?: string; style?: React.CSSP
 }
 
 /** Same wash the other pages use, so the load state is recognisably the app. */
-function AmbientGlow() {
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 -z-10"
-      style={{
-        background: `radial-gradient(60rem 40rem at 80% -10%, var(--canvas-glow-a), transparent 60%),
-          radial-gradient(50rem 35rem at -10% 110%, var(--canvas-glow-b), transparent 60%)`,
-      }}
-    />
-  )
-}

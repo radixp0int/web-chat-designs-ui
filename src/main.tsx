@@ -10,6 +10,8 @@ import { MermaidLabPage } from './demo/mermaid-lab/MermaidLabPage.tsx'
 // React Flow is only needed by this one route, so it rides its own chunk behind
 // a branded skeleton — see WorkflowRoute.tsx.
 import { WorkflowRoute } from './demo/workflow-demo/WorkflowRoute.tsx'
+// The same page, driven by workflow-ws-server instead of the hard-coded run.
+import { WorkflowLiveRoute } from './demo/workflow-demo/WorkflowLiveRoute.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -19,6 +21,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/chat" element={<App />} />
         <Route path="/widget-demo" element={<WidgetDemoPage />} />
         <Route path="/workflow-demo" element={<WorkflowRoute />} />
+        <Route path="/workflow-live" element={<WorkflowLiveRoute />} />
         <Route path="/mermaid-lab" element={<MermaidLabPage />} />
       </Routes>
     </BrowserRouter>

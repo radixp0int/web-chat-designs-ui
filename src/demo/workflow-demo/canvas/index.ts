@@ -10,7 +10,7 @@ export { KindIcon } from './KindIcon'
 export { StatusMark } from './StatusMark'
 export { StageMarker } from './StageMarker'
 export { CanvasLegend, ZoomCluster } from './chrome'
-export { SelectStepProvider, useSelectStep } from './selection'
+export { SelectStageProvider, SelectStepProvider, useSelectStage, useSelectStep } from './selection'
 export {
   MIN_ZOOM,
   MAX_ZOOM,

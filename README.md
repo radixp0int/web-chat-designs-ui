@@ -148,13 +148,14 @@ npm run dev
 
 ### Routes
 
-| Route            | What it is                                                                                                                                                              |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`              | Landing page linking to the demos                                                                                                                                       |
-| `/chat`          | Full-page assistant — sidebar, streaming, inline citations + reference reader                                                                                           |
-| `/widget-demo`   | A host page ("Alder & Finch") with the chat embedded as a floating widget                                                                                               |
-| `/workflow-demo` | A multi-step agentic run with a human approval step — React Flow canvas, normal/compact views, zoom levels of detail. See [DESIGN.md](src/demo/workflow-demo/DESIGN.md) |
-| `/mermaid-lab`   | **Temporary.** Two mermaid renderers side by side against one diagram corpus. Deleted, along with the losing dependency, once a renderer is picked.                     |
+| Route            | What it is                                                                                                                                                                                                                            |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`              | Landing page linking to the demos                                                                                                                                                                                                     |
+| `/chat`          | Full-page assistant — sidebar, streaming, inline citations + reference reader                                                                                                                                                         |
+| `/widget-demo`   | A host page ("Alder & Finch") with the chat embedded as a floating widget                                                                                                                                                             |
+| `/workflow-demo` | A multi-step agentic run with a human approval step — React Flow canvas, normal/compact views, zoom levels of detail. See [its README](src/demo/workflow-demo/README.md)                                                              |
+| `/workflow-live` | The same canvas driven by `../workflow-ws-server`: three workflow variants stream in, the run log fills as work happens, and approvals go back over the socket. Falls back to the hard-coded run when `VITE_WORKFLOW_WS_URL` is unset |
+| `/mermaid-lab`   | **Temporary.** Two mermaid renderers side by side against one diagram corpus. Deleted, along with the losing dependency, once a renderer is picked.                                                                                   |
 
 ### Project structure
 
@@ -175,11 +176,17 @@ src/
     App.tsx                full-page chat
     config.ts              Aristotle branding
     personas.ts            persona list
-    components/            app chrome — Sidebar, TopBar, Hero, ConversationView, …
+    components/            app chrome — Sidebar, TopBar, Hero, AmbientGlow, …
     mocks/                 client-side fallback data — cannedTurns, sideTabData
     widget/                Aristotle widget bootstrap (font inject, auto-init, side panels)
     pages/                 LandingPage, WidgetDemoPage
-    workflow-demo/         agentic run canvas (React Flow) — see its DESIGN.md
+    workflow-demo/         agentic run canvas (React Flow) — see its README
+      README.md            what the demo does — start here
+      DESIGN.md            why it is built this way
+      canvas/              the portable kit — nodes, edges, zoom tiers
+      run/                 the RunSource seam — wire types, layout, reducer, sources
+      panels/              host chrome — sidebar, top bar, inspector, lanes, run log
+      example/             the hard-coded loan run
     mermaid-lab/           temporary renderer bake-off
   main.tsx                 router entry
 ```
@@ -198,6 +205,19 @@ variable ([App.tsx](src/demo/App.tsx), [aristotleWidget.tsx](src/demo/widget/ari
 
 `VITE_WS_URL` is read **only at Vite startup**. Editing `.env.development` needs
 a dev-server restart; an HMR reload won't pick it up.
+
+The workflow canvas has the same seam, one level up: `RunSource` instead of
+`Responder`, chosen by its own variable
+([LiveWorkflow.tsx](src/demo/workflow-demo/LiveWorkflow.tsx)).
+
+| `VITE_WORKFLOW_WS_URL`    | Source                  | Runs come from                              |
+| ------------------------- | ----------------------- | ------------------------------------------- |
+| set (the shipped default) | `wsRunSource`           | `../workflow-ws-server/src/variants/`       |
+| unset / commented out     | `createStaticRunSource` | `src/demo/workflow-demo/example/loanRun.ts` |
+
+`/workflow-demo` always uses the static source, so it works with no server at
+all. Only `/workflow-live` looks at the variable. Both ports are separate:
+chat is 8787, workflow runs are **8788**.
 
 ### What runs where
 
@@ -291,14 +311,15 @@ upgrades the trace to `recovered` ([useChat.ts](src/lib/hooks/useChat.ts)) —
 
 ## Other string values
 
-| Where                 | Values                                                                                                                         |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Theme class           | `chat-theme-default`, `chat-theme-aristotle1`, `chat-theme-aristotle2` — or the attribute form, `data-chat-theme="aristotle2"` |
-| Colour mode           | `dark` / `light` class, on the **same element** as the theme                                                                   |
-| Widget script tag     | `data-auto-init`, `data-theme` (`light`/`dark`/`auto`), `data-theme-class`, `data-position` (`bottom-right`/`bottom-left`)     |
-| `mountWidget` options | `target`, `theme`, `themeClass`, `position`, `zIndex`                                                                          |
-| Env                   | `VITE_WS_URL` — set for the server, unset for canned                                                                           |
-| localStorage          | `aristotle-theme`, `sidebar-collapsed`, `demo-features`, `ref-panel-w`                                                         |
+| Where                 | Values                                                                                                                                       |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Theme class           | `chat-theme-default`, `chat-theme-aristotle1`, `chat-theme-aristotle2` — or the attribute form, `data-chat-theme="aristotle2"`               |
+| Colour mode           | `dark` / `light` class, on the **same element** as the theme                                                                                 |
+| Widget script tag     | `data-auto-init`, `data-theme` (`light`/`dark`/`auto`), `data-theme-class`, `data-position` (`bottom-right`/`bottom-left`)                   |
+| `mountWidget` options | `target`, `theme`, `themeClass`, `position`, `zIndex`                                                                                        |
+| Env                   | `VITE_WS_URL` — set for the chat server, unset for canned; `VITE_WORKFLOW_WS_URL` — set for live workflow runs, unset for the hard-coded one |
+| localStorage          | `aristotle-theme`, `sidebar-collapsed`, `demo-features`, `ref-panel-w`                                                                       |
+| sessionStorage        | `workflow-run-id`, `workflow-variant-id` — what `/workflow-live` re-attaches to after a reload                                               |
 
 `demo-features` is worth remembering: it persists the feature toggles, so a
 capability can look "missing" because it was switched off in a previous session.

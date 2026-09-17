@@ -93,6 +93,7 @@ export function buildStageNodes<D>(
   layout: Record<string, StageLayout>,
   statuses: StatusMap,
   selectedId: string | null,
+  selectedStageId: string | null = null,
 ): StageNodeType[] {
   return stages.map((stage) => {
     const l = layout[stage.id]
@@ -108,6 +109,7 @@ export function buildStageNodes<D>(
         status: stage.status,
         expanded: l.expanded,
         selectedId,
+        selected: stage.id === selectedStageId,
         statuses,
         steps: steps
           .filter((s) => s.stageId === stage.id)

@@ -83,6 +83,8 @@ export type StageBase = {
   statuses: StatusMap
   /** So a stage card can mark which of its rows is the one open in the panel. */
   selectedId: string | null
+  /** Whether this whole stage is the one being looked at. */
+  selected: boolean
 }
 
 export type StepData<D = StepDetail> = StepBase<D> & { status: StepStatus } & Record<

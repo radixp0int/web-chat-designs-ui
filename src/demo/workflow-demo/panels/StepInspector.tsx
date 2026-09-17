@@ -1,12 +1,16 @@
-// Right panel: the selected step in full, and — for the one step that is waiting
-// on a person — the decision itself. Compact nodes plus this panel is the trade
-// the "Normal view" makes: the canvas stays scannable, the detail lives here.
-import { XIcon } from '../../../lib/components/icons'
-import { IconButton } from '../../../lib/components/icon-button'
+// Right panel: the selected step in full, and — for a step that is waiting on a
+// person — the decision itself. Compact nodes plus this panel is the trade the
+// "Normal view" makes: the canvas stays scannable, the detail lives here.
+//
+// The step arrives as a prop rather than being looked up by id, so this panel
+// works for any run, hard-coded or streamed.
+import { useEffect, useState } from 'react'
 import { FlagIcon } from '../canvas/icons'
 import { KindIcon } from '../canvas'
-import type { StatusMap, StepStatus } from '../canvas'
-import { STEP_BY_ID } from './loanRun'
+import type { StepSeed, StepStatus } from '../canvas'
+import type { Decision, RunDetail } from '../run/wireProtocol'
+import { PanelShell } from './PanelShell'
+import { SectionLabel } from './SectionLabel'
 
 const KIND_LABEL = {
   agent: 'Agent',
@@ -27,59 +31,70 @@ const STATUS_LABEL: Record<StepStatus, string> = {
   changes: 'Sent back',
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="text-[11px] font-bold tracking-[0.14em] text-ink-soft uppercase">
-      {children}
-    </span>
-  )
+/* The three things a gate can be answered with. A gate offers a subset — an
+   incident is yes or no, a credit memo can also be sent back — so each button is
+   declared once here rather than written out three times at the call site.
+   Weight lives per-decision: two Tailwind font utilities on one element resolve
+   by stylesheet order, not by the order they appear in the string. */
+const BUTTON_BASE = 'h-9 rounded-lg text-[13px] transition disabled:opacity-50'
+
+const DECISION_BUTTON: Record<Decision, { label: string; className: string }> = {
+  declined: { label: 'Decline', className: 'px-2.5 font-semibold text-danger-fg hover:bg-tint/8' },
+  changes: {
+    label: 'Request changes',
+    className: 'border border-line bg-panel-solid px-3.5 font-semibold text-ink hover:bg-tint/6',
+  },
+  approved: {
+    label: 'Approve',
+    className: 'bg-accent px-4.5 font-bold text-on-accent hover:bg-accent-hover',
+  },
 }
 
+/** Answers that move the run forward, in the order they are offered. */
+const AFFIRMATIVE = ['changes', 'approved'] as const
+
 export function StepInspector({
-  stepId,
-  statuses,
+  step,
+  status,
+  decisions,
+  busy,
   onClose,
   onDecide,
 }: {
-  stepId: string | null
-  statuses: StatusMap
+  step: StepSeed<RunDetail> | null
+  status: StepStatus | undefined
+  /** Which buttons this gate allows. Empty hides the footer entirely. */
+  decisions: Decision[]
+  /** A decision is in flight — the server hasn't answered yet. */
+  busy: boolean
   onClose: () => void
-  onDecide: (decision: 'approved' | 'changes') => void
+  onDecide: (decision: Decision, note?: string) => void
 }) {
-  const step = stepId ? STEP_BY_ID.get(stepId) : undefined
+  const [note, setNote] = useState('')
+
+  // The note belongs to the decision in front of you, not to the panel.
+  useEffect(() => setNote(''), [step?.id])
 
   if (!step) {
     return (
-      <aside className="flex h-full w-full flex-col border-l border-line bg-panel-solid/45">
-        <div className="flex items-center gap-2.5 border-b border-line py-3 pr-3.5 pl-5">
-          <span className="flex-1 text-[13px] font-bold text-ink-strong">Step details</span>
-          <IconButton onClick={onClose} aria-label="Hide step details" title="Hide step details">
-            <XIcon width={14} height={14} />
-          </IconButton>
-        </div>
+      <PanelShell title="Step details" onClose={onClose}>
         <div className="flex flex-1 flex-col items-center justify-center gap-2 px-8 text-center">
           <span className="orb block size-8 rounded-full opacity-40" aria-hidden />
           <p className="text-[13px] leading-5 text-ink-soft">
             Select a step on the canvas to see what it produced and what it is waiting on.
           </p>
         </div>
-      </aside>
+      </PanelShell>
     )
   }
 
-  const status = statuses[step.id]
   const { detail } = step
   const waiting = status === 'waiting'
+  const canDecide = waiting && decisions.length > 0
+  const decide = (decision: Decision) => onDecide(decision, note.trim() || undefined)
 
   return (
-    <aside className="flex h-full w-full flex-col border-l border-line bg-panel-solid/45">
-      <div className="flex items-center gap-2.5 border-b border-line py-3 pr-3.5 pl-5">
-        <span className="flex-1 text-[13px] font-bold text-ink-strong">Step details</span>
-        <IconButton onClick={onClose} aria-label="Hide step details" title="Hide step details">
-          <XIcon width={14} height={14} />
-        </IconButton>
-      </div>
-
+    <PanelShell title="Step details" onClose={onClose}>
       <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 py-5">
         <div className="flex flex-col gap-2.5">
           <div className="flex items-center gap-2.5">
@@ -92,9 +107,11 @@ export function StepInspector({
                 Needs approval
               </span>
             ) : (
-              <span className="ml-auto text-xs font-semibold text-ink-soft">
-                {STATUS_LABEL[status]}
-              </span>
+              status && (
+                <span className="ml-auto text-xs font-semibold text-ink-soft">
+                  {STATUS_LABEL[status]}
+                </span>
+              )
             )}
           </div>
           <h2 className="text-[19px] leading-[26px] font-bold tracking-tight text-ink-strong">
@@ -114,7 +131,7 @@ export function StepInspector({
 
         {detail.recommendation && (
           <div className="flex flex-col gap-2.5">
-            <SectionLabel>Agent recommendation</SectionLabel>
+            <SectionLabel>{detail.recommendation.label ?? 'Agent recommendation'}</SectionLabel>
             <div className="rounded-lg bg-panel-solid p-4 ring-1 ring-line">
               <div className="flex items-center gap-2.5">
                 <KindIcon kind="agent" size={16} />
@@ -137,7 +154,7 @@ export function StepInspector({
 
         {detail.exception && (
           <div className="flex flex-col gap-2.5">
-            <SectionLabel>Policy exception</SectionLabel>
+            <SectionLabel>{detail.exception.label ?? 'Policy exception'}</SectionLabel>
             <div className="flex gap-2.5">
               <FlagIcon width={16} height={16} className="mt-0.5 shrink-0 text-ink-soft" />
               <div className="flex flex-col gap-0.5">
@@ -166,7 +183,7 @@ export function StepInspector({
         )}
       </div>
 
-      {waiting && (
+      {canDecide && (
         <div className="flex flex-col gap-3 border-t border-line px-6 pt-4.5 pb-5">
           <label htmlFor="wf-note" className="sr-only">
             Note for the audit trail
@@ -174,33 +191,47 @@ export function StepInspector({
           <textarea
             id="wf-note"
             rows={2}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            disabled={busy}
             placeholder="Add a note for the audit trail (optional)"
-            className="w-full resize-none rounded-lg border border-line bg-panel-solid px-3 py-2.5 text-[13px] text-ink-strong outline-none placeholder:text-ink-soft focus-visible:border-accent"
+            className="w-full resize-none rounded-lg border border-line bg-panel-solid px-3 py-2.5 text-[13px] text-ink-strong outline-none placeholder:text-ink-soft focus-visible:border-accent disabled:opacity-60"
           />
           <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              className="h-9 rounded-lg px-2.5 text-[13px] font-semibold text-danger-fg transition hover:bg-tint/8"
-            >
-              Decline
-            </button>
-            <button
-              type="button"
-              onClick={() => onDecide('changes')}
-              className="ml-auto h-9 rounded-lg border border-line bg-panel-solid px-3.5 text-[13px] font-semibold text-ink transition hover:bg-tint/6"
-            >
-              Request changes
-            </button>
-            <button
-              type="button"
-              onClick={() => onDecide('approved')}
-              className="h-9 rounded-lg bg-accent px-4.5 text-[13px] font-bold text-on-accent transition hover:bg-accent-hover"
-            >
-              Approve
-            </button>
+            {/* Decline sits left, the affirmative answers right, with a spacer
+                between — so no button has to know which siblings exist. */}
+            {decisions.includes('declined') && (
+              <DecisionButton decision="declined" busy={busy} onDecide={decide} />
+            )}
+            <span className="flex-1" />
+            {AFFIRMATIVE.filter((d) => decisions.includes(d)).map((d) => (
+              <DecisionButton key={d} decision={d} busy={busy} onDecide={decide} />
+            ))}
           </div>
         </div>
       )}
-    </aside>
+    </PanelShell>
+  )
+}
+
+function DecisionButton({
+  decision,
+  busy,
+  onDecide,
+}: {
+  decision: Decision
+  busy: boolean
+  onDecide: (decision: Decision) => void
+}) {
+  const { label, className } = DECISION_BUTTON[decision]
+  return (
+    <button
+      type="button"
+      onClick={() => onDecide(decision)}
+      disabled={busy}
+      className={`${BUTTON_BASE} ${className}`}
+    >
+      {label}
+    </button>
   )
 }
