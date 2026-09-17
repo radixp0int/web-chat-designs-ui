@@ -48,6 +48,8 @@
   /* status */
   --color-notify: var(--notify);
   --color-on-notify: var(--on-notify);
+  --color-marker: var(--marker);
+  --color-on-marker: var(--on-marker);
   --color-danger: var(--danger);
   --color-danger-fg: var(--danger-fg);
   --color-danger-fg-soft: var(--danger-fg-soft);
@@ -226,6 +228,64 @@
   .launcher-expandable:focus-visible .launcher-label > span {
     opacity: 1;
     transition-delay: 60ms;
+  }
+
+  /* The demo shell's bookmark — a ribbon parked off the right edge of every
+     demo page, with only its tab showing until you point at it. See
+     demo/components/DemoFrame.tsx, which is its only caller.
+
+     Not utilities, for three reasons that each bite:
+       · the swallowtail notch is a clip-path, and a box-shadow on the notched
+         element is clipped away with it — hence drop-shadow on the parent,
+         which follows the clipped silhouette;
+       · the rest position has to be a rule the `:hover` rule can outrank. As
+         an inline style or an arbitrary utility it would win and the ribbon
+         would never open;
+       · the slide is transform-only so it never reflows the page beneath it.
+
+     Reduced motion is already handled: the global rule in @layer base collapses
+     every transition-duration, so this snaps rather than overshooting. */
+  .demo-marker {
+    /* 28px of ribbon left on screen at rest. Because it is anchored right and
+       slid right, what stays visible is its INNER end — so the tab you see is
+       the notched tip, and the flat edge is the part off-screen. */
+    transform: translateX(calc(100% - 28px));
+    filter: drop-shadow(0 1px 1.5px var(--shadow-menu));
+    transition:
+      transform 380ms cubic-bezier(0.34, 1.48, 0.52, 1),
+      filter 260ms ease;
+  }
+  .demo-marker-body {
+    background: var(--marker);
+    color: var(--on-marker);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 13px 50%);
+  }
+  .demo-marker-label {
+    opacity: 0;
+    transition: opacity 150ms ease 80ms;
+  }
+  /* Gated on a real pointer, the way .launcher-expandable above is: on touch
+     :hover sticks after a tap and the ribbon would never close again. */
+  @media (hover: hover) {
+    .demo-marker:hover,
+    .demo-marker:focus-visible {
+      transform: translateX(0);
+      filter: drop-shadow(0 7px 12px var(--shadow-deep));
+    }
+    .demo-marker:hover .demo-marker-label,
+    .demo-marker:focus-visible .demo-marker-label {
+      opacity: 1;
+    }
+  }
+  /* Touch has no hover to reveal it with, so it is parked open instead. The
+     label sheds its first word below `sm` — see DemoFrame. */
+  @media (hover: none) {
+    .demo-marker {
+      transform: translateX(0);
+    }
+    .demo-marker-label {
+      opacity: 1;
+    }
   }
 
   .shimmer-text {

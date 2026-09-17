@@ -3,7 +3,6 @@
 // Everything run-shaped arrives as props. "Needs you" is a *list*, not a
 // boolean: a run can stop on two approvals at once (the onboarding variant
 // does), and the old single hardcoded card made the second one invisible.
-import { Link } from 'react-router'
 import { ChevronDownIcon, ChevronLeftIcon } from '../../../lib/components/icons'
 import { IconButton } from '../../../lib/components/icon-button'
 import { APP_NAME } from '../../config'
@@ -200,12 +199,6 @@ export function RunSidebar({
             <span className="truncate text-ink-soft">{actor.role}</span>
           </div>
         </div>
-        <Link
-          to="/"
-          className="mt-3 block text-xs font-semibold text-accent-fg underline-offset-2 hover:underline"
-        >
-          Back to demos
-        </Link>
       </div>
     </aside>
   )
