@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useBranding } from '../branding'
 import { ChatMessage } from '../components/chat-message'
 import { Composer } from '../components/composer'
@@ -10,12 +10,21 @@ import {
   XIcon,
 } from '../components/icons'
 import { IconButton } from '../components/icon-button'
+import { QueueDock, type QueueDockHandle } from '../components/queue-dock'
 import { ReferencePanel } from '../components/reference-panel'
 import { ResizableColumn } from '../components/resizable-column'
 import { ScrollToBottomButton } from '../components/scroll-to-bottom-button'
 import { SideTabPanel, SideTabRail, type SideTab } from '../components/side-tabs'
 import { useStickToBottom } from '../hooks/useStickToBottom'
-import type { Highlight, Message, Persona, SidePanel, Source } from '../types'
+import type {
+  Highlight,
+  Message,
+  Persona,
+  QueueMove,
+  QueuedMessage,
+  SidePanel,
+  Source,
+} from '../types'
 
 /** Host-provided profile shown in the header and greeting. */
 export type WidgetProfile = { name: string; loginId?: string }
@@ -35,10 +44,22 @@ type WidgetPanelProps = {
   sidePanels: SidePanel[]
   onSelectCitation: (id: number) => void
   onCloseCitation: () => void
+  /** Messages written but not yet run — the dock above the composer. */
+  queue: QueuedMessage[]
+  held: boolean
+  undoable: boolean
   onSubmit: (text: string) => void
   onStop: () => void
-  onSteer: (text: string) => void
+  onSendNow: (text: string) => void
+  onSendQueuedNow: (id: number) => void
+  onEditQueued: (id: number, text: string) => void
+  onMoveQueued: (id: number, to: QueueMove) => void
   onRemoveQueued: (id: number) => void
+  onHold: () => void
+  onResume: () => void
+  onCombineQueue: () => void
+  onClearQueue: () => void
+  onUndoQueue: () => void
   onRetry: (id: number) => void
   onReset: () => void
   onToggleExpand: () => void
@@ -61,10 +82,21 @@ export function WidgetPanel({
   sidePanels,
   onSelectCitation,
   onCloseCitation,
+  queue,
+  held,
+  undoable,
   onSubmit,
   onStop,
-  onSteer,
+  onSendNow,
+  onSendQueuedNow,
+  onEditQueued,
+  onMoveQueued,
   onRemoveQueued,
+  onHold,
+  onResume,
+  onCombineQueue,
+  onClearQueue,
+  onUndoQueue,
   onRetry,
   onReset,
   onToggleExpand,
@@ -73,6 +105,7 @@ export function WidgetPanel({
 }: WidgetPanelProps) {
   const { appName, disclaimer } = useBranding()
   const [persona, setPersona] = useState<string>(personas[0]?.id ?? '')
+  const dockRef = useRef<QueueDockHandle>(null)
   const { containerRef, contentRef, atBottom, scrollToBottom } = useStickToBottom()
   const inChat = messages.length > 0
   // Only the newest turn offers follow-ups, so branches don't stack up the thread.
@@ -167,7 +200,6 @@ export function WidgetPanel({
                       <ChatMessage
                         key={m.id}
                         message={m}
-                        onRemoveQueued={onRemoveQueued}
                         onRetry={onRetry}
                         onFollowup={m.id === lastId ? submit : undefined}
                         busy={busy}
@@ -213,18 +245,35 @@ export function WidgetPanel({
           </div>
 
           <div className="px-3 pb-2">
+            <QueueDock
+              ref={dockRef}
+              items={queue}
+              held={held}
+              busy={busy}
+              undoable={undoable}
+              onSendNow={onSendQueuedNow}
+              onEdit={onEditQueued}
+              onMove={onMoveQueued}
+              onRemove={onRemoveQueued}
+              onHold={onHold}
+              onResume={onResume}
+              onCombine={onCombineQueue}
+              onClear={onClearQueue}
+              onUndo={onUndoQueue}
+            />
             <Composer
               docked
               streaming={busy}
               onStop={onStop}
               onSubmit={(text, opts) => {
                 if (opts?.steer) {
-                  onSteer(text)
+                  onSendNow(text)
                   scrollToBottom()
                 } else {
                   submit(text)
                 }
               }}
+              onArrowUp={() => dockRef.current?.focusLast()}
               personas={personas}
               persona={persona}
               onPersonaChange={setPersona}

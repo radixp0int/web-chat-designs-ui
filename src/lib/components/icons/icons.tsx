@@ -225,3 +225,90 @@ export const CollapseDiagonalIcon = (p: IconProps) => (
     <path d="M20 10h-6V4M21 3l-7 7M4 14h6v6M3 21l7-7" />
   </svg>
 )
+
+/* --- Queue dock ----------------------------------------------------------
+   The send queue's own glyphs. QueueIcon's short last line is what separates
+   it from MenuIcon at a glance — the two sit metres apart in the composer. */
+
+export const QueueIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M4 7h16M4 12h16M4 17h9" />
+  </svg>
+)
+
+export const PauseIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M9 5v14M15 5v14" />
+  </svg>
+)
+
+export const PlayIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M8 5.5 19 12 8 18.5Z" />
+  </svg>
+)
+
+export const ClockIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <circle cx="12" cy="12" r="8.5" />
+    <path d="M12 7.5V12l3 1.8" />
+  </svg>
+)
+
+export const PencilIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M15.5 4.5 19.5 8.5M4 20h4L20.1 7.9a2.8 2.8 0 0 0-4-4L4 16z" />
+  </svg>
+)
+
+export const TrashIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M4.5 6.5h15M10 6.5V3.5h4v3M6.5 6.5 7.5 20.5h9l1-14" />
+  </svg>
+)
+
+/** Dots are a mark, not a stroke — filled so they read at 13px. */
+export const DotsIcon = (p: IconProps) => (
+  <svg {...base(p)} fill="currentColor" stroke="none">
+    <circle cx="5" cy="12" r="1.9" />
+    <circle cx="12" cy="12" r="1.9" />
+    <circle cx="19" cy="12" r="1.9" />
+  </svg>
+)
+
+/** Drag handle. Filled for the same reason as DotsIcon. */
+export const GripIcon = (p: IconProps) => (
+  <svg {...base(p)} fill="currentColor" stroke="none">
+    <circle cx="9" cy="6" r="1.6" />
+    <circle cx="15" cy="6" r="1.6" />
+    <circle cx="9" cy="12" r="1.6" />
+    <circle cx="15" cy="12" r="1.6" />
+    <circle cx="9" cy="18" r="1.6" />
+    <circle cx="15" cy="18" r="1.6" />
+  </svg>
+)
+
+export const ArrowToTopIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M12 20V9M7.5 13.5 12 9l4.5 4.5M5 5h14" />
+  </svg>
+)
+
+export const ArrowDownIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M12 5v12M7.5 12.5 12 17l4.5-4.5" />
+  </svg>
+)
+
+/** Two turns folded into one. */
+export const CombineIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M12 3.5v5M9 6l3-2.5L15 6M12 20.5v-5M9 18l3 2.5 3-2.5M4 12h16" />
+  </svg>
+)
+
+export const UndoIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M9 14.5 4.5 10 9 5.5M4.5 10h9a5.5 5.5 0 0 1 0 11h-2.5" />
+  </svg>
+)

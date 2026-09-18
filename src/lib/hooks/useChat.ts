@@ -1,9 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Responder } from '../engine/chatEngine'
-import type { Message, ToolCall, TurnFault, TurnStep, TurnTrace } from '../types'
+import type {
+  Message,
+  QueueMove,
+  QueuedMessage,
+  ToolCall,
+  TurnFault,
+  TurnStep,
+  TurnTrace,
+} from '../types'
 
 // Ids are unique across the whole session; they only ever move forward.
 let nextId = 1
+
+/** How long a removed or cleared queue stays restorable. */
+const UNDO_MS = 10_000
 
 /** Insert or update a tool call in place, matched by toolCallId. Later
  *  events omit fields sent earlier (completed has no input), so missing
@@ -118,23 +129,51 @@ function traced(m: Message, fn: (t: TurnTrace) => TurnTrace): Partial<Message> {
  * assistant reply (thinking, tool calls, then content), and tracks the busy
  * state.
  *
- * Sends funnel through a FIFO queue drained by a single pump, so messages
- * submitted mid-stream wait their turn (rendered with `queued: true`) instead
- * of being dropped. `stop` aborts the in-flight stream and pauses the queue;
- * `steer` aborts it and jumps a new message ahead of the queue. An interrupted
- * assistant message keeps its partial content, flagged `stopped: true`.
+ * Sends funnel through a FIFO queue drained by a single pump, so a message
+ * written mid-stream waits its turn instead of being dropped. The queue is
+ * returned separately from `messages` and is the queue dock's to render.
+ *
+ * The invariant that keeps the thread still: **a message is appended to
+ * `messages` once, when its turn actually starts, and never moves within the
+ * transcript again.** Queued text lives only in `queue` until then, so a
+ * growing answer can't shove it down the page and two queued turns can't swap
+ * places as the first dispatches.
+ *
+ * `stop` aborts the run and holds the queue — visibly, so nothing sits there
+ * silently waiting. `sendNow` aborts the run and jumps a message to the front.
+ * An interrupted assistant message keeps its partial content, flagged
+ * `stopped: true`.
  */
 export function useChat(responder: Responder) {
   const [messages, setMessages] = useState<Message[]>([])
   const [busy, setBusy] = useState(false)
+  const [queue, setQueue] = useState<QueuedMessage[]>([])
+  const [held, setHeld] = useState(false)
+  // What `clearQueue`/`removeQueued` just took away, restorable for UNDO_MS.
+  const [undoable, setUndoable] = useState<QueuedMessage[] | null>(null)
   const abortRef = useRef<AbortController | null>(null)
   // Source of truth for the drain loop — the async pump can't read fresh React
-  // state mid-flight. The `queued` flags on messages exist only to render.
-  const queueRef = useRef<{ id: number; text: string }[]>([])
+  // state mid-flight, so every queue mutation goes through `writeQueue`.
+  const queueRef = useRef<QueuedMessage[]>([])
   // Synchronous re-entrancy guard: only one pump drains at a time.
   const busyRef = useRef(false)
-  // Set by stop(): the queue holds until the next send/steer resumes it.
-  const pausedRef = useRef(false)
+  // Set by stop()/hold(): the queue waits until the reader resumes it.
+  const heldRef = useRef(false)
+  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  /** Single writer for both copies of the queue — the ref the pump reads and
+   *  the state the dock renders. They cannot be allowed to drift. */
+  const writeQueue = useCallback((next: QueuedMessage[]) => {
+    queueRef.current = next
+    setQueue(next)
+  }, [])
+
+  const offerUndo = useCallback((taken: QueuedMessage[]) => {
+    if (taken.length === 0) return
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current)
+    setUndoable(taken)
+    undoTimerRef.current = setTimeout(() => setUndoable(null), UNDO_MS)
+  }, [])
 
   const patch = useCallback((id: number, apply: (m: Message) => Partial<Message>) => {
     setMessages((ms) => ms.map((m) => (m.id === id ? { ...m, ...apply(m) } : m)))
@@ -149,24 +188,21 @@ export function useChat(responder: Responder) {
 
       const assistantId = nextId++
       const startedAt = Date.now()
-      // Move the dispatched user message to the end (it may have queued behind
-      // other turns) and clear its queued flag, so its reply lands beneath it.
-      setMessages((ms) => {
-        const user = ms.find((m) => m.id === userId)
-        const rest = ms.filter((m) => m.id !== userId)
-        return [
-          ...rest,
-          user ? { ...user, queued: false } : { id: userId, role: 'user', content: text },
-          {
-            id: assistantId,
-            role: 'assistant',
-            content: '',
-            thinking: '',
-            thinkingActive: true,
-            trace: { status: 'ok', startedAt, steps: [] },
-          },
-        ]
-      })
+      // The user turn joins the transcript HERE, at the moment it starts — not
+      // when it was written. That is the whole reason the thread never jumps:
+      // there is nothing queued in `messages` to re-order or push around.
+      setMessages((ms) => [
+        ...ms,
+        { id: userId, role: 'user', content: text },
+        {
+          id: assistantId,
+          role: 'assistant',
+          content: '',
+          thinking: '',
+          thinkingActive: true,
+          trace: { status: 'ok', startedAt, steps: [] },
+        },
+      ])
 
       const thinkingStart = startedAt
       try {
@@ -303,63 +339,80 @@ export function useChat(responder: Responder) {
     [responder, patch],
   )
 
-  /** Single consumer: drains the queue in FIFO order until empty or paused. */
+  /** Single consumer: drains the queue in FIFO order until empty or held. */
   const pump = useCallback(async () => {
     if (busyRef.current) return
     busyRef.current = true
     setBusy(true)
     try {
-      while (queueRef.current.length > 0 && !pausedRef.current) {
-        const next = queueRef.current.shift()!
+      while (queueRef.current.length > 0 && !heldRef.current) {
+        const [next, ...rest] = queueRef.current
+        writeQueue(rest)
         await runTurn(next.text, next.id)
       }
     } finally {
       busyRef.current = false
       setBusy(false)
     }
-  }, [runTurn])
+  }, [runTurn, writeQueue])
 
+  /** Queue a message behind whatever is running. With nothing running and no
+   *  hold in place it dispatches immediately, which is the idle case. */
   const send = useCallback(
     (text: string) => {
-      if (!text.trim()) return
-      const id = nextId++
-      // Rendered as queued when it can't dispatch immediately (a turn is
-      // streaming, or stale queued messages are ahead of it).
-      const queued = busyRef.current || queueRef.current.length > 0
-      setMessages((ms) => [...ms, { id, role: 'user', content: text, queued }])
-      queueRef.current.push({ id, text })
-      pausedRef.current = false
+      const body = text.trim()
+      if (!body) return
+      writeQueue([...queueRef.current, { id: nextId++, text: body }])
       void pump()
     },
-    [pump],
+    [pump, writeQueue],
   )
 
-  /** Abort the in-flight stream and hold the queue until the next send/steer. */
-  const stop = useCallback(() => {
-    pausedRef.current = true
-    abortRef.current?.abort()
-  }, [])
-
-  /** Interrupt the current stream and answer this message next, ahead of the queue. */
-  const steer = useCallback(
+  /**
+   * Interrupt the running turn and answer this message next. The rest of the
+   * queue keeps its order behind it, and a hold is released: asking for
+   * something *now* is as explicit as an intent gets.
+   */
+  const sendNow = useCallback(
     (text: string) => {
-      if (!text.trim()) return
-      const id = nextId++
-      setMessages((ms) => [...ms, { id, role: 'user', content: text }])
-      queueRef.current.unshift({ id, text })
-      pausedRef.current = false
+      const body = text.trim()
+      if (!body) return
+      heldRef.current = false
+      setHeld(false)
+      writeQueue([{ id: nextId++, text: body }, ...queueRef.current])
       // A running pump picks this up as soon as the aborted turn unwinds; the
       // trailing pump() call covers the idle case and no-ops otherwise.
       abortRef.current?.abort()
       void pump()
     },
-    [pump],
+    [pump, writeQueue],
   )
+
+  /** Stop the running turn and hold the queue. Both halves are deliberate: a
+   *  reader who stops an answer to think is not asking for the next queued
+   *  message to start writing. The dock says so, and offers Resume. */
+  const stop = useCallback(() => {
+    heldRef.current = true
+    setHeld(true)
+    abortRef.current?.abort()
+  }, [])
+
+  /** Hold the queue without touching the answer in progress. */
+  const hold = useCallback(() => {
+    heldRef.current = true
+    setHeld(true)
+  }, [])
+
+  const resume = useCallback(() => {
+    heldRef.current = false
+    setHeld(false)
+    void pump()
+  }, [pump])
 
   /**
    * Re-run the turn that produced an assistant message. Drops that answer and
-   * re-queues the user message that prompted it; `runTurn` re-finds the user
-   * bubble by id and moves it back to the end, so no id bookkeeping is needed.
+   * the user turn that prompted it, then re-queues the prompt at the front:
+   * the pair is appended again, in order, when the turn starts.
    */
   const retry = useCallback(
     (assistantId: number) => {
@@ -367,36 +420,140 @@ export function useChat(responder: Responder) {
       if (at === -1) return
       const user = messages.slice(0, at).findLast((m) => m.role === 'user')
       if (!user) return
-      setMessages((ms) => ms.filter((m) => m.id !== assistantId))
-      queueRef.current.push({ id: user.id, text: user.content })
-      pausedRef.current = false
+      setMessages((ms) => ms.filter((m) => m.id !== assistantId && m.id !== user.id))
+      heldRef.current = false
+      setHeld(false)
+      // Re-asking is not an interrupt: it takes its turn at the back, and shows
+      // in the dock while it waits like anything else queued.
+      writeQueue([...queueRef.current, { id: user.id, text: user.content }])
       void pump()
     },
-    [messages, pump],
+    [messages, pump, writeQueue],
   )
 
-  /** Remove a message from the queue before it sends. */
-  const removeQueued = useCallback((id: number) => {
-    queueRef.current = queueRef.current.filter((q) => q.id !== id)
-    setMessages((ms) => ms.filter((m) => !(m.id === id && m.queued)))
-  }, [])
+  /** Rewrite a queued message. Empty text removes it — clearing the box and
+   *  saving is how people delete things. */
+  const editQueued = useCallback(
+    (id: number, text: string) => {
+      const body = text.trim()
+      if (!body) {
+        const taken = queueRef.current.filter((q) => q.id === id)
+        writeQueue(queueRef.current.filter((q) => q.id !== id))
+        offerUndo(taken)
+        return
+      }
+      writeQueue(queueRef.current.map((q) => (q.id === id ? { ...q, text: body } : q)))
+    },
+    [offerUndo, writeQueue],
+  )
+
+  /** Move a queued message one place, to the front, or to an exact index
+   *  (what a drop reports). A plain number is always an absolute position —
+   *  relative steps are named, so the two can never be confused. */
+  const moveQueued = useCallback(
+    (id: number, to: QueueMove) => {
+      const items = queueRef.current
+      const at = items.findIndex((q) => q.id === id)
+      if (at === -1) return
+      const target =
+        to === 'front' ? 0 : to === 'up' ? at - 1 : to === 'down' ? at + 1 : Math.trunc(to)
+      if (target < 0 || target >= items.length || target === at) return
+      const next = items.filter((q) => q.id !== id)
+      next.splice(target, 0, items[at])
+      writeQueue(next)
+    },
+    [writeQueue],
+  )
+
+  /** Promote a queued message and run it now, interrupting the current turn.
+   *  Same path as `sendNow`, so there is one interrupt in the codebase. */
+  const sendQueuedNow = useCallback(
+    (id: number) => {
+      const items = queueRef.current
+      const at = items.findIndex((q) => q.id === id)
+      if (at === -1) return
+      heldRef.current = false
+      setHeld(false)
+      writeQueue([items[at], ...items.filter((q) => q.id !== id)])
+      abortRef.current?.abort()
+      void pump()
+    },
+    [pump, writeQueue],
+  )
+
+  /** Fold the whole queue into one turn, in order. */
+  const combineQueue = useCallback(() => {
+    const items = queueRef.current
+    if (items.length < 2) return
+    writeQueue([{ id: items[0].id, text: items.map((q) => q.text).join('\n\n') }])
+  }, [writeQueue])
+
+  /** Remove a message from the queue before it runs. Undoable. */
+  const removeQueued = useCallback(
+    (id: number) => {
+      const taken = queueRef.current.filter((q) => q.id === id)
+      writeQueue(queueRef.current.filter((q) => q.id !== id))
+      offerUndo(taken)
+    },
+    [offerUndo, writeQueue],
+  )
+
+  /** Empty the queue. Undoable — no dialog stands between a draft and the bin. */
+  const clearQueue = useCallback(() => {
+    const taken = queueRef.current
+    writeQueue([])
+    offerUndo(taken)
+  }, [offerUndo, writeQueue])
+
+  /** Put back what the last remove or clear took, at the end of the queue.
+   *  Ids are preserved, so a restored message is the same message. */
+  const undoQueue = useCallback(() => {
+    if (!undoable) return
+    const present = new Set(queueRef.current.map((q) => q.id))
+    writeQueue([...queueRef.current, ...undoable.filter((q) => !present.has(q.id))])
+    setUndoable(null)
+  }, [undoable, writeQueue])
 
   const reset = useCallback(() => {
-    queueRef.current = []
-    pausedRef.current = false
+    writeQueue([])
+    heldRef.current = false
+    setHeld(false)
+    setUndoable(null)
     abortRef.current?.abort()
     abortRef.current = null
     setMessages([])
     setBusy(false)
-  }, [])
+  }, [writeQueue])
 
   useEffect(
     () => () => {
       queueRef.current = []
+      if (undoTimerRef.current) clearTimeout(undoTimerRef.current)
       abortRef.current?.abort()
     },
     [],
   )
 
-  return { messages, busy, send, stop, steer, retry, removeQueued, reset }
+  return {
+    messages,
+    busy,
+    queue,
+    held,
+    /** True while the last remove or clear can still be undone. */
+    undoable: undoable !== null,
+    send,
+    sendNow,
+    stop,
+    hold,
+    resume,
+    retry,
+    editQueued,
+    moveQueued,
+    sendQueuedNow,
+    combineQueue,
+    removeQueued,
+    clearQueue,
+    undoQueue,
+    reset,
+  }
 }

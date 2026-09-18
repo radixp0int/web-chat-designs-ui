@@ -19,9 +19,12 @@ export type WidgetPosition = 'bottom-right' | 'bottom-left'
  * true once content starts, so a falsy check would call a turn finished before
  * it had produced a word. Every terminal path there — done, fault, abort,
  * responder throw — sets it explicitly to false.
+ *
+ * A user message in the transcript is always settled: one that hasn't run yet
+ * is in the queue, which the transcript never holds.
  */
 function isSettled(m: Message): boolean {
-  return m.role === 'user' ? !m.queued : m.streaming === false
+  return m.role === 'user' || m.streaming === false
 }
 
 /** Imperative surface the mount handle drives (open/close/setTheme). */
@@ -88,7 +91,27 @@ export function ChatWidget({
   const dark = useHostTheme(themeMode)
   const profile = useProfile()
 
-  const { messages, busy, send, stop, steer, retry, removeQueued, reset } = useChat(responder)
+  const {
+    messages,
+    busy,
+    queue,
+    held,
+    undoable,
+    send,
+    stop,
+    sendNow,
+    sendQueuedNow,
+    editQueued,
+    moveQueued,
+    removeQueued,
+    hold,
+    resume,
+    combineQueue,
+    clearQueue,
+    undoQueue,
+    retry,
+    reset,
+  } = useChat(responder)
 
   useEffect(() => {
     controller.current = {
@@ -195,10 +218,21 @@ export function ChatWidget({
                 sidePanels={sidePanels}
                 onSelectCitation={(id) => setCitation((c) => c && { ...c, activeId: id })}
                 onCloseCitation={() => setCitation(null)}
+                queue={queue}
+                held={held}
+                undoable={undoable}
                 onSubmit={send}
                 onStop={stop}
-                onSteer={steer}
+                onSendNow={sendNow}
+                onSendQueuedNow={sendQueuedNow}
+                onEditQueued={editQueued}
+                onMoveQueued={moveQueued}
                 onRemoveQueued={removeQueued}
+                onHold={hold}
+                onResume={resume}
+                onCombineQueue={combineQueue}
+                onClearQueue={clearQueue}
+                onUndoQueue={undoQueue}
                 onRetry={retry}
                 onReset={newChat}
                 onToggleExpand={toggleExpand}

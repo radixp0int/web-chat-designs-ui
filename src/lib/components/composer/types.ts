@@ -8,6 +8,9 @@ export type ComposerProps = {
   streaming?: boolean
   onStop?: () => void
   onSubmit: (text: string, opts?: { steer?: boolean }) => void
+  /** Up arrow on an empty draft — hands focus to the queue dock, when there
+   *  is one. Omitted, the key does nothing. */
+  onArrowUp?: () => void
   personas: Persona[]
   persona: string
   onPersonaChange: (id: string) => void
