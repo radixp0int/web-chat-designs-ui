@@ -103,6 +103,7 @@ export function ConversationView({
       held={held}
       busy={busy}
       undoable={undoable}
+      storageKey="queue-dock-minimized:conversation"
       onSendNow={onSendQueuedNow}
       onEdit={onEditQueued}
       onMove={onMoveQueued}

@@ -251,6 +251,7 @@ export function WidgetPanel({
               held={held}
               busy={busy}
               undoable={undoable}
+              storageKey="queue-dock-minimized"
               onSendNow={onSendQueuedNow}
               onEdit={onEditQueued}
               onMove={onMoveQueued}

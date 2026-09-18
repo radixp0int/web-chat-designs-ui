@@ -9,6 +9,11 @@ export type QueueDockProps = {
   busy: boolean
   /** A removal or clear is still undoable — the header offers it. */
   undoable?: boolean
+  /** When set, the minimized/expanded state persists to localStorage across
+   *  sessions. Omit it (the default) to keep that state in memory only — a
+   *  host mounting more than one dock needs a distinct key per instance, so
+   *  nothing is assumed on the component's behalf. */
+  storageKey?: string
   /** Run this message now, interrupting whatever is in flight. */
   onSendNow: (id: number) => void
   /** Rewrite a queued message. Empty text removes it. */
