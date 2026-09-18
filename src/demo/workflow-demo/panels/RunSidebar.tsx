@@ -25,6 +25,7 @@ export function RunSidebar({
   variantId,
   onVariant,
   onOpenStep,
+  selectedStepId,
   onCollapse,
 }: {
   header: RunHeader
@@ -39,6 +40,8 @@ export function RunSidebar({
   variantId: string
   onVariant: (id: string) => void
   onOpenStep: (id: string) => void
+  /** The step being looked at, if any — mirrors `selectedStageId` above. */
+  selectedStepId: string | null
   onCollapse: () => void
 }) {
   const current = variants.find((v) => v.id === variantId)
@@ -165,22 +168,31 @@ export function RunSidebar({
         </div>
         {needs.length > 0 ? (
           <div className="flex flex-col gap-2">
-            {needs.map((item) => (
-              <button
-                key={item.stepId}
-                type="button"
-                onClick={() => onOpenStep(item.stepId)}
-                className="flex w-full items-start gap-3 rounded-lg bg-panel-solid p-3 text-left ring-1 ring-line transition hover:ring-accent/40"
-              >
-                <span className="mt-[7px] size-2 shrink-0 rounded-full bg-notify" aria-hidden />
-                <span className="flex min-w-0 flex-col">
-                  <span className="text-[13px] leading-5 font-bold text-ink-strong">
-                    {item.title}
+            {needs.map((item) => {
+              // Same two facts the stage rows separate: a run can stop on two
+              // approvals at once, and after clicking one of them you could not
+              // tell which was open.
+              const selected = item.stepId === selectedStepId
+              return (
+                <button
+                  key={item.stepId}
+                  type="button"
+                  onClick={() => onOpenStep(item.stepId)}
+                  aria-pressed={selected}
+                  className={`flex w-full items-start gap-3 rounded-lg bg-panel-solid p-3 text-left ring-1 transition ${
+                    selected ? 'ring-accent' : 'ring-line hover:ring-accent/40'
+                  }`}
+                >
+                  <span className="mt-[7px] size-2 shrink-0 rounded-full bg-notify" aria-hidden />
+                  <span className="flex min-w-0 flex-col">
+                    <span className="text-[13px] leading-5 font-bold text-ink-strong">
+                      {item.title}
+                    </span>
+                    <span className="text-xs leading-[17px] text-ink-soft">{item.sub}</span>
                   </span>
-                  <span className="text-xs leading-[17px] text-ink-soft">{item.sub}</span>
-                </span>
-              </button>
-            ))}
+                </button>
+              )
+            })}
           </div>
         ) : (
           <p className="px-2.5 text-[13px] leading-5 text-ink-soft">
