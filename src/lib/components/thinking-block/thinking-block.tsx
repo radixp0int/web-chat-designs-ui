@@ -22,8 +22,15 @@ export function ThinkingBlock({ text, active, durationSec }: ThinkingBlockProps)
         />
         {active ? (
           <span className="shimmer-text">Thinking…</span>
+        ) : durationSec !== undefined ? (
+          <span className="text-ink-soft">Thought for {durationSec}s</span>
         ) : (
-          <span className="text-ink-soft">Thought for {durationSec ?? 4}s</span>
+          // Inactive but no duration yet means reasoning stepped aside for a
+          // tool call, not that it finished — a turn can cycle through this
+          // several times before the real "Thought for Ns" lands. Claiming a
+          // fabricated duration here (the old `?? 4` fallback) read as done
+          // when the model was about to think some more.
+          <span className="text-ink-soft">Reasoning paused</span>
         )}
       </button>
 
