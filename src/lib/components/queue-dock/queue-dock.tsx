@@ -23,17 +23,16 @@ import { useUiSize } from '../../uiSize'
 import { QueueRow } from './queue-row'
 import type { QueueDockHandle, QueueDockProps } from './types'
 
-const MINIMIZED_KEY = 'queue-dock-minimized'
-
 /** Rows shown before the dock stops growing and starts counting. */
 const MAX_ROWS = 3
 
-/** Remembered across sessions: someone who folds the queue away meant it.
- *  Storage can throw (private windows, blocked site data) — an unreadable
- *  preference is simply no preference. */
-function readMinimized(): boolean {
+/** Remembered across sessions when a `storageKey` is given: someone who folds
+ *  the queue away meant it. Storage can throw (private windows, blocked site
+ *  data) — an unreadable preference is simply no preference. */
+function readMinimized(storageKey: string | undefined): boolean {
+  if (!storageKey) return false
   try {
-    return window.localStorage.getItem(MINIMIZED_KEY) === '1'
+    return window.localStorage.getItem(storageKey) === '1'
   } catch {
     return false
   }
@@ -62,10 +61,11 @@ export function QueueDock({
   onCombine,
   onClear,
   onUndo,
+  storageKey,
   ref,
 }: QueueDockProps & { ref?: Ref<QueueDockHandle> }) {
   const compact = useUiSize() === 'compact'
-  const [minimized, setMinimized] = useState(readMinimized)
+  const [minimized, setMinimized] = useState(() => readMinimized(storageKey))
   const [showAll, setShowAll] = useState(false)
   const rowRefs = useRef(new Map<number, HTMLLIElement>())
   const listId = useId()
@@ -83,12 +83,13 @@ export function QueueDock({
   }))
 
   useEffect(() => {
+    if (!storageKey) return
     try {
-      window.localStorage.setItem(MINIMIZED_KEY, minimized ? '1' : '0')
+      window.localStorage.setItem(storageKey, minimized ? '1' : '0')
     } catch {
       // A preference that can't be stored still works for this session.
     }
-  }, [minimized])
+  }, [minimized, storageKey])
 
   // Removing the row you were standing on drops focus to the document body,
   // which sends the next Tab back to the top of the page. Catch it and hand
