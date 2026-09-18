@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useCite } from '../../citations'
-import { CopyIcon, RefreshIcon, ThumbDownIcon, ThumbUpIcon, CheckIcon, XIcon } from '../icons'
+import { CopyIcon, RefreshIcon, ThumbDownIcon, ThumbUpIcon, CheckIcon } from '../icons'
 import { IconButton } from '../icon-button'
 import { Markdown } from '../markdown'
 import { FollowupChips } from '../followup-chips'
@@ -14,7 +14,6 @@ import type { ChatMessageProps } from './types'
 
 export function ChatMessage({
   message,
-  onRemoveQueued,
   onFollowup,
   onRetry,
   busy,
@@ -26,6 +25,8 @@ export function ChatMessage({
   // can highlight the supporting passages inside the source doc.
   const onCite = (id: number) => message.sources && cite(message.sources, id, message.highlights)
 
+  // A user message is only ever in the transcript because its turn has
+  // started — anything still waiting lives in the queue dock, not here.
   if (message.role === 'user') {
     return (
       <div className="flex flex-col items-end animate-fade-up">
@@ -34,25 +35,10 @@ export function ChatMessage({
             compact
               ? 'max-w-[85%] rounded-lg rounded-br-xs bg-bubble px-3.5 py-2 text-sm leading-relaxed text-on-bubble shadow-md shadow-(color:--shadow-bubble)'
               : 'max-w-[78%] rounded-xl rounded-br-sm bg-bubble px-5 py-3 text-[15px] leading-relaxed text-on-bubble shadow-md shadow-(color:--shadow-bubble)'
-          } ${message.queued ? 'opacity-60' : ''}`}
+          }`}
         >
           {message.content}
         </div>
-        {message.queued && (
-          <div className="mt-1 flex items-center gap-1 text-[11px] text-ink-soft">
-            <span>Queued</span>
-            {onRemoveQueued && (
-              <IconButton
-                size="sm"
-                onClick={() => onRemoveQueued(message.id)}
-                aria-label="Remove from queue"
-                title="Remove from queue"
-              >
-                <XIcon width={12} height={12} />
-              </IconButton>
-            )}
-          </div>
-        )}
       </div>
     )
   }

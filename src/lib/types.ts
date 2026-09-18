@@ -105,6 +105,22 @@ export type Highlight = {
   sections: HighlightSection[]
 }
 
+/**
+ * A message the reader has written but that hasn't run yet. Queued turns live
+ * outside `Message[]` on purpose: the transcript is a record of what happened,
+ * and a message that hasn't been sent has no place in it. It also means a
+ * queued turn can't be shoved around by a streaming answer growing beneath it.
+ */
+export type QueuedMessage = {
+  id: number
+  text: string
+}
+
+/** Where a queued message should end up: one step, the front, or an exact
+ *  index (a drop). Relative steps are named so a bare number is never
+ *  ambiguous. */
+export type QueueMove = 'up' | 'down' | 'front' | number
+
 export type Message = {
   id: number
   role: 'user' | 'assistant'
@@ -115,8 +131,6 @@ export type Message = {
   streaming?: boolean
   /** Assistant message whose stream was interrupted; partial content is kept. */
   stopped?: boolean
-  /** User message waiting in the send queue while another turn streams. */
-  queued?: boolean
   tools?: ToolCall[]
   sources?: Source[]
   highlights?: Highlight[]

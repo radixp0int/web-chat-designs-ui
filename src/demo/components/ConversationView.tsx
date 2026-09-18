@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { DISCLAIMER } from '../config'
-import type { Message } from '../../lib/types'
+import type { Message, QueueMove, QueuedMessage } from '../../lib/types'
 import type { Persona } from '../../lib/types'
 import { ChatMessage } from '../../lib/components/chat-message'
 import { Composer } from '../../lib/components/composer'
+import { QueueDock, type QueueDockHandle } from '../../lib/components/queue-dock'
 import { ScrollToBottomButton } from '../../lib/components/scroll-to-bottom-button'
 import { useStickToBottom } from '../../lib/hooks/useStickToBottom'
 import { Hero, HeroSuggestions } from './Hero'
@@ -11,10 +12,22 @@ import { Hero, HeroSuggestions } from './Hero'
 type ConversationViewProps = {
   messages: Message[]
   busy: boolean
+  /** Messages written but not yet run — the dock above the composer. */
+  queue: QueuedMessage[]
+  held: boolean
+  undoable: boolean
   onSubmit: (text: string) => void
   onStop: () => void
-  onSteer: (text: string) => void
+  onSendNow: (text: string) => void
+  onSendQueuedNow: (id: number) => void
+  onEditQueued: (id: number, text: string) => void
+  onMoveQueued: (id: number, to: QueueMove) => void
   onRemoveQueued: (id: number) => void
+  onHold: () => void
+  onResume: () => void
+  onCombineQueue: () => void
+  onClearQueue: () => void
+  onUndoQueue: () => void
   onRetry: (id: number) => void
   personas: Persona[]
   /** Demo toggle: the copy / regenerate / vote row under a finished answer. */
@@ -29,15 +42,27 @@ type ConversationViewProps = {
 export function ConversationView({
   messages,
   busy,
+  queue,
+  held,
+  undoable,
   onSubmit,
   onStop,
-  onSteer,
+  onSendNow,
+  onSendQueuedNow,
+  onEditQueued,
+  onMoveQueued,
   onRemoveQueued,
+  onHold,
+  onResume,
+  onCombineQueue,
+  onClearQueue,
+  onUndoQueue,
   onRetry,
   personas,
   showActions = true,
 }: ConversationViewProps) {
   const [persona, setPersona] = useState<string>(personas[0].id)
+  const dockRef = useRef<QueueDockHandle>(null)
   const { containerRef, contentRef, atBottom, scrollToBottom } = useStickToBottom()
   const inChat = messages.length > 0
   // Only the newest turn offers follow-ups, so branches don't stack up the thread.
@@ -58,15 +83,35 @@ export function ConversationView({
       onStop={onStop}
       onSubmit={(text, opts) => {
         if (opts?.steer) {
-          onSteer(text)
+          onSendNow(text)
           scrollToBottom()
         } else {
           submit(text)
         }
       }}
+      onArrowUp={() => dockRef.current?.focusLast()}
       personas={personas}
       persona={persona}
       onPersonaChange={setPersona}
+    />
+  )
+
+  const dock = (
+    <QueueDock
+      ref={dockRef}
+      items={queue}
+      held={held}
+      busy={busy}
+      undoable={undoable}
+      onSendNow={onSendQueuedNow}
+      onEdit={onEditQueued}
+      onMove={onMoveQueued}
+      onRemove={onRemoveQueued}
+      onHold={onHold}
+      onResume={onResume}
+      onCombine={onCombineQueue}
+      onClear={onClearQueue}
+      onUndo={onUndoQueue}
     />
   )
 
@@ -86,7 +131,6 @@ export function ConversationView({
                   <ChatMessage
                     key={m.id}
                     message={m}
-                    onRemoveQueued={onRemoveQueued}
                     onRetry={onRetry}
                     onFollowup={m.id === lastId ? submit : undefined}
                     busy={busy}
@@ -115,6 +159,7 @@ export function ConversationView({
 
       {inChat && (
         <div className="mx-auto w-full max-w-3xl px-5 pb-5 animate-fade-up">
+          {dock}
           {composer(true)}
           <p className="mt-2.5 text-center text-xs text-ink-soft/80">{DISCLAIMER}</p>
         </div>

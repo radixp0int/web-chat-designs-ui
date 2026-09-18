@@ -33,7 +33,27 @@ function App() {
   )
   const [citation, setCitation] = useState<CitationState>(null)
   const [demoOpen, setDemoOpen] = useState(false)
-  const { messages, busy, send, stop, steer, retry, removeQueued, reset } = useChat(responder)
+  const {
+    messages,
+    busy,
+    queue,
+    held,
+    undoable,
+    send,
+    stop,
+    sendNow,
+    sendQueuedNow,
+    editQueued,
+    moveQueued,
+    removeQueued,
+    hold,
+    resume,
+    combineQueue,
+    clearQueue,
+    undoQueue,
+    retry,
+    reset,
+  } = useChat(responder)
   // Held here rather than read from context: the shell needs the flags in its
   // own render to gate the messages, and provides the same object below.
   const demo = useDemoFeatureState()
@@ -82,10 +102,21 @@ function App() {
                   messages={shownMessages}
                   busy={busy}
                   showActions={demo.flags.actions}
+                  queue={queue}
+                  held={held}
+                  undoable={undoable}
                   onSubmit={send}
                   onStop={stop}
-                  onSteer={steer}
+                  onSendNow={sendNow}
+                  onSendQueuedNow={sendQueuedNow}
+                  onEditQueued={editQueued}
+                  onMoveQueued={moveQueued}
                   onRemoveQueued={removeQueued}
+                  onHold={hold}
+                  onResume={resume}
+                  onCombineQueue={combineQueue}
+                  onClearQueue={clearQueue}
+                  onUndoQueue={undoQueue}
                   onRetry={retry}
                   personas={personas}
                 />

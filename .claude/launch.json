@@ -5,13 +5,21 @@
       "name": "chat-interfaces",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "port": 5173
+      "port": 5173,
+      "autoPort": true
     },
     {
       "name": "widget-preview",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "preview:widget"],
-      "port": 4173
+      "port": 4173,
+      "autoPort": true
+    },
+    {
+      "name": "chat-ws-server",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "../chat-ws-server", "run", "dev"],
+      "port": 8787
     }
   ]
 }
