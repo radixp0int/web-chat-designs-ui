@@ -18,7 +18,7 @@ import {
   PolicyException,
   Recommendation,
   StepBadges,
-  StepFacts,
+  StepDetails,
 } from './stepParts'
 
 export function StepInspector({
@@ -80,7 +80,7 @@ export function StepInspector({
           <p className="text-[13px] leading-[21px] text-pretty text-ink-soft">{detail.summary}</p>
         </div>
 
-        <StepFacts rows={detail.rows} />
+        <StepDetails step={step} />
         {detail.recommendation && <Recommendation rec={detail.recommendation} />}
         {detail.exception && <PolicyException exc={detail.exception} />}
         {detail.trace && <HowItGotHere trace={detail.trace} />}

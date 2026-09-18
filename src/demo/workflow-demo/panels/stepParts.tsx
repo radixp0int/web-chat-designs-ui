@@ -61,17 +61,56 @@ export function StepBadges({
   )
 }
 
-/** The flat key/value facts every step carries. */
-export function StepFacts({ rows }: { rows: RunDetail['rows'] }) {
+/**
+ * Who it is waiting on, and the flat facts under them.
+ *
+ * Boxed, and led by the assignee's initials, because as a bare run of grey
+ * label/value pairs this was the block readers slid past — in the 400px panel
+ * especially. A face is what the eye lands on, and who owns the decision is the
+ * fact people check first, so it is a row of its own above the list rather than
+ * the first two entries in it. `due` is stated here and nowhere else: a run that
+ * also listed it under `rows` would say it twice.
+ */
+export function StepDetails({ step }: { step: StepSeed<RunDetail> }) {
+  const { detail } = step
+  const who = step.assignee
+  if (!who && detail.rows.length === 0) return null
+
   return (
-    <dl className="grid grid-cols-[92px_minmax(0,1fr)] gap-x-3.5 gap-y-2">
-      {rows.map(([k, v]) => (
-        <div key={k} className="contents">
-          <dt className="text-[12.5px] leading-[22px] text-ink-soft">{k}</dt>
-          <dd className="text-[13px] leading-[22px] font-medium text-ink-strong">{v}</dd>
-        </div>
-      ))}
-    </dl>
+    <div className="flex flex-col gap-2.5">
+      <SectionLabel>Details</SectionLabel>
+      <div className="rounded-lg border border-line p-3.5">
+        {who && (
+          <div className="flex items-center gap-2.5 border-b border-line pb-3">
+            {step.initials && (
+              <span className="grid size-[30px] shrink-0 place-items-center rounded-full bg-brand-solid text-[11px] font-extrabold text-on-brand-solid">
+                {step.initials}
+              </span>
+            )}
+            <span className="flex min-w-0 flex-col">
+              <span className="truncate text-[13px] leading-[18px] font-bold text-ink-strong">
+                {who}
+              </span>
+              {detail.due && (
+                <span className="truncate text-xs leading-4 text-ink-soft">{detail.due}</span>
+              )}
+            </span>
+          </div>
+        )}
+        {detail.rows.length > 0 && (
+          <dl
+            className={`grid grid-cols-[92px_minmax(0,1fr)] gap-x-3.5 gap-y-1.5 ${who ? 'mt-3' : ''}`}
+          >
+            {detail.rows.map(([k, v]) => (
+              <div key={k} className="contents">
+                <dt className="text-[12.5px] leading-5 text-ink-soft">{k}</dt>
+                <dd className="text-[13px] leading-5 font-medium text-ink-strong">{v}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -79,7 +118,11 @@ export function Recommendation({ rec }: { rec: NonNullable<RunDetail['recommenda
   return (
     <div className="flex flex-col gap-2.5">
       <SectionLabel>{rec.label ?? 'Agent recommendation'}</SectionLabel>
-      <div className="rounded-lg bg-panel-solid p-4 ring-1 ring-line">
+      {/* --canvas, not --panel-solid: the expanded view's own background IS
+          panel-solid, so the card was white on white there and read flat. This
+          value is distinct from that page AND from the panel's translucent
+          shell, so one card works in both and neither view needs a variant. */}
+      <div className="rounded-lg bg-canvas p-4 ring-1 ring-line">
         <div className="flex items-center gap-2.5">
           <KindIcon kind="agent" size={16} />
           <span className="text-xs text-ink-soft">{rec.from}</span>
@@ -98,14 +141,20 @@ export function Recommendation({ rec }: { rec: NonNullable<RunDetail['recommenda
   )
 }
 
+/**
+ * A callout rather than a paragraph. This is the thing that makes the run stop
+ * for a person at all, and as plain text between two other blocks it was the
+ * easiest item on the page to skim past. Warm rather than --danger: an
+ * exception is a caveat to weigh, not a failure.
+ */
 export function PolicyException({ exc }: { exc: NonNullable<RunDetail['exception']> }) {
   return (
     <div className="flex flex-col gap-2.5">
-      <SectionLabel>{exc.label ?? 'Policy exception'}</SectionLabel>
-      <div className="flex gap-2.5">
-        <FlagIcon width={16} height={16} className="mt-0.5 shrink-0 text-ink-soft" />
+      <SectionLabel tone="caution">{exc.label ?? 'Policy exception'}</SectionLabel>
+      <div className="flex gap-3 rounded-lg bg-caution-surface p-3.5 ring-1 ring-caution-line">
+        <FlagIcon width={17} height={17} className="mt-px shrink-0 text-caution" />
         <div className="flex flex-col gap-0.5">
-          <span className="text-[13px] leading-5 text-ink">{exc.text}</span>
+          <span className="text-[13.5px] leading-5 font-semibold text-ink-strong">{exc.text}</span>
           <span className="text-xs leading-[18px] text-ink-soft">{exc.mitigant}</span>
         </div>
       </div>
@@ -126,6 +175,30 @@ export function HowItGotHere({ trace }: { trace: NonNullable<RunDetail['trace']>
           </li>
         ))}
       </ol>
+    </div>
+  )
+}
+
+/**
+ * What a yes sets running. Shown only where there is room for it — the expanded
+ * view — and only on a gate, since "next" is a question you ask before
+ * deciding, not after. The steps come from the graph, so it says what the run
+ * actually does rather than repeating the `If approved` row.
+ */
+export function NextIfApproved({ steps }: { steps: StepSeed<RunDetail>[] }) {
+  if (steps.length === 0) return null
+  return (
+    <div className="flex flex-col gap-2.5">
+      <SectionLabel>Next if approved</SectionLabel>
+      <div className="flex flex-col gap-2.5 rounded-lg border border-dashed border-line p-3.5">
+        {steps.map((s) => (
+          <div key={s.id} className="flex items-center gap-2.5">
+            <span className="size-[7px] shrink-0 rounded-full bg-ink-soft/40" aria-hidden />
+            <span className="min-w-0 flex-1 truncate text-[13px] text-ink">{s.title}</span>
+            <span className="shrink-0 text-xs text-ink-soft">{s.meta}</span>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

@@ -24,7 +24,8 @@ import { StageInspector } from './panels/StageInspector'
 import { StepDetail } from './panels/StepDetail'
 import { StepInspector } from './panels/StepInspector'
 import { useRun, type Decision, type RunSource } from './run'
-import type { View } from './canvas'
+import type { StepSeed, View } from './canvas'
+import type { RunDetail } from './run/wireProtocol'
 
 export function WorkflowDemoPage({ source }: { source: RunSource }) {
   const run = useRun(source)
@@ -142,6 +143,31 @@ export function WorkflowDemoPage({ source }: { source: RunSource }) {
     [awaiting, graph],
   )
 
+  /* What a yes sets running, for the expanded view's "Next if approved". Two
+     hops rather than one, because the interesting answer is usually a pair — the
+     agent that drafts and the call that sends — and capped so a fan-out cannot
+     turn a decision aid into a list. Edge rules are deliberately not consulted:
+     a rule governs how an edge is DRAWN, not whether the step is downstream. */
+  const nextSteps = useMemo(() => {
+    if (!graph || !selectedId) return []
+    const out: StepSeed<RunDetail>[] = []
+    const seen = new Set([selectedId])
+    let frontier = [selectedId]
+    for (let hop = 0; hop < 2 && out.length < 4; hop++) {
+      const reached = graph.edges.filter((e) => frontier.includes(e.from)).map((e) => e.to)
+      frontier = []
+      for (const id of reached) {
+        if (seen.has(id) || out.length >= 4) continue
+        seen.add(id)
+        const step = graph.stepById.get(id)
+        if (!step) continue
+        out.push(step)
+        frontier.push(id)
+      }
+    }
+    return out
+  }, [graph, selectedId])
+
   const stepTitles = useMemo(() => {
     const map = new Map<string, string>()
     graph?.steps.forEach((s) => map.set(s.id, s.title))
@@ -246,6 +272,7 @@ export function WorkflowDemoPage({ source }: { source: RunSource }) {
             step={selectedStep}
             status={selectedId ? statuses[selectedId] : undefined}
             runTitle={graph.title}
+            next={nextSteps}
             decisions={(selectedId && decisionsFor[selectedId]) || []}
             busy={busyStepId === selectedId}
             onClose={() => setExpanded(false)}

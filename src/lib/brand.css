@@ -120,6 +120,20 @@
   --marker: var(--ember-600, var(--accent-600));
   --on-marker: #ffffff;
 
+  /* A policy exception is a caveat, not a failure — something a person has to
+     weigh, not something that went wrong — so it takes the warm hue rather than
+     --danger. Third contrast-checked use of the ember ramp, after --notify and
+     --marker: the ink is the same 600 step --marker takes, which clears 4.5:1
+     on the tint below (the tint is 7%, so it barely moves the surface and the
+     body copy on it keeps the ratios --ink/--ink-soft already have). */
+  --caution: var(--ember-600, var(--accent-600));
+  --caution-surface: color-mix(
+    in oklab,
+    var(--ember-500, var(--accent-500)) 7%,
+    var(--panel-solid)
+  );
+  --caution-line: color-mix(in oklab, var(--ember-500, var(--accent-500)) 30%, transparent);
+
   /* status */
   --danger: var(--danger-500);
   --danger-fg: var(--danger-700);
@@ -215,6 +229,17 @@
      white on the 500 is 3.5:1 and fails the text bar. */
   --marker: var(--ember-500, var(--accent-500));
   --on-marker: #2b1000;
+
+  /* The tint lifts off a navy panel instead of deepening, and the ink inverts
+     with it — the 600 is near-invisible on dark, the 300 is the legible step,
+     the same move --accent-fg and --brand-fg make above. */
+  --caution: var(--ember-300, var(--accent-300));
+  --caution-surface: color-mix(
+    in oklab,
+    var(--ember-500, var(--accent-500)) 16%,
+    var(--panel-solid)
+  );
+  --caution-line: color-mix(in oklab, var(--ember-300, var(--accent-300)) 26%, transparent);
 
   --danger-fg: var(--danger-300);
   --danger-fg-soft: var(--danger-400);

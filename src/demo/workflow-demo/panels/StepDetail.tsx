@@ -18,16 +18,18 @@ import { SectionLabel } from './SectionLabel'
 import {
   DecisionForm,
   HowItGotHere,
+  NextIfApproved,
   PolicyException,
   Recommendation,
   StepBadges,
-  StepFacts,
+  StepDetails,
 } from './stepParts'
 
 export function StepDetail({
   step,
   status,
   runTitle,
+  next,
   decisions,
   busy,
   onClose,
@@ -37,6 +39,8 @@ export function StepDetail({
   status: StepStatus | undefined
   /** What the breadcrumb goes back to. */
   runTitle: string
+  /** What runs after this one, nearest first. Only drawn on an open gate. */
+  next: StepSeed<RunDetail>[]
   decisions: Decision[]
   busy: boolean
   onClose: () => void
@@ -100,10 +104,7 @@ export function StepDetail({
             </div>
 
             <div className="flex flex-col gap-7">
-              <div className="flex flex-col gap-2.5">
-                <SectionLabel>Details</SectionLabel>
-                <StepFacts rows={detail.rows} />
-              </div>
+              <StepDetails step={step} />
 
               {canDecide && (
                 <div className="flex flex-col gap-2.5">
@@ -117,6 +118,8 @@ export function StepDetail({
                   />
                 </div>
               )}
+
+              {canDecide && <NextIfApproved steps={next} />}
             </div>
           </div>
         </div>

@@ -224,15 +224,14 @@ export const STEPS: StepSeed<LoanDetail>[] = [
     meta: 'Due in 3h 40m',
     // The countdown and the name are this run's, not the canvas's.
     statusLabel: '3h 40m',
-    assignee: 'Dana W.',
+    assignee: 'Dana Whitfield',
     x: 1174,
     y: 183,
     detail: {
       summary:
         'Review the drafted memo and the policy exception. Nothing after this step runs until you decide.',
+      due: 'Today 2:00 PM · 3h 40m left',
       rows: [
-        ['Assigned', 'Dana Whitfield'],
-        ['Due', 'Today 2:00 PM · 3h 40m left'],
         ['Routed by', 'Policy check'],
         ['If approved', 'Draft decision letter'],
       ],

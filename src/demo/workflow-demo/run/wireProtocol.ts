@@ -50,6 +50,9 @@ export type VariantId = 'loan-review' | 'incident-triage' | 'onboarding'
  */
 export type RunDetail = {
   summary: string
+  /** When this is due, written out. The step's `statusLabel` is the terse
+      version the node's marker wants ("3h 40m"); this is the sentence. */
+  due?: string
   rows: [string, string][]
   recommendation?: {
     label?: string
