@@ -36,36 +36,40 @@ One folder per component — `index.ts`, `<name>.tsx`, `types.ts`.
 
 **Citations**
 
-| Component        | What it is                                                                                                                               |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `CitationChip`   | An inline `[n]` marker as a small clickable chip. The superscript is a translate rather than `<sup>`, so line-height stays stable.       |
-| `SourceStrip`    | Compact row of numbered source pills under an answer.                                                                                    |
-| `ReferencePanel` | The reader: one reference document with prev/next, a numbered pill rail, and arrow keys — jumping from reference 2 to 21 is one gesture. |
+| Component        | What it is                                                                                                                                                                                                                                                                                                                         |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CitationChip`   | An inline `[n]` marker as a small clickable chip. The superscript is a translate rather than `<sup>`, so line-height stays stable. On hover or keyboard focus it raises a preview card showing the passage it cites — the text the reference panel would highlight — so checking a citation doesn't cost your place in the answer. |
+| `SourceStrip`    | Compact row of numbered source pills under an answer.                                                                                                                                                                                                                                                                              |
+| `ReferencePanel` | The reader: one reference document with prev/next, a numbered pill rail, and arrow keys — jumping from reference 2 to 21 is one gesture. A wheel mouse scrolls the rail sideways (`useWheelToHorizontal`).                                                                                                                         |
+| `HoverCard`      | Generic anchored card, portalled out of whatever is clipping it. Owns placement (above by default, flips and clamps to fit) and stays open while the pointer is on it. Knows nothing about citations.                                                                                                                              |
 
 **Turn status**
 
-| Component          | What it is                                                              |
-| ------------------ | ----------------------------------------------------------------------- |
-| `TurnTraceHandle`  | The `2.4s` duration at the right of the action row; opens the timeline. |
-| `TurnTracePanel`   | The timeline itself — every phase of the turn with its stamp.           |
-| `TurnTraceFailure` | The failed turn's whole body: frayed rail, verdict, `Retry`.            |
+| Component          | What it is                                                                                                                                                                   |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TurnTraceHandle`  | The `2.4s` duration at the right of the action row; opens the timeline.                                                                                                      |
+| `TurnTracePanel`   | The timeline itself — every phase of the turn with its stamp. Columns are headed `Start / Step / Took`, so the two numbers on a row can't be read as the same kind of thing. |
+| `TurnTraceFailure` | The failed turn's whole body: frayed rail, verdict, `Retry`.                                                                                                                 |
 
 See [Turn status and errors](#turn-status-and-errors) for the design rule these
 three encode.
 
 **Layout and chrome**
 
-| Component                      | What it is                                                                                                                                                                                                                          |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SideTabRail` / `SideTabPanel` | Vertical icon rail with slide-in panels. Generic — a tab is an id + icon + label (+ optional count badge), and the host supplies the panel content.                                                                                 |
-| `ResizableColumn`              | A right-hand column with a drag handle on its left edge, for splitting a card into chat + document panes. Clamps so the sibling column keeps `minRemainder` px. Used by both the demo's reference pane and the widget's split view. |
-| `ResizeHandle`                 | The grip itself. Presentational only — state lives in `useResizablePanel`.                                                                                                                                                          |
-| `ScrollToBottomButton`         | The "New messages" pill shown once the reader scrolls away from a stream. Presentational only — visibility and the scroll itself come from `useStickToBottom`. Used by both `ConversationView` (demo) and `WidgetPanel`.            |
-| `IconButton`                   | Fixed hit boxes, not padding: `sm` 32 (clears WCAG 2.2 SC 2.5.8), `md` 36, `lg` 44 (Apple HIG touch minimum). The glyph can stay as small as the design wants.                                                                      |
-| `FiltersPanel`                 | Selected filter chips grouped by facet. Presentational — selection is UI-only.                                                                                                                                                      |
-| `RecentChatsPanel`             | Recent conversations to switch between. Presentational — selection is UI-only.                                                                                                                                                      |
-| `PersonaPanel`                 | Persona select plus the stacked prompt templates in force. Ordered by each layer's `priority` field, not by array order. The textareas are `readOnly` rather than `disabled`, so the text stays selectable and keyboard-reachable.  |
-| Icons                          | 33 stroke icons as React components (`SendIcon`, `SparkleIcon`, …), all taking `width`/`height`/`className`.                                                                                                                        |
+| Component                      | What it is                                                                                                                                                                                                                                                                 |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SideTabRail` / `SideTabPanel` | Vertical icon rail with slide-in panels. Generic — a tab is an id + icon + label (+ optional count badge), and the host supplies the panel content.                                                                                                                        |
+| `ResizableColumn`              | A right-hand column with a drag handle on its left edge, for splitting a card into chat + document panes. Clamps so the sibling column keeps `minRemainder` px. Used by both the demo's reference pane and the widget's split view.                                        |
+| `ResizeHandle`                 | The grip itself. Presentational only — state lives in `useResizablePanel`.                                                                                                                                                                                                 |
+| `ScrollToBottomButton`         | The "New messages" pill shown once the reader scrolls away from a stream. Presentational only — visibility and the scroll itself come from `useStickToBottom`. Used by both `ConversationView` (demo) and `WidgetPanel`.                                                   |
+| `IconButton`                   | Fixed hit boxes, not padding: `sm` 32 (clears WCAG 2.2 SC 2.5.8), `md` 36, `lg` 44 (Apple HIG touch minimum). The glyph can stay as small as the design wants.                                                                                                             |
+| `FiltersPanel`                 | Selected filter chips grouped by facet. Presentational — selection is UI-only.                                                                                                                                                                                             |
+| `FeatureToggles`               | The switch list for a `FeatureCatalogue` — sections, headings, descriptions, rows. Data-driven and presentational: no dialog, no reset. An empty section renders nothing, so one catalogue can be filtered per tenant. See the [recipe](#recipe-user-toggleable-features). |
+| `PalettePicker`                | Pick a `chat-theme-*` palette. Each tile previews that theme's dark canvas, panel and action fill. `title` / `description` are props so a tenant can retitle it.                                                                                                           |
+| `HighlightPicker`              | Pick the `<mark>` colour behind a cited passage, from brand.css §5. Same `title` / `description` props.                                                                                                                                                                    |
+| `RecentChatsPanel`             | Recent conversations to switch between. Presentational — selection is UI-only.                                                                                                                                                                                             |
+| `PersonaPanel`                 | Persona select plus the stacked prompt templates in force. Ordered by each layer's `priority` field, not by array order. The textareas are `readOnly` rather than `disabled`, so the text stays selectable and keyboard-reachable.                                         |
+| Icons                          | 33 stroke icons as React components (`SendIcon`, `SparkleIcon`, …), all taking `width`/`height`/`className`.                                                                                                                                                               |
 
 **Widget shell**
 
@@ -104,7 +108,13 @@ changes.
 | `useAutoGrowTextarea`  | Grows a textarea with its content up to the active cap, recomputing on resize when expanded.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | `useHighlights`        | Memoized highlight ranges for the active reference, resolved against the doc text.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | `useResizablePanel`    | Owns a panel's width and the pointer-drag lifecycle. The caller supplies `computeWidth(clientX)`, so the hook stays layout-agnostic. Works inside the widget's shadow root.                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `useWheelToHorizontal` | Lets a wheel mouse scroll a horizontally-overflowing strip. Attaches its own non-passive listener, because React registers `wheel` as passive on the root and a synthetic `onWheel` can't `preventDefault`. Falls through at either end so the gesture continues into the page.                                                                                                                                                                                                                                                                                                                                             |
+| `useHoverCard`         | Open/close for a hover card, to WCAG 2.2 SC 1.4.13 — hoverable (the pointer can travel onto the card), dismissible (Escape, captured so it doesn't also close what's behind), persistent (no auto-dismiss). Ignores touch, where `:hover` sticks after a tap.                                                                                                                                                                                                                                                                                                                                                               |
+| `useOverlayLayer`      | The node a portalled overlay renders into, resolved from its anchor. See `overlay.ts`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | `useStickToBottom`     | Keeps a scroll region pinned to its bottom edge while `contentRef` grows, but only while the reader hasn't scrolled away — tracked via `ResizeObserver`, no app types. Pairs with `ScrollToBottomButton`.                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `useFeatureFlags`      | On/off state for a `FeatureCatalogue`, hydrated from and persisted to a required `storageKey` (or a custom `storage`). Merges stored values over defaults, and drops stored values for ids the catalogue no longer lists — which is what stops a revoked feature coming back from the viewer's own localStorage.                                                                                                                                                                                                                                                                                                            |
+| `useStoredChoice`      | One persisted choice from a fixed set (the palette, the highlight swatch). Validates against what is currently offered, so a retired option falls back instead of applying a class nothing defines.                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `usePaletteClass`      | Applies `chat-theme-<id>` to `<html>` (or a given element — the widget's root is its own theme scope), removing whichever palette class was there before.                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 
 `useResizablePanel` is the one hook **not** re-exported from `src/lib/index.ts` —
 it reaches consumers through `ResizableColumn`. Import it by deep path if you
@@ -112,15 +122,16 @@ need it directly.
 
 ### Injected context and shared types
 
-| Module          | What it carries                                                                                                                                                                                      |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `branding.ts`   | `BrandingProvider` — `appName`, `modelName`, `disclaimer`. The library has no baked-in brand.                                                                                                        |
-| `citations.ts`  | `CitationsProvider` — lets a chip deep inside a message open the reference frame owned by the surface, without prop drilling. Defaults to a no-op, so `ChatMessage` renders fine outside a provider. |
-| `uiSize.ts`     | `UiSizeProvider` — `'default'` or `'compact'`. The widget wraps its tree in `compact` to shrink fonts, paddings, and controls without touching a single call site.                                   |
-| `types.ts`      | `Message`, `TurnTrace`, `TurnStep`, `TurnFault`, `ToolCall`, `Source`, `Highlight`, `Persona`, `ActiveFilter`, `RecentChat`, `PromptTemplate`, `SidePanel`.                                          |
-| `highlights.ts` | Resolving highlight phrases to character offsets in source markdown.                                                                                                                                 |
-| `brand.css`     | Every colour value, as swappable themes.                                                                                                                                                             |
-| `styles.css`    | Tailwind wiring, base layer, and the `.glass` / `.orb` / `.turn-rail` / `.launcher-label` / `.shimmer-text` utilities.                                                                               |
+| Module          | What it carries                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `branding.ts`   | `BrandingProvider` — `appName`, `modelName`, `disclaimer`. The library has no baked-in brand.                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `citations.ts`  | `CitationsProvider` — lets a chip deep inside a message open the reference frame owned by the surface, without prop drilling. Defaults to a no-op, so `ChatMessage` renders fine outside a provider.                                                                                                                                                                                                                                                                                             |
+| `overlay.ts`    | `OverlayContainerProvider` — where portalled overlays land. Unset, the layer is resolved from the anchor: inside the widget's shadow root (its stylesheet lives there, and the dialog's transform would capture `position: fixed`), else `document.body` (out of `.glass`'s backdrop-filter, which makes `<main>` clip fixed children). The layer restates its own theme class rather than inheriting one. An app with its own hover-container portal supplies it here and nothing else changes. |
+| `uiSize.ts`     | `UiSizeProvider` — `'default'` or `'compact'`. The widget wraps its tree in `compact` to shrink fonts, paddings, and controls without touching a single call site.                                                                                                                                                                                                                                                                                                                               |
+| `types.ts`      | `Message`, `TurnTrace`, `TurnStep`, `TurnFault`, `ToolCall`, `Source`, `Highlight`, `Persona`, `ActiveFilter`, `RecentChat`, `PromptTemplate`, `SidePanel`.                                                                                                                                                                                                                                                                                                                                      |
+| `highlights.ts` | Resolving highlight phrases to character offsets in source markdown, and rendering those passages as plain text for a citation's hover preview.                                                                                                                                                                                                                                                                                                                                                  |
+| `brand.css`     | Every colour value, as swappable themes.                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `styles.css`    | Tailwind wiring, base layer, and the `.glass` / `.orb` / `.turn-rail` / `.highlight-wash` / `.launcher-label` / `.shimmer-text` utilities.                                                                                                                                                                                                                                                                                                                                                       |
 
 ---
 
@@ -251,8 +262,8 @@ Why each of the last four falls where it does:
   running the server.
 
 Everything outside the response stream is UI-only in both modes: the theme
-toggle, sidebar, demo-features modal, persona menu, resizable reference pane, the
-embedded widget, side tabs, and the mermaid lab.
+toggle, sidebar, account menu and its two settings dialogs, persona menu,
+resizable reference pane, the embedded widget, side tabs, and the mermaid lab.
 
 Two composer affordances are deliberately façades, so nobody goes hunting for a
 backend: the **mic** drives the browser Web Speech API and hides itself where
@@ -318,19 +329,214 @@ upgrades the trace to `recovered` ([useChat.ts](src/lib/hooks/useChat.ts)) —
 
 ## Other string values
 
-| Where                 | Values                                                                                                                                       |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Theme class           | `chat-theme-default`, `chat-theme-aristotle1`, `chat-theme-aristotle2` — or the attribute form, `data-chat-theme="aristotle2"`               |
-| Colour mode           | `dark` / `light` class, on the **same element** as the theme                                                                                 |
-| Widget script tag     | `data-auto-init`, `data-theme` (`light`/`dark`/`auto`), `data-theme-class`, `data-position` (`bottom-right`/`bottom-left`)                   |
-| `mountWidget` options | `target`, `theme`, `themeClass`, `position`, `zIndex`                                                                                        |
-| Env                   | `VITE_WS_URL` — set for the chat server, unset for canned; `VITE_WORKFLOW_WS_URL` — set for live workflow runs, unset for the hard-coded one |
-| localStorage          | `aristotle-theme`, `sidebar-collapsed`, `demo-features`, `ref-panel-w`                                                                       |
-| sessionStorage        | `workflow-run-id`, `workflow-variant-id` — what `/workflow-live` re-attaches to after a reload                                               |
+| Where                 | Values                                                                                                                                              |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Theme class           | `chat-theme-default`, `chat-theme-aristotle1`, `chat-theme-aristotle2`, `chat-theme-graphite` — or the attribute form, `data-chat-theme="graphite"` |
+| Colour mode           | `dark` / `light` class, on the **same element** as the theme                                                                                        |
+| Widget script tag     | `data-auto-init`, `data-theme` (`light`/`dark`/`auto`), `data-theme-class`, `data-position` (`bottom-right`/`bottom-left`)                          |
+| `mountWidget` options | `target`, `theme`, `themeClass`, `position`, `zIndex`                                                                                               |
+| Env                   | `VITE_WS_URL` — set for the chat server, unset for canned; `VITE_WORKFLOW_WS_URL` — set for live workflow runs, unset for the hard-coded one        |
+| localStorage          | `aristotle-theme`, `aristotle-brand-theme`, `sidebar-collapsed`, `demo-features`, `demo-highlight`, `ref-panel-w`                                   |
+| sessionStorage        | `workflow-run-id`, `workflow-variant-id` — what `/workflow-live` re-attaches to after a reload                                                      |
 
 `demo-features` is worth remembering: it persists the feature toggles, so a
 capability can look "missing" because it was switched off in a previous session.
-The modal's **Reset** puts everything back.
+The modal's **Reset** puts everything back. The machinery behind those toggles
+is generic and shipped — see the
+[user-toggleable features recipe](#recipe-user-toggleable-features).
+
+---
+
+## Recipe: user-toggleable features
+
+The demo's "Feature toggles" panel — one of the two entries behind the
+sidebar's account avatar — is presenter chrome, but the machinery under
+it is not demo-specific — it is in `src/lib/settings` and
+`src/lib/components/settings`, and it is built for exactly the case where a
+tenant gives different features to different users.
+
+### The one idea worth keeping
+
+**Gate the data, not the components.** `applyFeatureGate` deletes the `Message`
+fields a switched-off feature owns, just before render:
+
+```tsx
+const shown = useMemo(() => applyFeatureGate(messages, flags), [messages, flags])
+```
+
+Nothing downstream has an `if (flags.x)` in it. `ChatMessage`, `ThinkingBlock`,
+`SourceStrip` and the rest only ever see a message that genuinely lacks
+reasoning, tools or sources — which is why adding a feature next quarter
+touches the catalogue and the field map, not twenty components.
+
+### The four pieces
+
+| Piece              | What it owns                                                    |
+| ------------------ | --------------------------------------------------------------- |
+| `FeatureCatalogue` | what this viewer may switch — sections, labels, hints, defaults |
+| `useFeatureFlags`  | on/off state, hydration, persistence                            |
+| `applyFeatureGate` | turning "off" into a message without those fields               |
+| `<FeatureToggles>` | the switch list — rows and headings, no dialog                  |
+
+### Wiring it up
+
+```tsx
+import {
+  useFeatureFlags,
+  applyFeatureGate,
+  FeatureToggles,
+  type FeatureCatalogue,
+} from 'chat-interfaces'
+
+type Id = 'thinking' | 'tools' | 'sources'
+
+const CATALOGUE: FeatureCatalogue<Id> = [
+  {
+    id: 'before',
+    title: 'Before the answer',
+    description: 'What the assistant shows while it is still working.',
+    features: [
+      { id: 'thinking', label: 'Reasoning', hint: 'The “Thought for Ns” block.' },
+      { id: 'tools', label: 'Tool calls', hint: 'A status chip per tool.' },
+    ],
+  },
+  {
+    id: 'during',
+    title: 'In the answer',
+    features: [{ id: 'sources', label: 'Citations', defaultOn: false }],
+  },
+]
+
+function Settings() {
+  const { flags, setFlag, reset } = useFeatureFlags<Id>({
+    catalogue: CATALOGUE,
+    storageKey: `chat-settings:${tenantId}:${userId}`,
+  })
+
+  return <FeatureToggles catalogue={CATALOGUE} flags={flags} onChange={setFlag} />
+}
+```
+
+The catalogue is plain data, so the panel is one loop — sections render in
+order, each with its heading and description, and a section whose features are
+all filtered out renders nothing at all rather than leaving a heading over
+empty space.
+
+`<FeatureToggles>` also takes `spine`, which draws a vertical rule with a node
+per section. It is off by default because it implies the sections are a
+sequence — true of the demo's "before / in / after the answer", false of most
+settings groupings.
+
+### Per-tenant and per-role
+
+Entitlement is decided **once, by what you put in the catalogue**. Build it per
+viewer and hand over the remainder:
+
+```tsx
+const catalogue = useMemo(
+  () =>
+    FULL_CATALOGUE.map((section) => ({
+      ...section,
+      features: section.features.filter((f) => entitlements.includes(f.id)),
+    })),
+  [entitlements],
+)
+```
+
+Three behaviours make that safe, and all three are deliberate:
+
+- **A feature absent from the catalogue cannot be switched on from storage.**
+  If someone had a feature, enabled it, and then lost it — plan downgrade,
+  policy change, role change — `useFeatureFlags` drops the stored `true` rather
+  than honouring it. Without this, revoking a feature server-side would leave it
+  running for exactly the users who had used it.
+- **Stored values merge over defaults**, so a feature you ship next month shows
+  up at its own default instead of missing for everyone who has saved before.
+- **Non-boolean stored values are ignored.** A hand-edited or corrupted blob
+  falls back rather than rendering a switch in a third state.
+
+For "has it but cannot change it" — a plan gate you want visible rather than
+hidden — use `locked` and `lockedReason` instead of filtering the feature out:
+
+```tsx
+{ id: 'trace', label: 'Turn details', locked: true, lockedReason: 'Included on the Team plan.' }
+```
+
+### Persistence
+
+`storageKey` is required and has no library default: two surfaces that quietly
+share one key overwrite each other, and the bug presents as "my settings reset
+themselves". Scope it to the surface **and** the viewer. Pass `null` for a
+session that should not persist (a preview, an impersonated support session).
+
+For server-backed preferences, pass `storage` — anything with `getItem` and
+`setItem`:
+
+```tsx
+useFeatureFlags({ catalogue, storageKey: userId, storage: myPreferenceStore })
+```
+
+Both methods may throw or return null; the hook treats any failure as "no
+stored value", so a settings panel that cannot reach its store still renders
+with defaults rather than taking the page down.
+
+### Features with no message fields
+
+`MESSAGE_FEATURE_FIELDS` maps each feature to the `Message` fields it owns.
+Extend it rather than replacing it:
+
+```tsx
+const FIELDS = { ...MESSAGE_FEATURE_FIELDS, attachments: ['attachments'] } as const
+applyFeatureGate(messages, flags, FIELDS)
+```
+
+A feature with no fields — the demo's `actions`, which rides the `showActions`
+prop — simply has no entry, and you gate it where you render:
+
+```tsx
+<ChatMessage showActions={flags.actions} … />
+```
+
+### The appearance sections
+
+`<PalettePicker>` and `<HighlightPicker>` ship alongside the toggles and are
+optional on purpose: an internal tool wants both, a white-labelled deployment
+wants neither (the tenant's palette is not the end user's to change), and a
+product that ships one brand but cites heavily wants only the highlight. Each
+takes `title` and `description`, so a tenant retitles a section without forking
+the component:
+
+```tsx
+{
+  appearance.palette.show && (
+    <PalettePicker
+      options={SHIPPED_PALETTES}
+      value={palette}
+      onChange={setPalette}
+      title={appearance.palette.title}
+      description={appearance.palette.description}
+    />
+  )
+}
+```
+
+`useStoredChoice` persists a one-of-N choice with the same
+validate-against-what-is-offered rule as the flags, and `usePaletteClass`
+applies the `chat-theme-*` class. That last one defaults to `<html>` because
+`body` paints `var(--canvas)`, which resolves at `:root` — a palette scoped to
+an inner element leaves the page behind it on the old colours. It does not stop
+a flash on first load; that needs a small inline script in the head reading the
+same key, as `index.html` does.
+
+### What the library deliberately does not ship
+
+No dialog, header, or reset button. Every product wants its own settings shell,
+and an inherited one is the part people end up fighting. The demo writes two of
+them, which is the other half of the point: `FeatureTogglesModal` holds the
+switch list (what a response may render — presenter chrome), and
+`UserSettingsModal`, opened from the same account menu, holds the profile plus
+the two appearance pickers (a viewer's own preference). Same library
+components, regrouped by whose decision each one is.
 
 ---
 
@@ -349,17 +555,48 @@ attribute) on its root element.
 <html data-chat-theme="aristotle2" class="dark">  <!-- attribute form -->
 ```
 
-Both forms work for every theme. Three are shipped:
+Both forms work for every theme. Four are shipped:
 
-| Theme                                            | Identity                                                            |
-| ------------------------------------------------ | ------------------------------------------------------------------- |
-| `chat-theme-default` (also the no-class default) | PNC retail — `#004c97` blue, `#ef6a00` orange, near-white canvas    |
-| `chat-theme-aristotle1`                          | the palette the library shipped with — same blue, lighter `#f7841f` |
-| `chat-theme-aristotle2`                          | PNC corporate — `#084d77` / `#001e33` deep navy, same orange        |
+| Theme                                            | Identity                                                                 |
+| ------------------------------------------------ | ------------------------------------------------------------------------ |
+| `chat-theme-default` (also the no-class default) | PNC retail — `#004c97` blue, `#ef6a00` orange, near-white canvas         |
+| `chat-theme-aristotle1`                          | the palette the library shipped with — same blue, lighter `#f7841f`      |
+| `chat-theme-aristotle2`                          | PNC corporate — `#084d77` / `#001e33` deep navy, same orange             |
+| `chat-theme-graphite`                            | the default's blue identity on a near-neutral `#0f1214` charcoal in dark |
 
 Values marked `✔` in `brand.css` are taken from PNC's live stylesheets: the
 default's from pnc.com, `aristotle2`'s deep navy from the Corporate &
 Institutional page, whose hero band is `#001e33` with pure white on it.
+
+### The three dark modes
+
+The themes differ mostly in **dark** — light mode is near-identical across
+`default` and `graphite` by design, and only a shade apart in `aristotle2`. What
+separates them is how much colour the dark field carries, measured as oklch
+chroma:
+
+| Theme        | `--canvas-dark` | chroma  | Reads as                                       |
+| ------------ | --------------- | ------- | ---------------------------------------------- |
+| `default`    | `#04172a`       | `0.046` | navy, but calm enough to sit behind content    |
+| `aristotle2` | `#001e33`       | `0.054` | deeper and cooler, pure white headings         |
+| `graphite`   | `#0f1214`       | `0.006` | effectively neutral — the darkest of the three |
+
+For scale: the default's dark panel used to sit at `0.085`, which is more colour
+than a dark surface can carry without competing with what is on it. That was the
+"too blue" complaint, and trimming the chroma — not changing the hue — is what
+fixes it.
+
+`--action` is the counterweight. It is the composer's send button and nothing
+else, it defaults to `--brand-solid`, and in dark it becomes the theme's
+`--ember-500` with a near-black glyph. One saturated control against a
+desaturated field is the whole recipe: the same warm hue spread across chips,
+rails and avatars stops reading as emphasis and starts reading as decoration.
+The second ambient bloom (`--canvas-glow-b`) carries the only other warm note,
+at 14% and purely decorative.
+
+The demo exposes the choice in **Demo features → Palette**, persisted as
+`aristotle-brand-theme` and applied by `index.html` before first paint. A real
+app hardcodes one class on `<html>` instead.
 
 The theme selector and `dark`/`light` must sit on the **same element** —
 `brand.css` derives its light and dark tokens on whichever element carries the
@@ -378,15 +615,61 @@ the Recent chats "Active now" row were both doing. `--accent-*` is now aliased
 to each theme's `--brand-*` ramp with `var()` rather than copied hex, so the two
 cannot drift.
 
-That leaves two warm values, and they are not interchangeable:
+That leaves three warm values, and they are not interchangeable:
 
-| Token                      | Where                       | Contrast rules                                                                                                                                                     |
-| -------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `--ember-*`                | the orb's two blooms, only  | **Exempt** — the mark is `aria-hidden` decoration. Never reuse these for text, icons, or state; that is what the other one is for.                                 |
-| `--notify` / `--on-notify` | the launcher's unread badge | **Checked.** Fill 3.12:1 light / 5.00:1 dark against its panel; the count uses the deep ink at 5.46:1, because white on ember is the 3.12:1 that started all this. |
+| Token                      | Where                               | Contrast rules                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| -------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--ember-*`                | the orb's two blooms, only          | **Exempt** — the mark is `aria-hidden` decoration. Never reuse these for text, icons, or state; that is what the other one is for.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `--notify` / `--on-notify` | the launcher's unread badge         | **Checked, and the one literal in the file.** A white count on an orange badge is squeezed from both ends: the ink needs 4.5:1 on the fill, so the fill must be dark; the badge needs 3:1 on the surface behind it, so against navy the fill must be light. That band is about one ramp step wide and no theme's `--ember-600` sits in it. `#cb4a11` clears both everywhere shipped — 4.64:1 for white on the fill, 3.12–4.64:1 for the fill on the panels and canvases it lands on. Where it overhangs the launcher sphere, a gradient in this same warm hue (1.49:1 at the bloom), the edge is carried by a shadow rather than a border. Re-run both ratios before touching it. |
+| `--highlight`              | the `<mark>` behind a cited passage | **Warm by choice, not by contrast.** A highlight marks where to look; sharing a colour with every button and link makes it read as another control. Swappable — see below.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 
 A theme that declares no `--ember-*` falls back to its accent, so the orb is
 never undefined.
+
+#### Highlight swatches
+
+`--highlight` backs every `<mark>` — the cited passage in a reference document,
+and the same passage in a citation chip's hover preview. It defaults to the
+theme's warm hue; `brand.css` §5 ships five alternates, picked with a class or
+the matching `data-` attribute on any element:
+
+```html
+<html class="chat-theme-aristotle2 chat-highlight-yellow dark"></html>
+```
+
+```js
+mountWidget(content, { themeClass: 'chat-theme-aristotle2 chat-highlight-teal' })
+```
+
+`orange` (the default), `amber`, `yellow`, `blue` (the pre-orange behaviour —
+the theme's own action hue), `teal`, `violet`. The demo's **Demo features**
+panel has a picker, so they can be compared against real content.
+
+Two things about them are worth knowing before picking one.
+
+**The wash strength is a token, not a constant.** A `<mark>` is drawn with the
+`.highlight-wash` utility, which mixes `--highlight` at `--highlight-strength`
+— 25% on light, 45% on dark, and lower again for the two luminous swatches. It
+has to vary, because a translucent warm hue over navy is mostly navy: at 25%
+_every_ orange in the ramp composites to within about 6/255 of neutral grey. It
+is the alpha, not the orange. It is also why this is a utility rather than a
+`--highlight-wash` custom property, which looks like the obvious move and
+silently doesn't work — a custom property containing `var()` is substituted
+where it is _declared_, so a wash composed on `:root` keeps `:root`'s hue and
+strength however far below it a `.dark` ancestor or a swatch class redeclares
+them.
+
+**None of them is a contrast failure, but they are not equal.** Each was checked
+against all three shipped themes in both modes; `--ink-strong` on the wash lands
+between 5.7:1 and 13.5:1 throughout. What differs is how much like itself each
+one looks. On white, every swatch is plainly its own hue except yellow, which
+barely separates from the page at any strength — the classic highlighter colour
+is the one screens serve worst. On navy it is the warm hues that struggle, since
+they composite toward brown. The cold three — blue, teal, violet — read cleanly
+in both modes, so they are the safe pick for a surface that has to work in
+either. And none of it substitutes for the wording or structure that makes a
+highlight legible without colour at all (WCAG 1.4.1); a wash is reinforcement,
+not the signal.
 
 `--accent` also inverts in dark, for the same reason `--brand-solid` does below:
 a mid-ramp blue fill sits at ~2.0–2.8:1 against a dark panel and the badge simply

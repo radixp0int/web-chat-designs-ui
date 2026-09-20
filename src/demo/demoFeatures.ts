@@ -1,110 +1,177 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { createContext, useContext } from 'react'
+import {
+  SHIPPED_HIGHLIGHTS,
+  SHIPPED_PALETTES,
+  useFeatureFlags,
+  usePaletteClass,
+  useStoredChoice,
+  type FeatureCatalogue,
+  type FeatureFlagsValue,
+} from '../lib'
 
 /**
- * Which parts of a response the demo currently shows. These are presenter
- * controls, not product settings: they exist so the same answer can be walked
- * through with and without reasoning, tools, citations, or follow-ups.
+ * The demo's settings surface, built on the library's generic machinery
+ * (`src/lib/settings`) rather than its own.
  *
- * Demo-only by design — the flags live here rather than in lib/, and gating
- * happens by stripping message fields (see applyDemoFeatures) so no shared
- * component has to know a flag exists.
+ * It is written the way a real tenant configuration would be: the catalogue is data, the
+ * optional sections are booleans, and every string is content. Swapping in a
+ * different product means editing the two objects below and nothing else —
+ * see the "User-toggleable features" recipe in the README.
  */
 export type DemoFeatureId = 'thinking' | 'tools' | 'sources' | 'followups' | 'actions' | 'trace'
 
-export type DemoFlags = Record<DemoFeatureId, boolean>
-
-export const DEFAULT_FLAGS: DemoFlags = {
-  thinking: true,
-  tools: true,
-  sources: true,
-  followups: true,
-  actions: true,
-  trace: true,
-}
-
-export const DEMO_FEATURES: Record<DemoFeatureId, { label: string; hint: string }> = {
-  thinking: {
-    label: 'Reasoning',
-    hint: 'The collapsible “Thought for Ns” block above the answer.',
+/**
+ * What this viewer may switch, grouped by where the feature lands in a
+ * streamed turn — the order a presenter narrates it, which is also the order
+ * someone reading an answer meets it.
+ *
+ * A real deployment builds this per viewer: start from the full list, drop
+ * what the tenant has not bought and what the viewer's role does not allow,
+ * and hand the remainder to useFeatureFlags. Anything absent here cannot be
+ * switched on from storage, so entitlement is decided once, here.
+ */
+export const DEMO_CATALOGUE: FeatureCatalogue<DemoFeatureId> = [
+  {
+    id: 'before',
+    title: 'Before the answer',
+    description: 'What the assistant shows while it is still working.',
+    features: [
+      {
+        id: 'thinking',
+        label: 'Reasoning',
+        hint: 'The collapsible “Thought for Ns” block above the answer.',
+      },
+      {
+        id: 'tools',
+        label: 'Tool calls',
+        hint: 'Status chips for each tool, expandable to their input and output.',
+      },
+    ],
   },
-  tools: {
-    label: 'Tool calls',
-    hint: 'Status chips for each tool, expandable to their input and output.',
+  {
+    id: 'during',
+    title: 'In the answer',
+    description: 'What the answer itself carries.',
+    features: [
+      {
+        id: 'sources',
+        label: 'Sources and citations',
+        hint: 'Inline [n] markers, the source strip, and the reference panel.',
+      },
+    ],
   },
-  sources: {
-    label: 'Sources and citations',
-    hint: 'Inline [n] markers, the source strip, and the reference panel.',
+  {
+    id: 'after',
+    title: 'After the answer',
+    description: 'What a finished turn offers once the stream has stopped.',
+    features: [
+      {
+        id: 'followups',
+        label: 'Follow-up suggestions',
+        hint: 'Suggested next prompts branching off the newest answer.',
+      },
+      {
+        id: 'actions',
+        label: 'Message actions',
+        hint: 'Copy, regenerate, and the thumbs-up / thumbs-down vote.',
+      },
+      {
+        id: 'trace',
+        label: 'Turn details',
+        hint: 'The answer’s duration, opening onto a timeline of what the turn did.',
+      },
+    ],
   },
-  followups: {
-    label: 'Follow-up suggestions',
-    hint: 'Suggested next prompts branching off the newest answer.',
-  },
-  actions: {
-    label: 'Message actions',
-    hint: 'Copy, regenerate, and the thumbs-up / thumbs-down vote.',
-  },
-  trace: {
-    label: 'Turn details',
-    hint: 'The answer’s duration, opening onto a timeline of what the turn did.',
-  },
-}
-
-/** Grouped by where the feature lands in a streamed turn — the order a
- *  presenter narrates it, and the order the modal lists them in. */
-export const DEMO_FEATURE_GROUPS: { phase: string; features: DemoFeatureId[] }[] = [
-  { phase: 'Before the answer', features: ['thinking', 'tools'] },
-  { phase: 'In the answer', features: ['sources'] },
-  { phase: 'After the answer', features: ['followups', 'actions', 'trace'] },
 ]
 
-const STORAGE_KEY = 'demo-features'
+/**
+ * The appearance sections, which are optional per surface.
+ *
+ * Booleans rather than a fixed layout because they are not universally
+ * appropriate: an internal tool wants both, a white-labelled deployment wants
+ * neither (the tenant's palette is not the end user's to change), and a
+ * product that ships one brand but cites heavily wants only the highlight.
+ *
+ * `title` and `description` are part of the shape so a tenant can retitle a
+ * section without forking the component. The demo leaves them unset, which is
+ * the normal case — PalettePicker and HighlightPicker carry their own copy,
+ * and repeating it here would be two places to edit and one to forget.
+ */
+export const DEMO_APPEARANCE: Record<
+  'palette' | 'highlight',
+  { show: boolean; title?: string; description?: string }
+> = {
+  palette: { show: true },
+  highlight: { show: true },
+}
 
-/** Stored flags are merged over the defaults, so a flag added later still
- *  starts on for someone with an older blob saved. */
-function readStored(): DemoFlags {
-  if (typeof window === 'undefined') return DEFAULT_FLAGS
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) return DEFAULT_FLAGS
-    const parsed = JSON.parse(raw) as Partial<DemoFlags>
-    return { ...DEFAULT_FLAGS, ...parsed }
-  } catch {
-    return DEFAULT_FLAGS
+/**
+ * Storage keys are per surface. A real app scopes them per viewer too —
+ * `demo-features:${tenantId}:${userId}` — so two accounts on one machine do
+ * not inherit each other's settings.
+ */
+const FEATURES_KEY = 'demo-features'
+const PALETTE_KEY = 'aristotle-brand-theme'
+const HIGHLIGHT_KEY = 'demo-highlight'
+
+/** Named once: these are both the hydration fallback and what "Reset
+ *  appearance" restores, and the two drifting apart is a silent bug. */
+const DEFAULT_PALETTE = 'default'
+const DEFAULT_HIGHLIGHT = 'orange'
+
+export type DemoFeaturesValue = FeatureFlagsValue<DemoFeatureId> & {
+  highlight: string
+  setHighlight: (id: string) => void
+  palette: string
+  setPalette: (id: string) => void
+  /** Appearance only. The feature flags have their own `reset`, because the
+   *  two now live behind separate entries in the account menu and a reset in
+   *  one dialog must not silently undo the other's. */
+  resetAppearance: () => void
+}
+
+/** Owns the settings state and its persistence. Called once, by the app shell
+ *  — which needs the flags in its own render as well as providing them below. */
+export function useDemoFeatureState(): DemoFeaturesValue {
+  const features = useFeatureFlags<DemoFeatureId>({
+    catalogue: DEMO_CATALOGUE,
+    storageKey: FEATURES_KEY,
+  })
+  const [palette, setPalette] = useStoredChoice({
+    options: SHIPPED_PALETTES,
+    fallback: DEFAULT_PALETTE,
+    storageKey: PALETTE_KEY,
+  })
+  const [highlight, setHighlight] = useStoredChoice({
+    options: SHIPPED_HIGHLIGHTS,
+    fallback: DEFAULT_HIGHLIGHT,
+    storageKey: HIGHLIGHT_KEY,
+  })
+
+  // On <html>, next to dark/light: `body` paints var(--canvas), which resolves
+  // at :root. index.html applies the same stored value before first paint so
+  // a reload does not flash the default palette.
+  usePaletteClass(palette)
+
+  return {
+    ...features,
+    palette,
+    setPalette,
+    highlight,
+    setHighlight,
+    resetAppearance: () => {
+      setPalette(DEFAULT_PALETTE)
+      setHighlight(DEFAULT_HIGHLIGHT)
+    },
   }
 }
 
-export type DemoFeaturesValue = {
-  flags: DemoFlags
-  setFlag: (id: DemoFeatureId, on: boolean) => void
-  reset: () => void
-}
-
-/** Owns the flag state and its persistence. Called once, by the app shell —
- *  which needs the flags in its own render as well as providing them below. */
-export function useDemoFeatureState(): DemoFeaturesValue {
-  const [flags, setFlags] = useState<DemoFlags>(readStored)
-
-  useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(flags))
-  }, [flags])
-
-  const setFlag = useCallback((id: DemoFeatureId, on: boolean) => {
-    setFlags((f) => ({ ...f, [id]: on }))
-  }, [])
-
-  const reset = useCallback(() => setFlags(DEFAULT_FLAGS), [])
-
-  return { flags, setFlag, reset }
-}
-
-const DemoFeaturesContext = createContext<DemoFeaturesValue>({
-  flags: DEFAULT_FLAGS,
-  setFlag: () => {},
-  reset: () => {},
-})
+const DemoFeaturesContext = createContext<DemoFeaturesValue | null>(null)
 
 export const DemoFeaturesProvider = DemoFeaturesContext.Provider
 
 export function useDemoFeatures(): DemoFeaturesValue {
-  return useContext(DemoFeaturesContext)
+  const value = useContext(DemoFeaturesContext)
+  if (!value) throw new Error('useDemoFeatures must be used inside DemoFeaturesProvider')
+  return value
 }

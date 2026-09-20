@@ -23,3 +23,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Scratch work that is not part of the library — moved out or deleted, never shipped
+src/splash-temp/

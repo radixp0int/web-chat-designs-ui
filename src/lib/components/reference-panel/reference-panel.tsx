@@ -3,6 +3,7 @@ import { ChevronLeftIcon, ChevronRightIcon, XIcon } from '../icons'
 import { IconButton } from '../icon-button'
 import { Markdown } from '../markdown'
 import { useUiSize } from '../../uiSize'
+import { useWheelToHorizontal } from '../../hooks/useWheelToHorizontal'
 import type { ReferencePanelProps } from './types'
 
 // Above this many sources, the pill rail alone is a long horizontal scroll, so
@@ -27,6 +28,10 @@ export function ReferencePanel({
   const rootRef = useRef<HTMLDivElement>(null)
   const railRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
+
+  // A wheel mouse has no sideways gesture, so the pill rail would be
+  // unreachable with one past the first few references.
+  useWheelToHorizontal(railRef)
 
   const at = sources.findIndex((s) => s.id === activeId)
   const active = sources[at] ?? sources[0]
@@ -142,7 +147,7 @@ export function ReferencePanel({
       {sources.length > 1 && (
         <div
           ref={railRef}
-          className="flex gap-1.5 overflow-x-auto border-b border-line px-3 py-2 [scrollbar-width:thin]"
+          className="flex gap-1.5 overflow-x-auto overscroll-x-contain border-b border-line px-3 py-2 [scrollbar-width:thin]"
           role="tablist"
           aria-label="References"
         >

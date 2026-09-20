@@ -312,3 +312,11 @@ export const UndoIcon = (p: IconProps) => (
     <path d="M9 14.5 4.5 10 9 5.5M4.5 10h9a5.5 5.5 0 0 1 0 11h-2.5" />
   </svg>
 )
+
+/** A person — the account, as distinct from SlidersIcon's settings. */
+export const UserIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <circle cx="12" cy="8" r="3.6" />
+    <path d="M5 20a7 7 0 0 1 14 0" />
+  </svg>
+)

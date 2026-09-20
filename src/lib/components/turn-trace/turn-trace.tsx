@@ -163,17 +163,45 @@ export function TurnTraceFailure({ reason, trace, onRetry, busy }: TurnTraceFail
 
 /** The timeline itself: `0.0s  Reasoning  1.2s` per row — when it started, what
  *  ran, how long it took. The left column is what makes this a timeline instead
- *  of a property list. */
+ *  of a property list.
+ *
+ *  Which is exactly what two bare numbers on one line don't say: nothing marks
+ *  the left one as a position on the turn's clock and the right one as a
+ *  duration. A column header names both at once, and costs no space inside the
+ *  rows — it reuses their flex skeleton, so nothing shifts. Skipped on a
+ *  single-step trace, where a header over one row is furniture. */
 function TraceSteps({ steps, className = '' }: { steps: TurnStep[]; className?: string }) {
   const compact = useUiSize() === 'compact'
   if (steps.length === 0) return null
 
   return (
-    <ol className={`space-y-1 ${compact ? 'text-[11px]' : 'text-xs'} ${className}`}>
-      {steps.map((step) => (
-        <StepRow key={step.id} step={step} />
-      ))}
-    </ol>
+    <div className={className}>
+      {steps.length > 1 && <ColumnHeader />}
+      <ol className={`space-y-1 ${compact ? 'text-[11px]' : 'text-xs'}`}>
+        {steps.map((step) => (
+          <StepRow key={step.id} step={step} />
+        ))}
+      </ol>
+    </div>
+  )
+}
+
+/** Names the two numeric columns.
+ *
+ *  `aria-hidden`, and it has to be: this is a visual alignment device over an
+ *  `<ol>`, not a table header a screen reader could associate with anything.
+ *  Non-visual parity comes from the `sr-only` phrasing inside each row, which
+ *  labels the numbers where they actually are. */
+function ColumnHeader() {
+  return (
+    <div
+      aria-hidden
+      className="mb-1 flex items-baseline gap-2.5 text-[10px] font-semibold tracking-wide text-ink-soft uppercase"
+    >
+      <span className="w-9 shrink-0">Start</span>
+      <span className="min-w-0 flex-1">Step</span>
+      <span className="shrink-0">Took</span>
+    </div>
   )
 }
 
@@ -191,7 +219,10 @@ function StepRow({ step }: { step: TurnStep }) {
           as the AA-passing secondary ink, and stacking alpha on it drops the
           stamps to 2.74:1. Hierarchy comes from the mono face and the fixed
           column instead. */}
-      <span className="w-9 shrink-0 font-mono tabular-nums">{stamp}</span>
+      <span className="w-9 shrink-0 font-mono tabular-nums">
+        <span className="sr-only">Started at </span>
+        {stamp}
+      </span>
       <span className="min-w-0 flex-1">
         {fault ? (
           <>
@@ -206,7 +237,10 @@ function StepRow({ step }: { step: TurnStep }) {
         )}
       </span>
       {!fault && step.ms !== undefined && (
-        <span className="shrink-0 font-mono tabular-nums">{secs(step.ms)}</span>
+        <span className="shrink-0 font-mono tabular-nums">
+          <span className="sr-only">, took </span>
+          {secs(step.ms)}
+        </span>
       )}
       {detail && (
         <ChevronRightIcon

@@ -4,13 +4,14 @@ import { createCannedResponder } from '../lib/engine/chatEngine'
 import type { Highlight, Source } from '../lib/types'
 import { createWsResponder } from '../lib/engine/wsResponder'
 import { CitationsProvider } from '../lib/citations'
+import { applyFeatureGate } from '../lib/settings'
 import { ReferencePanel } from '../lib/components/reference-panel'
 import { ResizableColumn } from '../lib/components/resizable-column'
 import { useChat } from '../lib/hooks/useChat'
-import { applyDemoFeatures } from './applyDemoFeatures'
 import { ConversationView } from './components/ConversationView'
-import { DemoFeaturesModal } from './components/DemoFeaturesModal'
+import { FeatureTogglesModal } from './components/FeatureTogglesModal'
 import { Sidebar } from './components/Sidebar'
+import { UserSettingsModal } from './components/UserSettingsModal'
 import { TopBar } from './components/TopBar'
 import { aristotleBranding } from './config'
 import { DemoFeaturesProvider, useDemoFeatureState } from './demoFeatures'
@@ -32,7 +33,9 @@ function App() {
     () => typeof window !== 'undefined' && window.localStorage.getItem('sidebar-collapsed') === '1',
   )
   const [citation, setCitation] = useState<CitationState>(null)
-  const [demoOpen, setDemoOpen] = useState(false)
+  // The two dialogs behind the sidebar's account menu. Both are modal, so at
+  // most one is ever open — opening either closes the other.
+  const [dialog, setDialog] = useState<'user' | 'features' | null>(null)
   const {
     messages,
     busy,
@@ -61,7 +64,7 @@ function App() {
   // fresh array every render would make every ChatMessage below re-render
   // (none of them are memoized) even when nothing about them changed.
   const shownMessages = useMemo(
-    () => applyDemoFeatures(messages, demo.flags),
+    () => applyFeatureGate(messages, demo.flags),
     [messages, demo.flags],
   )
 
@@ -78,7 +81,13 @@ function App() {
   return (
     <BrandingProvider value={aristotleBranding}>
       <DemoFeaturesProvider value={demo}>
-        <div className="relative flex h-dvh gap-4 overflow-hidden p-4">
+        {/* The highlight swatch rides on the shell rather than on <html>, which
+            is how an app would really scope it — and is worth having here,
+            because a citation's hover card portals to document.body and has to
+            mirror this class back out to keep the same colour. */}
+        <div
+          className={`chat-highlight-${demo.highlight} relative flex h-dvh gap-4 overflow-hidden p-4`}
+        >
           <AmbientGlow />
           <Sidebar
             open={sidebarOpen}
@@ -86,8 +95,12 @@ function App() {
             onToggleCollapse={() => setCollapsed((v) => !v)}
             onClose={() => setSidebarOpen(false)}
             onNewChat={startNewChat}
-            onOpenDemoFeatures={() => {
-              setDemoOpen(true)
+            onOpenUserSettings={() => {
+              setDialog('user')
+              setSidebarOpen(false)
+            }}
+            onOpenFeatureToggles={() => {
+              setDialog('features')
               setSidebarOpen(false)
             }}
           />
@@ -169,7 +182,8 @@ function App() {
             </>
           )}
 
-          <DemoFeaturesModal open={demoOpen} onClose={() => setDemoOpen(false)} />
+          <UserSettingsModal open={dialog === 'user'} onClose={() => setDialog(null)} />
+          <FeatureTogglesModal open={dialog === 'features'} onClose={() => setDialog(null)} />
         </div>
       </DemoFeaturesProvider>
     </BrandingProvider>

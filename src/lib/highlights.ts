@@ -95,3 +95,108 @@ export function sourceHighlights(
   }
   return [...groups.values()]
 }
+
+// ---------------------------------------------------------------------------
+// Previews — the same cited passages, rendered somewhere that can't take
+// markdown (today: the citation chip's hover card).
+// ---------------------------------------------------------------------------
+
+/**
+ * Markdown → one readable line of text.
+ *
+ * This is not a markdown parser and shouldn't become one: its input is an
+ * arbitrary *slice* of a document, so it has to survive a `**` whose closer was
+ * cut off, a table row ending mid-cell, a heading with no body. Every rule here
+ * strips syntax rather than interpreting it, which is exactly what makes it
+ * slice-proof.
+ *
+ * Running the slice through the real renderer instead would be worse in three
+ * ways: it renders the broken halves literally, it re-linkifies any `[n]` in
+ * the source (a citation chip inside a citation chip's own tooltip), and it
+ * pays for a full remark parse on the frame the card opens.
+ */
+export function plainExcerpt(markdown: string): string {
+  return markdown
+    .replace(/```[\s\S]*?```/g, ' ') // fenced code: nothing quotable in it
+    .replace(/`([^`]*)`/g, '$1')
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1') // links and images → their text
+    .replace(/^\s{0,3}#{1,6}\s+(.*)$/gm, '$1 · ') // headings keep their text, not their rank
+    .replace(/^\s{0,3}>\s?/gm, '') // blockquote markers
+    .replace(/^\s{0,3}(?:[-*+]|\d+\.)\s+/gm, '') // list bullets
+    .replace(/^\s*\|?[\s:|-]{3,}\|?\s*$/gm, ' ') // table delimiter rows
+    .replace(/\s*\|\s*/g, ' · ') // cells: a separator that reads inline
+    .replace(/(\*\*|__|~~|\*|_)/g, '') // emphasis, including halves left by a cut
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+/** Cut at a word boundary so a preview never ends mid-word. */
+function clip(text: string, limit: number): string {
+  if (text.length <= limit) return text
+  const cut = text.slice(0, limit)
+  const space = cut.lastIndexOf(' ')
+  return `${(space > limit * 0.6 ? cut.slice(0, space) : cut).trimEnd()}…`
+}
+
+/** What a citation marker shows before you open it. */
+export type CitationPreview = {
+  sourceId: number
+  title: string
+  /** Cited passages in document order, as plain text. Empty when this source
+   *  has no highlight group — not every cited source does. */
+  passages: string[]
+  /** Passages dropped by the cap, for a "+N more" line. */
+  more: number
+  /** The document's opening. Set only when `passages` is empty, and never
+   *  presented as a quotation — the assistant didn't cite it. */
+  lead?: string
+}
+
+const MAX_PASSAGES = 3
+
+/**
+ * The preview for one cited source. Reuses `rangesForReference`, so a card and
+ * the reference panel can never disagree about which passages a citation
+ * covers — same clamping, same ordering, same overlap removal.
+ */
+export function citationPreview(
+  source: Source,
+  highlights: Highlight[] | undefined,
+  limit = 180,
+): CitationPreview {
+  const ranges = rangesForReference(highlights, source.id, source.markdown.length)
+  const passages = ranges
+    .slice(0, MAX_PASSAGES)
+    .map((r) => clip(plainExcerpt(source.markdown.slice(r.start, r.end)), limit))
+    .filter(Boolean)
+
+  if (passages.length > 0) {
+    return {
+      sourceId: source.id,
+      title: source.title,
+      passages,
+      more: ranges.length - passages.length,
+    }
+  }
+
+  // Fallback: the document's opening, minus a leading `# Title` line that would
+  // only repeat the title the card already shows above it.
+  const body = source.markdown.replace(/^\s*#{1,6}\s+.*(?:\n|$)/, '')
+  return {
+    sourceId: source.id,
+    title: source.title,
+    passages: [],
+    more: 0,
+    lead: clip(plainExcerpt(body), limit + 40),
+  }
+}
+
+/**
+ * A preview as one line of text, for the marker's accessible description.
+ * Lives here rather than in the card so the two can't drift — and so the card
+ * file stays a component file (fast refresh only works when one does).
+ */
+export function previewDescription(preview: CitationPreview): string {
+  const body = preview.passages.length > 0 ? preview.passages.join(' ') : (preview.lead ?? '')
+  return `${preview.title}. ${body}`
+}

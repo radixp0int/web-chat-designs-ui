@@ -3,14 +3,14 @@ import { personas } from '../personas'
 import {
   ChatIcon,
   ChevronLeftIcon,
-  ChevronRightIcon,
   LibraryIcon,
+  MenuIcon,
   SearchIcon,
-  SlidersIcon,
   SparkleIcon,
   XIcon,
 } from '../../lib/components/icons'
 import { IconButton } from '../../lib/components/icon-button'
+import { AccountMenu } from './AccountMenu'
 
 /**
  * Past conversations, grouped by the persona they were had with. A user is
@@ -50,9 +50,10 @@ type SidebarProps = {
   onToggleCollapse: () => void
   onClose: () => void
   onNewChat: () => void
-  /** Opens the demo-features modal. The host app owns this menu, so it only
-   *  contributes the entry point — the features themselves live in the chat. */
-  onOpenDemoFeatures: () => void
+  /** The two entries behind the account menu. The host app owns both dialogs,
+   *  so the sidebar contributes only the entry points. */
+  onOpenUserSettings: () => void
+  onOpenFeatureToggles: () => void
 }
 
 export function Sidebar({
@@ -61,7 +62,8 @@ export function Sidebar({
   onToggleCollapse,
   onClose,
   onNewChat,
-  onOpenDemoFeatures,
+  onOpenUserSettings,
+  onOpenFeatureToggles,
 }: SidebarProps) {
   return (
     <>
@@ -79,14 +81,18 @@ export function Sidebar({
           collapsed ? 'lg:w-16' : 'lg:w-72'
         } ${open ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        {/* Collapsed rail is too narrow for orb + toggle side by side, so the
-            header stacks vertically in that state. */}
+        {/* The collapsed rail carries nothing but the hamburger: branding and
+            the app name belong to the expanded sidebar, and a lone menu button
+            reads as "open me" far more plainly than an orb over a chevron. */}
         <div
           className={`flex items-center gap-2.5 px-5 pt-5 pb-4 ${
-            collapsed ? 'lg:flex-col lg:gap-3 lg:px-3' : ''
+            collapsed ? 'lg:justify-center lg:px-3' : ''
           }`}
         >
-          <span className="orb block size-7 shrink-0 rounded-full" aria-hidden />
+          <span
+            className={`orb block size-7 shrink-0 rounded-full ${collapsed ? 'lg:hidden' : ''}`}
+            aria-hidden
+          />
           <span
             className={`text-lg font-semibold tracking-tight text-ink-strong ${
               collapsed ? 'lg:hidden' : ''
@@ -101,11 +107,11 @@ export function Sidebar({
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             aria-expanded={!collapsed}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            className={`hidden rounded-lg p-1.5 text-ink-soft hover:text-ink-strong lg:block ${
+            className={`hidden rounded-lg p-1.5 text-ink-soft transition hover:bg-panel hover:text-ink-strong lg:block ${
               collapsed ? '' : 'ml-auto'
             }`}
           >
-            {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+            {collapsed ? <MenuIcon /> : <ChevronLeftIcon />}
           </button>
           {/* Mobile close — touch-only, so it takes the 44px variant. */}
           <IconButton
@@ -187,29 +193,15 @@ export function Sidebar({
           </div>
         </nav>
 
-        {/* The slim rail is too narrow for the profile and the demo control side
-            by side, so the footer stacks there — same trick as the header. */}
-        <div className={`border-t border-line px-5 py-4 ${collapsed ? 'lg:px-3' : ''}`}>
-          <div className={`flex items-center gap-3 ${collapsed ? 'lg:flex-col lg:gap-2.5' : ''}`}>
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-solid text-xs font-bold text-on-brand-solid">
-              JO
-            </span>
-            <div className={`min-w-0 text-[13px] leading-tight ${collapsed ? 'lg:hidden' : ''}`}>
-              <div className="truncate font-semibold text-ink-strong">John Ozzo</div>
-              <div className="truncate text-ink-soft">Performance plan</div>
-            </div>
-            <button
-              type="button"
-              onClick={onOpenDemoFeatures}
-              aria-label="Demo features"
-              title="Demo features"
-              className={`shrink-0 rounded-lg p-1.5 text-ink-soft transition hover:bg-panel hover:text-ink-strong ${
-                collapsed ? 'lg:ml-0' : 'ml-auto'
-              }`}
-            >
-              <SlidersIcon width={17} height={17} />
-            </button>
-          </div>
+        {/* One control, not two: the avatar is the entry point to both the
+            account dialog and the feature toggles, which is what keeps the slim
+            rail down to a single glyph here. */}
+        <div className={`border-t border-line px-4 py-3 ${collapsed ? 'lg:px-2.5' : ''}`}>
+          <AccountMenu
+            collapsed={collapsed}
+            onOpenUserSettings={onOpenUserSettings}
+            onOpenFeatureToggles={onOpenFeatureToggles}
+          />
         </div>
       </aside>
     </>

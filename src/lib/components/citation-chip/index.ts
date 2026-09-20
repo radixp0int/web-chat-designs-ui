@@ -1,2 +1,3 @@
 export { CitationChip } from './citation-chip'
-export type { CitationChipProps } from './types'
+export { CitationPreviewCard } from './citation-preview'
+export type { CitationChipProps, CitationPreviewLookup } from './types'

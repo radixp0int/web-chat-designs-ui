@@ -38,6 +38,9 @@
   --color-brand-fg-hover: var(--brand-fg-hover);
   --color-brand-solid: var(--brand-solid);
   --color-on-brand-solid: var(--on-brand-solid);
+  /* The composer's primary button only — see --action in brand.css §1. */
+  --color-action: var(--action);
+  --color-on-action: var(--on-action);
   --color-chip: var(--chip);
   --color-chip-hover: var(--chip-hover);
   --color-chip-fg: var(--chip-fg);
@@ -153,6 +156,26 @@
     border: 1px solid var(--line);
     backdrop-filter: blur(18px) saturate(1.3);
     -webkit-backdrop-filter: blur(18px) saturate(1.3);
+  }
+
+  /* The wash behind a cited passage — every <mark> in the library.
+     A utility rather than `bg-highlight/25` in the markup, because the alpha
+     is not a constant: brand.css tunes --highlight-strength per mode and per
+     swatch (a warm hue needs 45% to read on navy and 25% on white), and an
+     opacity modifier in a class string can't vary.
+
+     And a utility rather than a `--highlight-wash` token, which looks like the
+     obvious move and silently doesn't work: a custom property containing
+     var() is substituted where it is DECLARED, so a wash composed on :root
+     would keep :root's hue and strength no matter what a `.dark` ancestor or a
+     swatch class redeclared below it. Composing here means the mix resolves on
+     the <mark> itself, against whatever it actually inherits. */
+  .highlight-wash {
+    background-color: color-mix(
+      in oklab,
+      var(--highlight) var(--highlight-strength, 25%),
+      transparent
+    );
   }
 
   /* The rail down the inside of a turn — reasoning text, tool payloads, the
