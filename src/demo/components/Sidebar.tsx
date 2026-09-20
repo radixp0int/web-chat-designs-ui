@@ -1,47 +1,21 @@
 import { APP_NAME } from '../config'
-import { personas } from '../personas'
+import { recentChats } from '../mocks/recentChats'
 import {
   ChatIcon,
   ChevronLeftIcon,
   LibraryIcon,
   MenuIcon,
   SearchIcon,
-  SparkleIcon,
   XIcon,
 } from '../../lib/components/icons'
 import { IconButton } from '../../lib/components/icon-button'
 import { AccountMenu } from './AccountMenu'
 
-/**
- * Past conversations, grouped by the persona they were had with. A user is
- * entitled to some subset of the personas — this one has three of the four, so
- * Persona 4 never appears here. Names resolve from ../personas so renaming a
- * persona renames its group.
- *
- * Newest first within each group; `when` is a short relative age because the
- * rail is too narrow for a full date.
- */
-const history: { personaId: string; chats: { title: string; when: string }[] }[] = [
-  {
-    personaId: 'persona-1',
-    chats: [
-      { title: 'Retirement glide path', when: '2d' },
-      { title: 'College fund options', when: '5d' },
-      { title: '529 vs custodial account', when: '1w' },
-    ],
-  },
-  {
-    personaId: 'persona-2',
-    chats: [
-      { title: 'Cash flow forecast', when: '3d' },
-      { title: 'Line of credit questions', when: '2w' },
-    ],
-  },
-  {
-    personaId: 'persona-3',
-    chats: [{ title: 'Quarterly tax estimates', when: '3w' }],
-  },
-]
+/** How many conversations the rail lists. Six fills the space under the nav
+ *  links at the shortest supported height without pushing the account menu
+ *  below the fold, and a rail that scrolls its own history competes with the
+ *  transcript for the same gesture. "Library" is where the rest live. */
+const RECENT_LIMIT = 6
 
 type SidebarProps = {
   open: boolean
@@ -148,8 +122,10 @@ export function Sidebar({
           <SidebarLink icon={<LibraryIcon />} label="Library" collapsed={collapsed} />
 
           {/* Recent conversations — too detailed for the slim rail, so hidden
-              when collapsed. Each persona owns its own branch of history, so
-              every group carries its own spine rather than sharing one. */}
+              when collapsed. A flat list, newest first: grouping by persona
+              buried the thing people actually scan for (the conversation's
+              title) under a heading they already know, and split six items
+              into three stubby groups. */}
           <div className={collapsed ? 'lg:hidden' : ''}>
             <div className="mt-5 mb-1 px-2">
               <span className="text-[11px] font-semibold tracking-[0.14em] text-ink-soft uppercase">
@@ -157,39 +133,22 @@ export function Sidebar({
               </span>
             </div>
 
-            {history.map(({ personaId, chats }) => {
-              const persona = personas.find((p) => p.id === personaId)
-              if (!persona) return null
-              return (
-                <div key={personaId} className="mb-1.5">
-                  {/* The persona names the group; the conversations are what you
-                      act on, so this is a heading and not a button. */}
-                  <h3
-                    title={persona.hint}
-                    className="flex items-center gap-2.5 px-2 py-2 text-sm font-medium text-ink"
+            <ul>
+              {recentChats.slice(0, RECENT_LIMIT).map(({ id, title, when }) => (
+                <li key={id}>
+                  <button
+                    type="button"
+                    title={title}
+                    className="group flex w-full items-baseline gap-2 rounded-lg px-2 py-1.5 text-left transition hover:bg-panel"
                   >
-                    <SparkleIcon className="shrink-0 text-accent" width={17} height={17} />
-                    <span className="truncate">{persona.name}</span>
-                  </h3>
-                  <ul className="ml-[13px] border-l border-ink-soft/25 pl-4">
-                    {chats.map(({ title, when }) => (
-                      <li key={title}>
-                        <button
-                          type="button"
-                          title={title}
-                          className="group flex w-full items-baseline gap-2 rounded-lg px-2 py-1.5 text-left transition hover:bg-panel"
-                        >
-                          <span className="min-w-0 flex-1 truncate text-[13px] text-ink-soft transition group-hover:text-ink">
-                            {title}
-                          </span>
-                          <span className="shrink-0 text-[11px] text-ink-soft/70">{when}</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )
-            })}
+                    <span className="min-w-0 flex-1 truncate text-[13px] text-ink-soft transition group-hover:text-ink">
+                      {title}
+                    </span>
+                    <span className="shrink-0 text-[11px] text-ink-soft/70">{when}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
         </nav>
 

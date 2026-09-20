@@ -1,43 +1,27 @@
 import { BulbIcon, ImageIcon, PlanIcon, SummarizeIcon } from '../../lib/components/icons'
+import { recentChats } from '../mocks/recentChats'
 
 const suggestions = [
   {
     icon: ImageIcon,
     label: 'Create image',
-    prompt: 'Create an image of a sunrise over a city skyline in warm orange and deep blue tones',
+    prompt:
+      'Create an illustration of a treasury workstation at sunrise, in warm orange and deep blue tones',
   },
   {
     icon: SummarizeIcon,
     label: 'Summarize text',
-    prompt: 'Summarize the key points of my last quarterly budget review',
+    prompt: 'Summarize the key points of last month’s account analysis statement',
   },
   {
     icon: BulbIcon,
     label: 'Brainstorm ideas',
-    prompt: 'Brainstorm ideas for reducing my monthly subscription spending',
+    prompt: 'Brainstorm ways to cut days sales outstanding on our receivables',
   },
   {
     icon: PlanIcon,
     label: 'Make a plan',
-    prompt: 'Make a 12-month savings plan for a $15,000 emergency fund',
-  },
-]
-
-const recentChats = [
-  {
-    title: 'Emergency fund strategy',
-    excerpt: 'An emergency fund is the foundation of a resilient budget, not ju…',
-    date: '12 July',
-  },
-  {
-    title: 'First-home budget check',
-    excerpt: 'A comfortable mortgage payment usually stays under 28% of gro…',
-    date: '10 July',
-  },
-  {
-    title: 'Side-income tax basics',
-    excerpt: 'This blend of strategy and record-keeping keeps quarterly estima…',
-    date: '8 July',
+    prompt: 'Make a plan to move our supplier payments from cheque to ACH over two quarters',
   },
 ]
 
@@ -81,7 +65,7 @@ export function HeroSuggestions({ onPrompt }: { onPrompt: (text: string) => void
       <section className="mt-12 w-full">
         <h2 className="mb-4 text-sm font-semibold text-ink-soft">Your recent chats</h2>
         <div className="grid gap-3 sm:grid-cols-3">
-          {recentChats.map((chat) => (
+          {recentChats.slice(0, 3).map((chat) => (
             <button
               key={chat.title}
               type="button"
@@ -90,7 +74,7 @@ export function HeroSuggestions({ onPrompt }: { onPrompt: (text: string) => void
             >
               <h3 className="text-[15px] font-semibold text-ink-strong">{chat.title}</h3>
               <p className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-ink-soft">
-                {chat.excerpt}
+                {chat.snippet}
               </p>
               <time className="mt-3 block text-xs text-ink-soft/80">{chat.date}</time>
             </button>
