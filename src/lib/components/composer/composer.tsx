@@ -239,7 +239,7 @@ export function Composer({
               onClick={onStop}
               aria-label="Stop response"
               title="Stop response"
-              className={`flex items-center justify-center rounded-full bg-brand-solid text-on-brand-solid shadow-md shadow-(color:--shadow-raised) transition hover:brightness-95 ${
+              className={`flex items-center justify-center rounded-full bg-action text-on-action shadow-md shadow-(color:--shadow-raised) transition hover:brightness-95 ${
                 compact ? 'size-8' : 'size-9'
               }`}
             >
@@ -257,7 +257,12 @@ export function Composer({
               onClick={() => submit()}
               disabled={!hasDraft || disabled}
               aria-label="Send message"
-              className={`flex items-center justify-center rounded-full bg-brand-solid text-on-brand-solid shadow-md shadow-(color:--shadow-raised) transition hover:brightness-95 disabled:opacity-35 disabled:shadow-none ${
+              // Disabled drops to the neutral wash rather than fading the fill.
+              // --action is ember on dark (brand.css §2), and a saturated orange
+              // at 35% opacity over a navy panel does not read as a dimmed
+              // button — it composites to brown, which looks like a different
+              // control rather than an unavailable one.
+              className={`flex items-center justify-center rounded-full bg-action text-on-action shadow-md shadow-(color:--shadow-raised) transition hover:brightness-95 disabled:bg-tint/15 disabled:text-ink-soft disabled:shadow-none ${
                 compact ? 'size-8' : 'size-9'
               }`}
             >
@@ -362,7 +367,7 @@ function SendControl({
         aria-expanded={open}
         aria-label="Queue this message"
         title={`Queue (${keyLabels.enter}) · Send now (${keyLabels.mod}${keyLabels.enter})`}
-        className={`flex items-center justify-center rounded-full bg-brand-solid text-on-brand-solid shadow-md shadow-(color:--shadow-raised) transition hover:brightness-95 ${
+        className={`flex items-center justify-center rounded-full bg-action text-on-action shadow-md shadow-(color:--shadow-raised) transition hover:brightness-95 ${
           compact ? 'size-8' : 'size-9'
         }`}
       >

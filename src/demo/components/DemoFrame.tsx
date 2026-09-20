@@ -30,10 +30,10 @@ export function DemoFrame() {
       <Link
         to="/"
         title="Back to Demos"
-        className="demo-marker fixed left-0 z-20 flex h-11 items-center gap-2 pr-6 pl-4 text-[13.5px] font-bold tracking-[0.012em] whitespace-nowrap"
+        className="demo-marker fixed left-0 z-20 flex h-11 items-center gap-2 pr-6 pl-4 text-[14px] font-bold tracking-[0.012em] whitespace-nowrap"
       >
-        <ChevronLeftIcon width={14} height={14} className="demo-marker-label shrink-0" />
-        <span className="demo-marker-label">
+        <ChevronLeftIcon width={14} height={14} className="demo-marker-label shrink-0 text-white" />
+        <span className="demo-marker-label text-white text-semibold">
           {/* Touch parks the tab open, so on a phone this is permanent
               furniture and earns less of the edge. */}
           <span className="max-sm:hidden">Back to </span>Demos

@@ -1,10 +1,12 @@
+import { useMemo } from 'react'
 import ReactMarkdown, { type Components } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import type { Source } from '../../types'
-import { markRanges } from '../../highlights'
+import { citationPreview, markRanges, type CitationPreview } from '../../highlights'
 import { useHighlightRanges } from '../../hooks/useHighlights'
 import { CitationChip } from '../citation-chip'
+import type { CitationPreviewLookup } from '../citation-chip'
 import { useUiSize } from '../../uiSize'
 import type { MarkdownProps } from './types'
 
@@ -50,17 +52,32 @@ export function Markdown({
   const ranges = useHighlightRanges(highlights, activeRef, text.length)
   const rendered = linkifyCitations(markRanges(text, ranges), sources, !!streaming)
 
+  // Previews are resolved lazily, per chip, when a card is about to open — so
+  // a streaming answer carrying ten markers doesn't slice and clean ten
+  // passages on every token. The cache makes a second hover of the same chip
+  // free.
+  const previewFor = useMemo<CitationPreviewLookup>(() => {
+    const cache = new Map<number, CitationPreview | null>()
+    return (id) => {
+      if (!cache.has(id)) {
+        const source = sources?.find((s) => s.id === id)
+        cache.set(id, source ? citationPreview(source, highlights) : null)
+      }
+      return cache.get(id) ?? null
+    }
+  }, [sources, highlights])
+
   const components: Components = {
     // Highlighted source passage. `data-hl` lets a surface scroll to it.
     mark: ({ children }) => (
-      <mark data-hl className="rounded bg-highlight/25 px-0.5 text-ink-strong transition-colors">
+      <mark data-hl className="highlight-wash rounded px-0.5 text-ink-strong transition-colors">
         {children}
       </mark>
     ),
     a: ({ href, children }) => {
       if (href?.startsWith(CITE_PREFIX)) {
         const id = Number(href.slice(CITE_PREFIX.length))
-        return <CitationChip n={id} onClick={() => onCite?.(id)} />
+        return <CitationChip n={id} preview={previewFor} onClick={() => onCite?.(id)} />
       }
       return (
         <a

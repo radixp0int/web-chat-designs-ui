@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { BrandingProvider, type Branding } from '../branding'
 import { CitationsProvider } from '../citations'
 import { XIcon } from '../components/icons'
@@ -189,8 +189,23 @@ export function ChatWidget({
   return (
     <BrandingProvider value={branding}>
       <div
+        // Portal target for overlays (the citation hover card). It has to be
+        // this element: inside the shadow root, so the widget's stylesheet
+        // applies, but outside the dialog below — whose `translate`/`scale`
+        // make it a containing block for `position: fixed`, which would rebase
+        // every coordinate an overlay computes, and whose `overflow-hidden`
+        // would then clip the result to the rounded panel.
+        data-chat-overlay-root
         className={`${dark ? 'dark' : ''} ${themeClass ?? ''} font-(family-name:--font-brand) text-ink antialiased`}
-        style={{ colorScheme: dark ? 'dark' : 'light' }}
+        style={
+          {
+            colorScheme: dark ? 'dark' : 'light',
+            // The overlay layer is a sibling of the dialog, so it needs the
+            // host's own stacking floor to paint above it. A custom property
+            // because the layer is created imperatively, outside React's props.
+            '--chat-overlay-z': String(zIndex + 1),
+          } as CSSProperties
+        }
       >
         <UiSizeProvider value="compact">
           <div
@@ -308,12 +323,27 @@ export function ChatWidget({
             </button>
 
             {/* Count is announced through the button's own label, so the bubble
-                itself stays out of the accessibility tree. */}
+                itself stays out of the accessibility tree. The label carries the
+                real number even when the bubble has capped it at 9+.
+
+                Separation from the orb is a shadow rather than a ring. It used
+                to be a 2px --panel-solid border, which worked by standing the
+                bubble on a disc of panel colour — and that was doing more than
+                it looked: the bubble overlaps the orb's top-right, exactly
+                where its warm bloom sits, and --notify against that bloom is
+                1.49:1. Bare, the edge would dissolve into the sphere. A shadow
+                separates by darkening what is behind the rim instead, which
+                holds over a gradient the way a single flat border colour
+                cannot.
+
+                Sizing: min-w matches the height so a single digit stays a
+                circle, and px-1.5 lets it grow into a pill for '9+' rather
+                than squeezing two glyphs into a circle's width. */}
             {unread > 0 && (
               <span
                 aria-hidden
-                className={`pointer-events-none absolute top-0 grid h-[18px] min-w-[18px] place-items-center rounded-full border-2 border-panel-solid bg-notify px-1 text-[10px] font-bold text-on-notify ${
-                  right ? '-right-1' : '-left-1'
+                className={`pointer-events-none absolute -top-0.5 grid h-[22px] min-w-[22px] place-items-center rounded-full bg-notify px-1.5 text-xs leading-none font-bold text-on-notify shadow-md shadow-(color:--shadow-deep) ${
+                  right ? '-right-1.5' : '-left-1.5'
                 }`}
               >
                 {unread > 9 ? '9+' : unread}

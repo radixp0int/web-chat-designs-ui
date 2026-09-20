@@ -8,7 +8,7 @@ import type { FollowupChipsProps } from './types'
  * chip, terminating at the last one. The shape is what distinguishes these from
  * the hero's capability chips — these belong to *this* answer.
  *
- * The node is the same dot DemoFeaturesModal draws on its spine (7px ring,
+ * The node is the same dot FeatureTogglesModal draws on its spine (7px ring,
  * panel-solid fill) — that component's comment says it borrowed this file's
  * branch language, so this is the idiom coming home rather than a new one.
  * At rest it's a hollow ring; hovering fills it, which reads as lighting up in

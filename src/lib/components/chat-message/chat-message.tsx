@@ -79,6 +79,13 @@ export function ChatMessage({
               streaming={message.streaming}
               sources={message.sources}
               onCite={onCite}
+              // Feeds the citation chips' hover previews. Safe to pass here
+              // only because `activeRef` stays null: these offsets index the
+              // SOURCE documents, not this answer, and rangesForReference
+              // returns [] for a null reference, so nothing in the answer is
+              // marked. Setting `activeRef` on an answer would mark the answer
+              // text at source-document offsets.
+              highlights={message.highlights}
             />
           </div>
         )}
