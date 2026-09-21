@@ -1,42 +1,26 @@
 // Demo data behind the widget's side-rail tabs — UI only for now.
-import type { ActiveFilter, PromptTemplate, RecentChat } from '../../lib/types'
+import type { PromptTemplate, RecentChat } from '../../lib/types'
+import { recentChats } from './recentChats'
 
-/** Demo facets — stands in for whatever search/context filters apply. */
-export const demoFilters: ActiveFilter[] = [
-  { id: 'acct-checking', group: 'Accounts', label: 'Everyday Checking' },
-  { id: 'acct-savings', group: 'Accounts', label: 'High-Yield Savings' },
-  { id: 'range-30d', group: 'Date range', label: 'Last 30 days' },
-  { id: 'cat-groceries', group: 'Categories', label: 'Groceries' },
-  { id: 'cat-dining', group: 'Categories', label: 'Dining out' },
-  { id: 'cat-travel', group: 'Categories', label: 'Travel' },
-]
+// The widget's filter fixtures used to live here. They are gone: the Filters
+// tab now renders the same FacetFilters component the full-page rail does,
+// reading the counted index in ./facets.
 
-/** Demo history — the switch is UI only for now. */
+/**
+ * Demo history for the widget's Recent chats panel — the switch is UI only for
+ * now. Derived from the shared list rather than a fourth copy of it, with the
+ * live conversation pinned on top: the panel's job is to show what you can
+ * switch back to, and the one you are in has to be in that list to be marked
+ * active.
+ */
 export const demoRecentChats: RecentChat[] = [
   {
     id: 'current',
-    title: 'Monthly budget plan',
-    snippet: 'Start with your monthly surplus — income after fixed costs…',
+    title: 'Monthly liquidity position',
+    snippet: 'Start with today’s available balance across the operating accounts…',
     when: 'Active now',
   },
-  {
-    id: 'emergency-fund',
-    title: 'Emergency fund strategy',
-    snippet: 'An emergency fund is the foundation of a resilient budget…',
-    when: '12 July',
-  },
-  {
-    id: 'first-home',
-    title: 'First-home budget check',
-    snippet: 'A comfortable mortgage payment usually stays under…',
-    when: '10 July',
-  },
-  {
-    id: 'side-income',
-    title: 'Side-income tax basics',
-    snippet: 'This blend of strategy and record-keeping keeps quarterly…',
-    when: '8 July',
-  },
+  ...recentChats.map(({ id, title, snippet, when }) => ({ id, title, snippet, when })),
 ]
 
 /** The prompt stack behind the widget's Persona side panel — read-only, UI only for now. */

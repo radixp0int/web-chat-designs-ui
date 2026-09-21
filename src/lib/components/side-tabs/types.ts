@@ -22,5 +22,11 @@ export type SideTabRailProps = {
 export type SideTabPanelProps = {
   title: string
   onClose: () => void
+  /**
+   * The body owns its own padding and scrolling. For a panel whose content
+   * has to pin something to the bottom — a filter panel's Done bar — which a
+   * scrolling, padded body would carry away with it.
+   */
+  fill?: boolean
   children: ReactNode
 }

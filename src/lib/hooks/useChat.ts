@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Responder } from '../engine/chatEngine'
 import type {
+  AskedOverScope,
   Message,
   QueueMove,
   QueuedMessage,
@@ -144,7 +145,22 @@ function traced(m: Message, fn: (t: TurnTrace) => TurnTrace): Partial<Message> {
  * An interrupted assistant message keeps its partial content, flagged
  * `stopped: true`.
  */
-export function useChat(responder: Responder) {
+export type UseChatOptions = {
+  /**
+   * Records what the next turn is being asked over.
+   *
+   * Called at DISPATCH, not when the message is queued. A question that waited
+   * behind three others is answered under whatever scope is in force when it
+   * actually runs, and that is the scope the transcript has to show — the
+   * record exists to say what the answer was computed over, not what the
+   * person was looking at while they typed.
+   *
+   * Omit it and nothing is recorded, which is every host without filters.
+   */
+  captureScope?: () => AskedOverScope | undefined
+}
+
+export function useChat(responder: Responder, { captureScope }: UseChatOptions = {}) {
   const [messages, setMessages] = useState<Message[]>([])
   const [busy, setBusy] = useState(false)
   const [queue, setQueue] = useState<QueuedMessage[]>([])
@@ -159,6 +175,10 @@ export function useChat(responder: Responder) {
   const busyRef = useRef(false)
   // Set by stop()/hold(): the queue waits until the reader resumes it.
   const heldRef = useRef(false)
+  // Read through a ref so a host that rebuilds the callback every render does
+  // not invalidate runTurn and, with it, the whole pump.
+  const captureRef = useRef(captureScope)
+  captureRef.current = captureScope
   const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   /** Single writer for both copies of the queue — the ref the pump reads and
@@ -193,7 +213,7 @@ export function useChat(responder: Responder) {
       // there is nothing queued in `messages` to re-order or push around.
       setMessages((ms) => [
         ...ms,
-        { id: userId, role: 'user', content: text },
+        { id: userId, role: 'user', content: text, askedOver: captureRef.current?.() },
         {
           id: assistantId,
           role: 'assistant',

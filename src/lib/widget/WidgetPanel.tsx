@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useBranding } from '../branding'
 import { ChatMessage } from '../components/chat-message'
+import { sameScope } from '../components/facet-filters'
 import { Composer } from '../components/composer'
 import {
   CollapseDiagonalIcon,
@@ -17,6 +18,8 @@ import { ScrollToBottomButton } from '../components/scroll-to-bottom-button'
 import { SideTabPanel, SideTabRail, type SideTab } from '../components/side-tabs'
 import { useStickToBottom } from '../hooks/useStickToBottom'
 import type {
+  AskedOverChip,
+  AskedOverScope,
   Highlight,
   Message,
   Persona,
@@ -40,6 +43,9 @@ type WidgetPanelProps = {
   starters: string[]
   /** Host-provided user profile (name / login). */
   profile: WidgetProfile
+  /** Filters in force now — a question recorded under different ones says so. */
+  scopeChips?: AskedOverChip[]
+  onRestoreScope?: (scope: AskedOverScope) => void
   /** Host-injected side-rail tabs and their panels. */
   sidePanels: SidePanel[]
   onSelectCitation: (id: number) => void
@@ -80,6 +86,8 @@ export function WidgetPanel({
   starters,
   profile,
   sidePanels,
+  scopeChips,
+  onRestoreScope,
   onSelectCitation,
   onCloseCitation,
   queue,
@@ -203,6 +211,15 @@ export function WidgetPanel({
                         onRetry={onRetry}
                         onFollowup={m.id === lastId ? submit : undefined}
                         busy={busy}
+                        askedOverChanged={
+                          !!m.askedOver &&
+                          !sameScope(m.askedOver, {
+                            total: 0,
+                            chips: scopeChips ?? [],
+                            capturedAt: '',
+                          })
+                        }
+                        onRestoreScope={onRestoreScope}
                       />
                     ))}
                   </div>
@@ -293,8 +310,14 @@ export function WidgetPanel({
               inert={!openTab}
             >
               {shownPanel && (
-                <SideTabPanel title={shownPanel.title} onClose={() => selectTab(null)}>
-                  {shownPanel.content}
+                <SideTabPanel
+                  title={shownPanel.title}
+                  onClose={() => selectTab(null)}
+                  fill={shownPanel.fill}
+                >
+                  {typeof shownPanel.content === 'function'
+                    ? shownPanel.content({ close: () => selectTab(null) })
+                    : shownPanel.content}
                 </SideTabPanel>
               )}
             </div>
