@@ -8,7 +8,7 @@ import { applyFeatureGate } from '../lib/settings'
 import { ReferencePanel } from '../lib/components/reference-panel'
 import { ResizableColumn } from '../lib/components/resizable-column'
 import { useChat } from '../lib/hooks/useChat'
-import { captureDemoScope, restoreDemoScope, useDemoScopeChips } from './useDemoFacets'
+import { useDemoScope } from './useDemoFacets'
 import { ConversationView } from './components/ConversationView'
 import { FeatureTogglesModal } from './components/FeatureTogglesModal'
 import { Sidebar } from './components/Sidebar'
@@ -37,6 +37,10 @@ function App() {
   // The two dialogs behind the sidebar's account menu. Both are modal, so at
   // most one is ever open — opening either closes the other.
   const [dialog, setDialog] = useState<'user' | 'features' | null>(null)
+  // The filters rail, as the transcript sees it: how to record the scope a
+  // turn runs under, what is set now, and how to put an old scope back. The
+  // widget reads the same hook, so both hosts wire it identically.
+  const scope = useDemoScope()
   const {
     messages,
     busy,
@@ -57,10 +61,7 @@ function App() {
     undoQueue,
     retry,
     reset,
-  } = useChat(responder, { captureScope: captureDemoScope })
-  // What the filters rail holds right now, so a question asked under a
-  // different scope can say so.
-  const scopeChips = useDemoScopeChips()
+  } = useChat(responder, { captureScope: scope.capture })
   // Held here rather than read from context: the shell needs the flags in its
   // own render to gate the messages, and provides the same object below.
   const demo = useDemoFeatureState()
@@ -116,8 +117,8 @@ function App() {
               <div className="flex min-w-0 flex-1 flex-col">
                 <TopBar onOpenSidebar={() => setSidebarOpen(true)} />
                 <ConversationView
-                  scopeChips={scopeChips}
-                  onRestoreScope={restoreDemoScope}
+                  scopeChips={scope.chips}
+                  onRestoreScope={scope.onRestore}
                   messages={shownMessages}
                   busy={busy}
                   showActions={demo.flags.actions}

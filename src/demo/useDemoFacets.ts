@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import type { FacetGroup } from '../lib/components/facet-filters'
 import type { AskedOverChip, AskedOverScope } from '../lib/types'
-import { activeFacetCount, demoFacetActions, getSnapshot, subscribe } from './demoFacetStore'
+import {
+  activeFacetCount,
+  DEMO_PAGE_SIZE,
+  demoFacetActions,
+  getSnapshot,
+  subscribe,
+} from './demoFacetStore'
 import {
   DATE_RANGES,
   describeScope,
@@ -109,6 +115,7 @@ export function useDemoFacets() {
     onSearchGroup,
     onLoadMore,
     onLoadAll,
+    pageSize: DEMO_PAGE_SIZE,
   }
 }
 
@@ -128,7 +135,7 @@ export function useDemoFacetCount(): number {
  * Returns undefined when nothing is filtered, and the transcript then shows
  * nothing at all rather than a "no filters" line on every message.
  */
-export function captureDemoScope(): AskedOverScope | undefined {
+function captureDemoScope(): AskedOverScope | undefined {
   const state = getSnapshot()
   const chips = describeScope(state.selection, state.days, state.queries, state.customFacets)
   if (chips.length === 0) return undefined
@@ -137,7 +144,7 @@ export function captureDemoScope(): AskedOverScope | undefined {
 }
 
 /** The chips in force now, for comparing against what a question recorded. */
-export function useDemoScopeChips(): AskedOverChip[] {
+function useDemoScopeChips(): AskedOverChip[] {
   const state = useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
   return useMemo(
     () => describeScope(state.selection, state.days, state.queries, state.customFacets),
@@ -152,7 +159,7 @@ export function useDemoScopeChips(): AskedOverChip[] {
  * three quarters of a scope and calling it done is how someone ends up
  * reading an answer to a question they did not ask.
  */
-export function restoreDemoScope(scope: AskedOverScope): { missing: string[] } {
+function restoreDemoScope(scope: AskedOverScope): { missing: string[] } {
   const { selection, queries, customFacets, days, missing } = resolveScope(scope.chips)
   demoFacetActions.clearAll()
   if (days) demoFacetActions.setDays(days)

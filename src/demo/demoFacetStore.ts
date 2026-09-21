@@ -23,7 +23,9 @@ export type DemoFacetState = {
 }
 
 const STORAGE_KEY = 'demo-facet-filters'
-const PAGE = 500
+/** What one "Load more" fetches. Handed to the component so its button agrees. */
+export const DEMO_PAGE_SIZE = 500
+const PAGE = DEMO_PAGE_SIZE
 
 const EMPTY: DemoFacetState = {
   selection: {},

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDownIcon, ChevronRightIcon, SearchIcon, XIcon } from '../icons'
 import { IconButton } from '../icon-button'
 import { FacetRow } from './facet-row'
+import { LoadControls } from './load-controls'
 import { useDebounced } from './useDebounced'
 import { useVirtualRows } from './useVirtualRows'
 import {
@@ -9,7 +10,6 @@ import {
   FACET_ROW_HEIGHT,
   FACET_VIRTUALIZE_THRESHOLD,
   filterRows,
-  isHeavyLoad,
   isSearchable,
   orderRows,
   resolveMode,
@@ -17,7 +17,6 @@ import {
   remainingOf,
   toRows,
   triState,
-  weightOf,
   windowHeight,
 } from './facetRules'
 import type { FacetDensity } from './facetRules'
@@ -43,6 +42,8 @@ export type FacetGroupSectionProps = {
   onLoadMore?: (groupKey: string) => void
   onLoadAll?: (groupKey: string) => void
   loadMode?: 'button' | 'scroll'
+  /** The host's page size, so "Load N more" names a number it honours. */
+  pageSize?: number
   density?: FacetDensity
   defaultOpen?: boolean
 }
@@ -69,6 +70,7 @@ export function FacetGroupSection({
   onLoadMore,
   onLoadAll,
   loadMode = 'button',
+  pageSize,
   density = 'comfortable',
   defaultOpen = false,
 }: FacetGroupSectionProps) {
@@ -126,10 +128,7 @@ export function FacetGroupSection({
     onNearEnd: nearEnd,
   })
 
-  const loaded = group.loaded ?? group.values.length
-  const remaining = remainingOf(loaded, group.matchCount)
-  const showLoadControls = loadMode === 'button' && remaining > 0 && !!(onLoadMore || onLoadAll)
-  const heavy = isHeavyLoad(remaining)
+  const remaining = remainingOf(group.loaded ?? group.values.length, group.matchCount)
 
   // A section-wide search that hit something opens the group on its own —
   // hiding matches behind a caret defeats the point of searching.
@@ -332,44 +331,13 @@ export function FacetGroupSection({
             </ul>
           )}
 
-          {showLoadControls && (
-            <div className="mt-1.5">
-              <div className="flex gap-1.5">
-                {onLoadMore && (
-                  <button
-                    type="button"
-                    onClick={() => onLoadMore(group.key)}
-                    className="flex-1 rounded-lg border border-line bg-panel-solid px-2 py-1.5 text-[11.5px] font-semibold text-ink-strong transition hover:bg-tint/8"
-                  >
-                    Load {Math.min(500, remaining).toLocaleString()} more
-                  </button>
-                )}
-                {onLoadAll && (
-                  <button
-                    type="button"
-                    onClick={() => onLoadAll(group.key)}
-                    className={`flex-1 rounded-lg px-2 py-1.5 text-[11.5px] font-semibold transition ${
-                      heavy
-                        ? 'bg-caution-surface text-caution'
-                        : 'bg-chip text-chip-fg hover:bg-chip-hover'
-                    }`}
-                  >
-                    Load all {remaining.toLocaleString()}
-                  </button>
-                )}
-              </div>
-              {/* Name the price. 19,912 more and 43 more are not the same
-                  decision, and a bare "Load all" hides which one this is. */}
-              <p
-                className={`mt-1 px-0.5 text-[10.5px] leading-snug ${
-                  heavy ? 'text-caution' : 'text-ink-soft'
-                }`}
-              >
-                {heavy
-                  ? `${remaining.toLocaleString()} more — about ${weightOf(remaining)}. Searching first is usually cheaper.`
-                  : `${remaining.toLocaleString()} more to fetch.`}
-              </p>
-            </div>
+          {loadMode === 'button' && (
+            <LoadControls
+              remaining={remaining}
+              pageSize={pageSize}
+              onLoadMore={onLoadMore ? () => onLoadMore(group.key) : undefined}
+              onLoadAll={onLoadAll ? () => onLoadAll(group.key) : undefined}
+            />
           )}
 
           {state === 'all' && !group.nullable && selectable.length > 1 && (

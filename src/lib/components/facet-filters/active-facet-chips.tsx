@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import { ChevronDownIcon, XIcon } from '../icons'
-import { IconButton } from '../icon-button'
+import { ChevronDownIcon } from '../icons'
+import { FilterChip } from '../filter-chip'
 import { FACET_CHIP_COLLAPSE_AT, resolveMode } from './facetRules'
 import type { CustomFacet, FacetGroup, FacetQuery, FacetSelection } from './types'
 
@@ -107,7 +107,7 @@ export function ActiveFacetChips({
     for (const value of values) {
       const label = labelFor(group, value)
       chips.push(
-        <Chip
+        <FilterChip
           key={`${group.key}:${value}`}
           tone="value"
           prefix={ambiguous(label) ? group.label : undefined}
@@ -122,12 +122,12 @@ export function ActiveFacetChips({
   for (const query of queries) {
     const group = groups.find((candidate) => candidate.key === query.groupKey)
     chips.push(
-      <Chip
+      <FilterChip
         key={`${query.groupKey}:${query.query}`}
         tone="query"
         prefix={`${group?.label ?? query.groupKey} contains`}
         label={query.query}
-        trailing={typeof query.count === 'number' ? query.count.toLocaleString() : undefined}
+        count={typeof query.count === 'number' ? query.count : undefined}
         onRemove={() => onRemoveQuery?.(query)}
         removeLabel={`Remove the ${query.query} search filter`}
       />,
@@ -136,7 +136,7 @@ export function ActiveFacetChips({
 
   for (const facet of customFacets) {
     chips.push(
-      <Chip
+      <FilterChip
         key={facet.id}
         tone="custom"
         prefix={facet.type}
@@ -193,49 +193,5 @@ export function ActiveFacetChips({
           ))}
       </div>
     </div>
-  )
-}
-
-type ChipProps = {
-  tone: 'value' | 'query' | 'custom'
-  label: string
-  /** The field this chip constrains, rendered as "Merchant:" ahead of it. */
-  prefix?: string
-  trailing?: string
-  onRemove: () => void
-  removeLabel: string
-}
-
-function Chip({ tone, label, prefix, trailing, onRemove, removeLabel }: ChipProps) {
-  const skin =
-    tone === 'query'
-      ? 'bg-brand-solid text-on-brand-solid'
-      : tone === 'custom'
-        ? 'border border-dashed border-line bg-panel-solid text-ink'
-        : 'bg-chip text-chip-fg'
-
-  return (
-    <span
-      className={`flex items-center gap-1 rounded-full py-0.5 pr-0.5 pl-2.5 text-[11.5px] font-semibold ${skin}`}
-    >
-      {prefix && (
-        // "Merchant: Delta" reads as a field and its value; "Loan contains
-        // 1772" is already a sentence and a colon would break it.
-        <span className={tone === 'custom' ? 'text-ink-soft' : 'opacity-70'}>
-          {tone === 'query' ? prefix : `${prefix}:`}
-        </span>
-      )}
-      <span className="tabular-nums">{label}</span>
-      {trailing && <span className="tabular-nums opacity-70">{trailing}</span>}
-      <IconButton
-        size="sm"
-        shape="rounded"
-        onClick={onRemove}
-        aria-label={removeLabel}
-        title="Remove"
-      >
-        <XIcon width={11} height={11} />
-      </IconButton>
-    </span>
   )
 }

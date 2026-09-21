@@ -3,7 +3,6 @@ import { DISCLAIMER } from '../config'
 import type { Message, QueueMove, QueuedMessage } from '../../lib/types'
 import type { Persona } from '../../lib/types'
 import { ChatMessage } from '../../lib/components/chat-message'
-import { sameScope } from '../../lib/components/facet-filters'
 import type { AskedOverChip, AskedOverScope } from '../../lib/types'
 import { Composer } from '../../lib/components/composer'
 import { QueueDock, type QueueDockHandle } from '../../lib/components/queue-dock'
@@ -143,14 +142,7 @@ export function ConversationView({
                     onFollowup={m.id === lastId ? submit : undefined}
                     busy={busy}
                     showActions={showActions}
-                    askedOverChanged={
-                      !!m.askedOver &&
-                      !sameScope(m.askedOver, {
-                        total: 0,
-                        chips: scopeChips ?? [],
-                        capturedAt: '',
-                      })
-                    }
+                    scopeChips={scopeChips}
                     onRestoreScope={onRestoreScope}
                   />
                 ))}
