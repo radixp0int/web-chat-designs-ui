@@ -46,7 +46,7 @@ export function SideTabRail({ tabs, activeId, onSelect }: SideTabRailProps) {
 }
 
 /** Shared chrome for a tab's panel: titled header with close, scrollable body. */
-export function SideTabPanel({ title, onClose, children }: SideTabPanelProps) {
+export function SideTabPanel({ title, onClose, fill = false, children }: SideTabPanelProps) {
   return (
     <>
       <div className="flex items-center gap-2 border-b border-line px-4 py-2.5">
@@ -55,7 +55,13 @@ export function SideTabPanel({ title, onClose, children }: SideTabPanelProps) {
           <XIcon width={14} height={14} />
         </IconButton>
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">{children}</div>
+      <div
+        className={
+          fill ? 'flex min-h-0 flex-1 flex-col' : 'min-h-0 flex-1 overflow-y-auto px-4 py-3'
+        }
+      >
+        {children}
+      </div>
     </>
   )
 }

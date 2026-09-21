@@ -233,8 +233,8 @@ export function QueueRow({
       </div>
 
       {/* Inline actions are the full-width app's affordance. Compact gets the
-          same actions one tap deeper, in the menu — at 380px a row of three
-          buttons leaves nothing for the message itself. */}
+          same actions one tap deeper, in the menu — at the widget's 440px a
+          row of three buttons still leaves nothing for the message itself. */}
       {!compact && !minimized && (
         <span
           className={`flex shrink-0 items-center gap-0.5 transition-opacity ${

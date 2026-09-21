@@ -136,6 +136,9 @@ export type Message = {
   highlights?: Highlight[]
   /** Suggested next prompts, written in the user's voice — picking one sends it verbatim. */
   followups?: string[]
+  /** What this question was asked over. User messages only, and optional:
+   *  a host with no filters never sets it and nothing renders. */
+  askedOver?: AskedOverScope
   /** What the turn did and how long it took. Assistant messages only. */
   trace?: TurnTrace
   /**
@@ -154,13 +157,6 @@ export type Persona = {
   id: string
   name: string
   hint: string
-}
-
-/** One active filter/facet chip shown in the widget's Filters side panel. */
-export type ActiveFilter = {
-  id: string
-  group: string
-  label: string
 }
 
 /** One row in the widget's Recent chats side panel. */
@@ -186,6 +182,42 @@ export type PromptTemplate = {
 }
 
 /** A side-rail tab plus its panel, injected into the widget by the host. */
+/**
+ * One filter recorded on a question: what it constrained, and enough to
+ * render it years later.
+ *
+ * `label` and `prefix` are stored, not just `ref`, because a transcript has to
+ * render after a group is renamed or a value retired — and resolving an old id
+ * against today's index is precisely the lookup that fails. `ref` is kept only
+ * so a restore has something to replay.
+ */
+export type AskedOverChip = {
+  /** Decides the chip's shape, nothing else. */
+  kind: 'scope' | 'facet' | 'query' | 'custom'
+  /** The field, rendered ahead of the label: "Merchant: Delta Air Lines". */
+  prefix?: string
+  label: string
+  /** For a query chip: how many values it matched when this was recorded. */
+  count?: number
+  ref?: { group: string; value: string }
+}
+
+/**
+ * The scope a question was asked under — a snapshot, never a view.
+ *
+ * Captured when the turn is dispatched and stored on the message. It must not
+ * be derived from live filter state at render time: a strip that re-read the
+ * current scope would rewrite history every time someone ticked a box, and the
+ * one question it exists to answer — what was this answer computed over — is
+ * the one it would stop being able to answer.
+ */
+export type AskedOverScope = {
+  /** Items in scope at the time. Recorded, never recomputed. */
+  total: number
+  chips: AskedOverChip[]
+  capturedAt: string
+}
+
 export type SidePanel = {
   id: string
   label: string
@@ -194,6 +226,20 @@ export type SidePanel = {
   badge?: number
   /** Panel header title. */
   title: string
-  /** Panel body — a self-contained (optionally stateful) node. */
-  content: ReactNode
+  /**
+   * Panel body — a self-contained (optionally stateful) node.
+   *
+   * As a function it receives the panel's own controls, which is what a body
+   * needs when it carries its own dismissal: a filter panel covers the
+   * conversation it is filtering, so its footer has to be able to close it
+   * without reaching for the header's close button.
+   */
+  content: ReactNode | ((api: SidePanelApi) => ReactNode)
+  /** The body lays itself out, including its own padding and scrolling. */
+  fill?: boolean
+}
+
+export type SidePanelApi = {
+  /** Close this panel and return the chat column. */
+  close: () => void
 }

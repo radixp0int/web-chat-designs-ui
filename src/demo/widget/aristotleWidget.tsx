@@ -1,15 +1,20 @@
 import { createCannedResponder } from '../../lib/engine/chatEngine'
 import { createWsResponder } from '../../lib/engine/wsResponder'
-import { FunnelIcon, HistoryIcon, SparkleIcon } from '../../lib/components/icons'
+import { HistoryIcon, SparkleIcon } from '../../lib/components/icons'
 import type { SidePanel } from '../../lib/types'
 import type { WidgetContent, WidgetPosition } from '../../lib/widget/ChatWidget'
 import { mountWidget, type MountOptions, type WidgetHandle } from '../../lib/widget/mount'
 import type { ThemeMode } from '../../lib/widget/useHostTheme'
 import { aristotleBranding } from '../config'
 import { cannedTurns } from '../mocks/cannedTurns'
-import { demoFilters } from '../mocks/sideTabData'
 import { personas } from '../personas'
-import { DemoFiltersPanel, DemoPersonaPanel, DemoRecentChatsPanel } from './sidePanels'
+import {
+  DemoFacetFiltersPanel,
+  DemoPersonaPanel,
+  DemoRecentChatsPanel,
+  FiltersRailIcon,
+} from './sidePanels'
+import { useDemoScope } from '../useDemoFacets'
 import { useHostProfile } from './useHostProfile'
 
 // Short starters sized for the narrow panel — the full Hero doesn't fit here.
@@ -25,10 +30,13 @@ function buildSidePanels(): SidePanel[] {
     {
       id: 'filters',
       label: 'Filters',
-      icon: <FunnelIcon width={16} height={16} />,
-      badge: demoFilters.length,
+      // Carries its own badge rather than taking the rail's: the rail's is a
+      // number fixed when the widget mounts, and this one changes every tick.
+      icon: <FiltersRailIcon />,
       title: 'Filters',
-      content: <DemoFiltersPanel />,
+      // The body pins a footer, so it lays itself out.
+      fill: true,
+      content: ({ close }) => <DemoFacetFiltersPanel onDone={close} />,
     },
     {
       id: 'persona',
@@ -60,6 +68,9 @@ function buildContent(): WidgetContent {
     sidePanels: buildSidePanels(),
     launcherLabel: 'Ask Aristotle',
     useProfile: useHostProfile,
+    // Read inside the widget so the recorded scope, and the "changed since"
+    // badge on older questions, stay live as the Filters panel is used.
+    useScope: useDemoScope,
   }
 }
 

@@ -1,16 +1,10 @@
 // Demo data behind the widget's side-rail tabs — UI only for now.
-import type { ActiveFilter, PromptTemplate, RecentChat } from '../../lib/types'
+import type { PromptTemplate, RecentChat } from '../../lib/types'
 import { recentChats } from './recentChats'
 
-/** Demo facets — stands in for whatever search/context filters apply. */
-export const demoFilters: ActiveFilter[] = [
-  { id: 'acct-checking', group: 'Accounts', label: 'Everyday Checking' },
-  { id: 'acct-savings', group: 'Accounts', label: 'High-Yield Savings' },
-  { id: 'range-30d', group: 'Date range', label: 'Last 30 days' },
-  { id: 'cat-groceries', group: 'Categories', label: 'Groceries' },
-  { id: 'cat-dining', group: 'Categories', label: 'Dining out' },
-  { id: 'cat-travel', group: 'Categories', label: 'Travel' },
-]
+// The widget's filter fixtures used to live here. They are gone: the Filters
+// tab now renders the same FacetFilters component the full-page rail does,
+// reading the counted index in ./facets.
 
 /**
  * Demo history for the widget's Recent chats panel — the switch is UI only for

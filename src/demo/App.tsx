@@ -8,6 +8,7 @@ import { applyFeatureGate } from '../lib/settings'
 import { ReferencePanel } from '../lib/components/reference-panel'
 import { ResizableColumn } from '../lib/components/resizable-column'
 import { useChat } from '../lib/hooks/useChat'
+import { captureDemoScope, restoreDemoScope, useDemoScopeChips } from './useDemoFacets'
 import { ConversationView } from './components/ConversationView'
 import { FeatureTogglesModal } from './components/FeatureTogglesModal'
 import { Sidebar } from './components/Sidebar'
@@ -56,7 +57,10 @@ function App() {
     undoQueue,
     retry,
     reset,
-  } = useChat(responder)
+  } = useChat(responder, { captureScope: captureDemoScope })
+  // What the filters rail holds right now, so a question asked under a
+  // different scope can say so.
+  const scopeChips = useDemoScopeChips()
   // Held here rather than read from context: the shell needs the flags in its
   // own render to gate the messages, and provides the same object below.
   const demo = useDemoFeatureState()
@@ -112,6 +116,8 @@ function App() {
               <div className="flex min-w-0 flex-1 flex-col">
                 <TopBar onOpenSidebar={() => setSidebarOpen(true)} />
                 <ConversationView
+                  scopeChips={scopeChips}
+                  onRestoreScope={restoreDemoScope}
                   messages={shownMessages}
                   busy={busy}
                   showActions={demo.flags.actions}

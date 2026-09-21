@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { useCite } from '../../citations'
-import { CopyIcon, RefreshIcon, ThumbDownIcon, ThumbUpIcon, CheckIcon } from '../icons'
+import { RefreshIcon, ThumbDownIcon, ThumbUpIcon } from '../icons'
 import { IconButton } from '../icon-button'
+import { AskedOverStrip } from '../asked-over'
+import { CopyButton } from '../copy-button'
+import { MessageActions } from '../message-actions'
 import { Markdown } from '../markdown'
 import { FollowupChips } from '../followup-chips'
 import { SourceStrip } from '../source-strip'
@@ -18,6 +21,8 @@ export function ChatMessage({
   onRetry,
   busy,
   showActions = true,
+  askedOverChanged = false,
+  onRestoreScope,
 }: ChatMessageProps) {
   const compact = useUiSize() === 'compact'
   const cite = useCite()
@@ -28,8 +33,23 @@ export function ChatMessage({
   // A user message is only ever in the transcript because its turn has
   // started — anything still waiting lives in the queue dock, not here.
   if (message.role === 'user') {
+    const askedOver = message.askedOver
     return (
-      <div className="flex flex-col items-end animate-fade-up">
+      // `group/turn` is what the actions row reveals against: the target is
+      // the whole turn, not the button, which would otherwise only appear
+      // once the pointer had already found it.
+      <div className="group/turn flex flex-col items-end gap-1 animate-fade-up">
+        {/* Above the bubble, because it qualifies the question rather than
+            following from it — and outside it, because nothing gets to
+            reflow the sentence the person wrote. */}
+        {askedOver && (
+          <AskedOverStrip
+            scope={askedOver}
+            changed={askedOverChanged}
+            onRestore={onRestoreScope ? () => onRestoreScope(askedOver) : undefined}
+            density={compact ? 'compact' : 'comfortable'}
+          />
+        )}
         <div
           className={`${
             compact
@@ -39,6 +59,16 @@ export function ChatMessage({
         >
           {message.content}
         </div>
+        {showActions && (
+          <MessageActions reveal>
+            <CopyButton
+              text={message.content}
+              label="Copy question"
+              size={compact ? 'sm' : 'md'}
+              iconSize={compact ? 13 : 14}
+            />
+          </MessageActions>
+        )}
       </div>
     )
   }
@@ -132,7 +162,6 @@ export function ChatMessage({
 
 function ActionRow({ content, trace }: { content: string; trace?: Trace }) {
   const compact = useUiSize() === 'compact'
-  const [copied, setCopied] = useState(false)
   const [vote, setVote] = useState<'up' | 'down' | null>(null)
   // Held here rather than inside TurnTrace so the handle can sit at the row's
   // right edge while its panel expands full-width underneath.
@@ -146,23 +175,7 @@ function ActionRow({ content, trace }: { content: string; trace?: Trace }) {
       {/* gap-1 rather than gap-0.5: the targets are 36px now, and abutting hit
           areas make a mis-tap land on the neighbouring action. */}
       <div className="flex items-center gap-1">
-        <IconButton
-          shape="rounded"
-          size={actionSize}
-          onClick={() => {
-            navigator.clipboard?.writeText(content)
-            setCopied(true)
-            setTimeout(() => setCopied(false), 1500)
-          }}
-          aria-label="Copy response"
-          title="Copy"
-        >
-          {copied ? (
-            <CheckIcon width={iconSize} height={iconSize} className="text-accent" />
-          ) : (
-            <CopyIcon width={iconSize} height={iconSize} />
-          )}
-        </IconButton>
+        <CopyButton text={content} label="Copy response" size={actionSize} iconSize={iconSize} />
         <IconButton
           shape="rounded"
           size={actionSize}

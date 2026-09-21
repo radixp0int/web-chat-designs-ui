@@ -1,20 +1,28 @@
+import { useState } from 'react'
 import { APP_NAME } from '../config'
 import { recentChats } from '../mocks/recentChats'
 import {
   ChatIcon,
+  ChevronDownIcon,
   ChevronLeftIcon,
-  LibraryIcon,
+  ChevronRightIcon,
   MenuIcon,
   SearchIcon,
   XIcon,
 } from '../../lib/components/icons'
 import { IconButton } from '../../lib/components/icon-button'
+import { FacetFilters } from '../../lib/components/facet-filters'
+import { describeFacetType, FACET_TYPES } from '../mocks/facets'
+import { useDemoFacets } from '../useDemoFacets'
 import { AccountMenu } from './AccountMenu'
 
-/** How many conversations the rail lists. Six fills the space under the nav
- *  links at the shortest supported height without pushing the account menu
- *  below the fold, and a rail that scrolls its own history competes with the
- *  transcript for the same gesture. "Library" is where the rest live. */
+/** How many conversations the rail lists once Recent is expanded. Six fills
+ *  the space without pushing the account menu below the fold, and a rail that
+ *  scrolls its own history competes with the transcript for the same gesture.
+ *
+ *  Recent now starts folded: Filters is the section that earns the scroll
+ *  area, because a facet list with counts is something you work in, while a
+ *  history list is something you glance at. */
 const RECENT_LIMIT = 6
 
 type SidebarProps = {
@@ -39,6 +47,9 @@ export function Sidebar({
   onOpenUserSettings,
   onOpenFeatureToggles,
 }: SidebarProps) {
+  const facets = useDemoFacets()
+  const [recentOpen, setRecentOpen] = useState(false)
+
   return (
     <>
       {/* Mobile scrim */}
@@ -114,26 +125,65 @@ export function Sidebar({
         </div>
 
         <nav
-          className={`mt-4 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-4 pb-5 ${
+          className={`mt-4 flex min-h-0 flex-1 flex-col gap-0.5 overflow-hidden px-4 pb-3 ${
             collapsed ? 'lg:px-3' : ''
           }`}
         >
           <SidebarLink icon={<SearchIcon />} label="Search chat" collapsed={collapsed} />
-          <SidebarLink icon={<LibraryIcon />} label="Library" collapsed={collapsed} />
+
+          {/* The section that replaced Library. Everything it needs arrives as
+              props — counts, selection, the lookup page — so the library
+              component stays host-agnostic and `useDemoFacets` is the only
+              piece that would be swapped for real endpoints. */}
+          <FacetFilters
+            className={collapsed ? '' : 'min-h-0 flex-1'}
+            groups={facets.groups}
+            selection={facets.selection}
+            onSelectionChange={facets.setSelection}
+            total={facets.total}
+            refreshing={facets.refreshing}
+            scope={facets.scope}
+            facetTypes={FACET_TYPES}
+            describeFacetType={describeFacetType}
+            customFacets={facets.customFacets}
+            onAddCustomFacet={facets.addCustomFacet}
+            onRemoveCustomFacet={facets.removeCustomFacet}
+            queries={facets.queries}
+            onAddQuery={facets.addQuery}
+            onRemoveQuery={facets.removeQuery}
+            onSearchGroup={facets.onSearchGroup}
+            onLoadMore={facets.onLoadMore}
+            onLoadAll={facets.onLoadAll}
+            onClearAll={facets.clearAll}
+            railCollapsed={collapsed}
+            onExpandRail={onToggleCollapse}
+          />
 
           {/* Recent conversations — too detailed for the slim rail, so hidden
-              when collapsed. A flat list, newest first: grouping by persona
+              when collapsed, and folded by default now that Filters owns the
+              scroll area. A flat list, newest first: grouping by persona
               buried the thing people actually scan for (the conversation's
               title) under a heading they already know, and split six items
               into three stubby groups. */}
-          <div className={collapsed ? 'lg:hidden' : ''}>
-            <div className="mt-5 mb-1 px-2">
-              <span className="text-[11px] font-semibold tracking-[0.14em] text-ink-soft uppercase">
+          <div className={`shrink-0 border-t border-line pt-1 ${collapsed ? 'lg:hidden' : ''}`}>
+            <button
+              type="button"
+              onClick={() => setRecentOpen((v) => !v)}
+              aria-expanded={recentOpen}
+              className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition hover:bg-panel"
+            >
+              {recentOpen ? (
+                <ChevronDownIcon width={13} height={13} className="shrink-0 text-ink-soft" />
+              ) : (
+                <ChevronRightIcon width={13} height={13} className="shrink-0 text-ink-soft" />
+              )}
+              <span className="flex-1 text-[11px] font-semibold tracking-[0.14em] text-ink-soft uppercase">
                 Recent
               </span>
-            </div>
+              <span className="text-[11px] text-ink-soft tabular-nums">{recentChats.length}</span>
+            </button>
 
-            <ul>
+            <ul hidden={!recentOpen}>
               {recentChats.slice(0, RECENT_LIMIT).map(({ id, title, when }) => (
                 <li key={id}>
                   <button

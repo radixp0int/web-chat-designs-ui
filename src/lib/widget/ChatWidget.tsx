@@ -4,7 +4,15 @@ import { CitationsProvider } from '../citations'
 import { XIcon } from '../components/icons'
 import type { Responder } from '../engine/chatEngine'
 import { useChat } from '../hooks/useChat'
-import type { Highlight, Message, Persona, SidePanel, Source } from '../types'
+import type {
+  AskedOverChip,
+  AskedOverScope,
+  Highlight,
+  Message,
+  Persona,
+  SidePanel,
+  Source,
+} from '../types'
 import { UiSizeProvider } from '../uiSize'
 import { useHostTheme, type ThemeMode } from './useHostTheme'
 import { WidgetPanel, type WidgetProfile } from './WidgetPanel'
@@ -50,6 +58,28 @@ export type WidgetContent = {
   launcherLabel?: string
   /** Hook read inside the widget tree so host-profile changes stay live. */
   useProfile: () => WidgetProfile
+  /**
+   * The same, for whatever narrows the assistant's answers.
+   *
+   * A hook rather than values because the chips have to stay live while the
+   * widget is open, and the widget is mounted imperatively — there is no host
+   * render to push new props in on. Omit it and questions record nothing.
+   */
+  useScope?: () => WidgetScope
+}
+
+export type WidgetScope = {
+  /** Called at dispatch to record what a turn is being asked over. */
+  capture?: () => AskedOverScope | undefined
+  /** In force now, for the "changed since" badge. */
+  chips?: AskedOverChip[]
+  onRestore?: (scope: AskedOverScope) => void
+}
+
+const NO_SCOPE: WidgetScope = {}
+/** Default so the hook call below is unconditional, as a hook must be. */
+function useNoScope(): WidgetScope {
+  return NO_SCOPE
 }
 
 type ChatWidgetProps = WidgetContent & {
@@ -74,6 +104,7 @@ export function ChatWidget({
   sidePanels,
   launcherLabel,
   useProfile,
+  useScope = useNoScope,
   initialTheme,
   themeClass,
   position,
@@ -90,6 +121,7 @@ export function ChatWidget({
   const [themeMode, setThemeMode] = useState<ThemeMode>(initialTheme)
   const dark = useHostTheme(themeMode)
   const profile = useProfile()
+  const scope = useScope()
 
   const {
     messages,
@@ -111,7 +143,7 @@ export function ChatWidget({
     undoQueue,
     retry,
     reset,
-  } = useChat(responder)
+  } = useChat(responder, { captureScope: scope.capture })
 
   useEffect(() => {
     controller.current = {
@@ -214,7 +246,13 @@ export function ChatWidget({
             inert={!open}
             style={{ zIndex }}
             className={`fixed bottom-24 flex max-h-[calc(100dvh-7rem)] flex-col overflow-hidden rounded-xl border border-line bg-panel-solid shadow-2xl shadow-(color:--shadow-deep) transition-all duration-300 ease-out max-sm:top-0 max-sm:right-0 max-sm:bottom-0 max-sm:left-0 max-sm:h-auto max-sm:max-h-none max-sm:w-auto max-sm:rounded-none ${
-              expanded ? 'h-[94dvh] w-[max(560px,calc(100vw-2.5rem))]' : 'h-[660px] w-[380px]'
+              // 440 rather than the old 380: the side rail takes a fixed 40px,
+              // so the panel column lands on exactly 400 and its content on
+              // 368. That is what stops facet labels truncating — "Operating
+              // — Alderfinch" fits, where at 380 it did not — and it lets the
+              // two load buttons sit side by side. Height is unchanged; the
+              // Filters panel is constrained by vertical room, not width.
+              expanded ? 'h-[94dvh] w-[max(560px,calc(100vw-2.5rem))]' : 'h-[660px] w-[440px]'
             } ${right ? 'right-5 origin-bottom-right' : 'left-5 origin-bottom-left'} ${
               open
                 ? 'translate-y-0 scale-100 opacity-100'
@@ -223,6 +261,8 @@ export function ChatWidget({
           >
             <CitationsProvider value={openCitation}>
               <WidgetPanel
+                scopeChips={scope.chips}
+                onRestoreScope={scope.onRestore}
                 messages={messages}
                 busy={busy}
                 expanded={expanded}
