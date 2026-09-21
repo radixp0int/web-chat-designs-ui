@@ -151,6 +151,12 @@ export type FacetFiltersProps = {
   /** Fetch everything a group has left, in one call. */
   onLoadAll?: (groupKey: string) => void
   /**
+   * How many values one `onLoadMore` fetches. Shown on the button, so it has
+   * to be the number your endpoint actually pages at. Defaults to
+   * FACET_PAGE_SIZE.
+   */
+  pageSize?: number
+  /**
    * `button` (the default) puts loading on explicit controls that name the
    * number. `scroll` restores load-on-scroll for hosts that want it — it
    * hijacks the gesture the rail already needs and hides how much is left,

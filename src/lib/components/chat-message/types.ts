@@ -1,4 +1,4 @@
-import type { AskedOverScope, Message } from '../../types'
+import type { AskedOverChip, AskedOverScope, Message } from '../../types'
 
 export type ChatMessageProps = {
   message: Message
@@ -14,11 +14,11 @@ export type ChatMessageProps = {
    *  action under a question. Defaults to shown. */
   showActions?: boolean
   /**
-   * The filters in force now differ from the ones this question was asked
-   * under. The host computes it — the message carries a snapshot and must
-   * never look at live state to find out what changed.
+   * The filters in force now, as chips. A question recorded under different
+   * ones says so. Compared against, never drawn — the message renders its own
+   * snapshot. Omit when the host has no filters.
    */
-  askedOverChanged?: boolean
+  scopeChips?: AskedOverChip[]
   /** Offered on a changed record: put that scope back. */
   onRestoreScope?: (scope: AskedOverScope) => void
 }

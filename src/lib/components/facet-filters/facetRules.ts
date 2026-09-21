@@ -1,4 +1,3 @@
-import type { AskedOverChip, AskedOverScope } from '../../types'
 import type { FacetGroup, FacetValue } from './types'
 
 /**
@@ -20,6 +19,12 @@ export const FACET_VIRTUALIZE_THRESHOLD = 40
 export const FACET_ROW_HEIGHT = 32
 /** Selections in one group past this render as a single expandable chip. */
 export const FACET_CHIP_COLLAPSE_AT = 3
+/**
+ * Default page for a lookup group. Only a default: the host pages however its
+ * endpoint pages, and says so through `pageSize` so the button's number is
+ * one the host actually honours.
+ */
+export const FACET_PAGE_SIZE = 500
 /** Rough wire cost of one option: value, count and JSON overhead. */
 export const FACET_OPTION_BYTES = 56
 /**
@@ -187,24 +192,4 @@ export function countLabel(count: number | null | undefined, refreshing: boolean
   if (refreshing) return null
   if (typeof count !== 'number') return '—'
   return count.toLocaleString()
-}
-
-/** A stable identity for one recorded filter, for comparing two snapshots. */
-function chipKey(chip: AskedOverChip): string {
-  return `${chip.kind}|${chip.ref ? `${chip.ref.group}:${chip.ref.value}` : `${chip.prefix ?? ''}:${chip.label}`}`
-}
-
-/**
- * Whether a recorded scope still matches the one in force.
- *
- * Compares the filters, not the totals: a count that moved because new data
- * landed is not the viewer changing the question's scope, and saying
- * "changed since" for it would cry wolf on every stale tab.
- */
-export function sameScope(a: AskedOverScope | undefined, b: AskedOverScope | undefined): boolean {
-  if (!a || !b) return !a && !b
-  if (a.chips.length !== b.chips.length) return false
-  const left = a.chips.map(chipKey).sort()
-  const right = b.chips.map(chipKey).sort()
-  return left.every((key, index) => key === right[index])
 }

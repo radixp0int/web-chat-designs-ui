@@ -1,3 +1,4 @@
+import { CountBadge } from '../count-badge'
 import { XIcon } from '../icons'
 import { IconButton } from '../icon-button'
 import type { SideTabRailProps, SideTabPanelProps } from './types'
@@ -23,7 +24,8 @@ export function SideTabRail({ tabs, activeId, onSelect }: SideTabRailProps) {
             type="button"
             role="tab"
             aria-selected={active}
-            aria-label={tab.label}
+            // The count is drawn, so it has to be said too.
+            aria-label={tab.badge ? `${tab.label}, ${tab.badge}` : tab.label}
             title={tab.label}
             onClick={() => onSelect(active ? null : tab.id)}
             className={`relative grid size-8 place-items-center rounded-lg transition ${
@@ -33,11 +35,7 @@ export function SideTabRail({ tabs, activeId, onSelect }: SideTabRailProps) {
             }`}
           >
             {tab.icon}
-            {tab.badge ? (
-              <span className="absolute -top-0.5 -right-0.5 grid h-3.5 min-w-3.5 place-items-center rounded-full bg-accent px-0.5 text-[9px] font-semibold text-on-accent">
-                {tab.badge}
-              </span>
-            ) : null}
+            <CountBadge count={tab.badge ?? 0} placement="corner" />
           </button>
         )
       })}

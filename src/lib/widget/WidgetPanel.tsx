@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react'
 import { useBranding } from '../branding'
 import { ChatMessage } from '../components/chat-message'
-import { sameScope } from '../components/facet-filters'
 import { Composer } from '../components/composer'
 import {
   CollapseDiagonalIcon,
@@ -211,14 +210,7 @@ export function WidgetPanel({
                         onRetry={onRetry}
                         onFollowup={m.id === lastId ? submit : undefined}
                         busy={busy}
-                        askedOverChanged={
-                          !!m.askedOver &&
-                          !sameScope(m.askedOver, {
-                            total: 0,
-                            chips: scopeChips ?? [],
-                            capturedAt: '',
-                          })
-                        }
+                        scopeChips={scopeChips}
                         onRestoreScope={onRestoreScope}
                       />
                     ))}

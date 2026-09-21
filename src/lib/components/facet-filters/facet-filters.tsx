@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { ChevronDownIcon, ChevronRightIcon, FunnelIcon, SearchIcon, UndoIcon } from '../icons'
+import { CountBadge } from '../count-badge'
 import { ActiveFacetChips } from './active-facet-chips'
 import { AddFacetRow } from './add-facet-row'
 import { FacetGroupSection } from './facet-group'
@@ -52,6 +53,7 @@ export function FacetFilters({
   onSearchGroup,
   onLoadMore,
   onLoadAll,
+  pageSize,
   loadMode = 'button',
   density = 'comfortable',
   showHeader = true,
@@ -138,11 +140,7 @@ export function FacetFilters({
             count floating on its own away from the icon it counts for. */}
         <span className="relative grid shrink-0 place-items-center">
           <FunnelIcon className="text-ink-soft" />
-          {activeCount > 0 && (
-            <span className="absolute -top-2 -right-2.5 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-on-accent tabular-nums">
-              {activeCount}
-            </span>
-          )}
+          <CountBadge count={activeCount} placement="corner" />
         </span>
       </button>
     )
@@ -165,11 +163,7 @@ export function FacetFilters({
         >
           <FunnelIcon className="shrink-0 text-ink-soft" />
           <span className="flex-1 text-left">{labels.title}</span>
-          {activeCount > 0 && (
-            <span className="grid h-[18px] min-w-[20px] place-items-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-on-accent tabular-nums">
-              {activeCount}
-            </span>
-          )}
+          <CountBadge count={activeCount} />
           {isOpen ? (
             <ChevronDownIcon width={14} height={14} className="shrink-0 text-ink-soft" />
           ) : (
@@ -305,6 +299,7 @@ export function FacetFilters({
                 onSearchGroup={onSearchGroup}
                 onLoadMore={onLoadMore}
                 onLoadAll={onLoadAll}
+                pageSize={pageSize}
                 loadMode={loadMode}
                 density={density}
                 defaultOpen={index < spec.groupsOpen && resolveMode(group) === 'list'}

@@ -21,7 +21,7 @@ export function ChatMessage({
   onRetry,
   busy,
   showActions = true,
-  askedOverChanged = false,
+  scopeChips,
   onRestoreScope,
 }: ChatMessageProps) {
   const compact = useUiSize() === 'compact'
@@ -45,7 +45,7 @@ export function ChatMessage({
         {askedOver && (
           <AskedOverStrip
             scope={askedOver}
-            changed={askedOverChanged}
+            current={scopeChips}
             onRestore={onRestoreScope ? () => onRestoreScope(askedOver) : undefined}
             density={compact ? 'compact' : 'comfortable'}
           />

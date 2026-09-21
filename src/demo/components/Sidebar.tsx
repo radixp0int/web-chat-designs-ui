@@ -154,6 +154,7 @@ export function Sidebar({
             onSearchGroup={facets.onSearchGroup}
             onLoadMore={facets.onLoadMore}
             onLoadAll={facets.onLoadAll}
+            pageSize={facets.pageSize}
             onClearAll={facets.clearAll}
             railCollapsed={collapsed}
             onExpandRail={onToggleCollapse}

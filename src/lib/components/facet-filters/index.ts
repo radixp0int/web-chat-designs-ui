@@ -1,6 +1,7 @@
 export { FacetFilters } from './facet-filters'
 export { FacetGroupSection } from './facet-group'
 export { FacetRow } from './facet-row'
+export { LoadControls } from './load-controls'
 export { AddFacetRow } from './add-facet-row'
 export { ActiveFacetChips } from './active-facet-chips'
 export { useVirtualRows } from './useVirtualRows'
@@ -15,10 +16,10 @@ export {
   FACET_DENSITY,
   FACET_LOAD_ALL_HEAVY_BYTES,
   FACET_OPTION_BYTES,
+  FACET_PAGE_SIZE,
   isHeavyLoad,
   remainingOf,
   resolveMode,
-  sameScope,
   toRows,
   triState,
   weightOf,
@@ -38,5 +39,6 @@ export type {
 } from './types'
 export type { FacetGroupSectionProps } from './facet-group'
 export type { FacetRowProps } from './facet-row'
+export type { LoadControlsProps } from './load-controls'
 export type { AddFacetRowProps } from './add-facet-row'
 export type { ActiveFacetChipsProps } from './active-facet-chips'

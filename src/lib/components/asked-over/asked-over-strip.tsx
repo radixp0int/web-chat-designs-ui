@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { FilterChip, type FilterChipTone } from '../filter-chip'
 import { ChevronDownIcon, ChevronUpIcon, FunnelIcon } from '../icons'
 import type { AskedOverChip } from '../../types'
+import { scopeChanged } from './scope'
 import type { AskedOverStripProps } from './types'
 
 /** Labels in the collapsed line before the rest become "+N". */
@@ -13,19 +15,27 @@ const PREVIEW = { comfortable: 2, compact: 1 } as const
  * much did we spend" — and sits outside it, because nothing is allowed to
  * reflow the sentence the person wrote.
  *
- * The chips look like the filter rail's and behave nothing like them: this is
+ * The chips are the rail's own `FilterChip`, minus the remove button: this is
  * a record, and there is nothing to remove from a question already asked. The
  * only action is restoring the whole set, and it acts on the rail.
+ *
+ * `current` is compared against, never rendered. Everything drawn here comes
+ * from `scope`, the snapshot taken when the turn ran — which is what keeps a
+ * week-old question telling the truth about what it was asked over.
  */
 export function AskedOverStrip({
   scope,
-  changed = false,
+  current,
   onRestore,
   density = 'comfortable',
   className = '',
 }: AskedOverStripProps) {
   const [open, setOpen] = useState(false)
   if (scope.chips.length === 0) return null
+
+  // No `current` means the host is not tracking scope, which is not the same
+  // as "nothing is filtered now" — that is an empty array, and a real change.
+  const changed = current !== undefined && scopeChanged(scope, current)
 
   const preview = scope.chips.slice(0, PREVIEW[density]).map(chipText)
   const rest = scope.chips.length - preview.length
@@ -91,9 +101,13 @@ export function AskedOverStrip({
 
       <div className="mb-2 flex flex-wrap gap-1.5">
         {scope.chips.map((chip, index) => (
-          <RecordChip
+          <FilterChip
             key={`${chip.kind}:${chip.prefix ?? ''}:${chip.label}:${index}`}
-            chip={chip}
+            tone={TONE[chip.kind]}
+            prefix={chip.kind === 'scope' ? undefined : chip.prefix}
+            label={chip.label}
+            count={chip.count}
+            on="tint"
           />
         ))}
       </div>
@@ -113,34 +127,12 @@ export function AskedOverStrip({
   )
 }
 
-/**
- * Same three shapes the rail uses, minus every affordance. Redrawn here rather
- * than imported so the transcript does not depend on the filters component:
- * a host can record a scope without ever mounting one.
- */
-function RecordChip({ chip }: { chip: AskedOverChip }) {
-  const skin =
-    chip.kind === 'query'
-      ? 'bg-brand-solid text-on-brand-solid'
-      : chip.kind === 'custom'
-        ? 'border border-dashed border-line bg-panel-solid text-ink'
-        : 'bg-panel-solid text-chip-fg'
-
-  return (
-    <span
-      className={`flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${skin}`}
-    >
-      {chip.prefix && (
-        <span className={chip.kind === 'custom' ? 'text-ink-soft' : 'opacity-70'}>
-          {chip.kind === 'query' ? chip.prefix : `${chip.prefix}:`}
-        </span>
-      )}
-      <span className="tabular-nums">{chip.label}</span>
-      {typeof chip.count === 'number' && (
-        <span className="opacity-70 tabular-nums">{chip.count.toLocaleString()}</span>
-      )}
-    </span>
-  )
+/** A recorded kind to the chip shape that draws it. */
+const TONE: Record<AskedOverChip['kind'], FilterChipTone> = {
+  scope: 'value',
+  facet: 'value',
+  query: 'query',
+  custom: 'custom',
 }
 
 function chipText(chip: AskedOverChip): string {

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { CountBadge } from '../../lib/components/count-badge'
 import { FacetFilters } from '../../lib/components/facet-filters'
 import { FunnelIcon } from '../../lib/components/icons'
 import { PersonaPanel } from '../../lib/components/persona-panel'
@@ -49,6 +50,7 @@ export function DemoFacetFiltersPanel({ onDone }: { onDone: () => void }) {
         onSearchGroup={facets.onSearchGroup}
         onLoadMore={facets.onLoadMore}
         onLoadAll={facets.onLoadAll}
+        pageSize={facets.pageSize}
         onClearAll={facets.clearAll}
       />
     </div>
@@ -68,11 +70,7 @@ export function FiltersRailIcon() {
   return (
     <span className="relative grid place-items-center">
       <FunnelIcon width={16} height={16} />
-      {count > 0 && (
-        <span className="absolute -top-2 -right-2.5 grid h-3.5 min-w-3.5 place-items-center rounded-full bg-accent px-1 text-[9px] font-bold text-on-accent tabular-nums">
-          {count}
-        </span>
-      )}
+      <CountBadge count={count} placement="corner" />
     </span>
   )
 }

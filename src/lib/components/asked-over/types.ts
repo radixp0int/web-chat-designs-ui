@@ -1,14 +1,15 @@
-import type { AskedOverScope } from '../../types'
+import type { AskedOverChip, AskedOverScope } from '../../types'
 
 export type AskedOverStripProps = {
+  /** The snapshot. Everything the strip draws comes from here. */
   scope: AskedOverScope
   /**
-   * The filters in force now differ from this record. Computed by the host,
-   * which is the only part of the app that knows what "now" is — the strip
-   * itself must never look.
+   * The filters in force now, as chips. Compared against `scope` to decide
+   * "changed since" and never drawn. Omit it when the host does not track
+   * scope; pass `[]` when it does and nothing is set.
    */
-  changed?: boolean
-  /** Offered only when `changed`. Puts the recorded scope back on the rail. */
+  current?: AskedOverChip[]
+  /** Offered only once the scope has changed. Puts the recorded one back. */
   onRestore?: () => void
   /** Fewer labels in the collapsed line. Everything else is unchanged. */
   density?: 'comfortable' | 'compact'
