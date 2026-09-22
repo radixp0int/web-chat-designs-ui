@@ -275,8 +275,8 @@ export function QueueDock({
               size="sm"
               shape="rounded"
               onClick={chain.cancel}
-              aria-label="Stop building the chain"
-              title="Stop building — steps stay queued, held"
+              aria-label="Cancel this chain — steps you added stay queued and held"
+              title="Cancel chain — steps you added stay queued and held"
             >
               <XIcon width={13} height={13} />
             </IconButton>
