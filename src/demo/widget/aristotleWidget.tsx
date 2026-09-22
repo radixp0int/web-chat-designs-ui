@@ -1,6 +1,6 @@
 import { createCannedResponder } from '../../lib/engine/chatEngine'
 import { createWsResponder } from '../../lib/engine/wsResponder'
-import { HistoryIcon, SparkleIcon } from '../../lib/components/icons'
+import { SparkleIcon } from '../../lib/components/icons'
 import type { SidePanel } from '../../lib/types'
 import type { WidgetContent, WidgetPosition } from '../../lib/widget/ChatWidget'
 import { mountWidget, type MountOptions, type WidgetHandle } from '../../lib/widget/mount'
@@ -8,22 +8,13 @@ import type { ThemeMode } from '../../lib/widget/useHostTheme'
 import { aristotleBranding } from '../config'
 import { cannedTurns } from '../mocks/cannedTurns'
 import { todaysSuggestions, typeaheadPool } from '../mocks/suggestions'
-import {
-  DemoFacetFiltersPanel,
-  DemoPersonaPanel,
-  DemoRecentChatsPanel,
-  FiltersRailIcon,
-} from './sidePanels'
+import { DemoFacetFiltersPanel, DemoPersonaPanel, FiltersRailIcon } from './sidePanels'
 import { useDemoComposerFeatures } from '../demoFeatures'
 import { useDemoScope } from '../useDemoFacets'
 import { useHostProfile } from './useHostProfile'
 
 // Short starters sized for the narrow panel — the full Hero doesn't fit here.
-const starters = [
-  'Help me build a monthly budget',
-  'How big should my emergency fund be?',
-  'Explain index funds simply',
-]
+const starters: string[] = []
 
 // The demo's side-rail tabs, injected into the (generic) library widget.
 function buildSidePanels(): SidePanel[] {
@@ -45,13 +36,6 @@ function buildSidePanels(): SidePanel[] {
       icon: <SparkleIcon width={16} height={16} />,
       title: 'Persona selection',
       content: <DemoPersonaPanel />,
-    },
-    {
-      id: 'recents',
-      label: 'Recent chats',
-      icon: <HistoryIcon width={16} height={16} />,
-      title: 'Recent chats',
-      content: <DemoRecentChatsPanel />,
     },
   ]
 }

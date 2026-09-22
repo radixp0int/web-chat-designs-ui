@@ -15,7 +15,7 @@ import { QueueDock, type QueueDockHandle } from '../../lib/components/queue-dock
 import { SuggestedQuestions } from '../../lib/components/suggestions'
 import { ScrollToBottomButton } from '../../lib/components/scroll-to-bottom-button'
 import { useStickToBottom } from '../../lib/hooks/useStickToBottom'
-import { Hero, HeroSuggestions } from './Hero'
+import { Hero } from './Hero'
 
 type ConversationViewProps = {
   messages: Message[]
@@ -182,7 +182,6 @@ export function ConversationView({
                   <SuggestedQuestions suggestions={suggestions} onPick={submit} />
                   {composer(false)}
                 </div>
-                <HeroSuggestions onPrompt={submit} />
               </div>
             )}
           </div>
