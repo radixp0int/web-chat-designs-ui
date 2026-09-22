@@ -381,32 +381,27 @@ export function ChatWidget({
               </span>
             </button>
 
-            {/* Count is announced through the button's own label, so the bubble
-                itself stays out of the accessibility tree. The label carries the
-                real number even when the bubble has capped it at 9+.
+            {/* A plain presence marker, not a count: the real number is still
+                announced through the button's own label, but the badge itself
+                only ever says "something's waiting", so it doesn't need to
+                update glyph-by-glyph as replies land while the panel is closed.
 
                 Separation from the orb is a shadow rather than a ring. It used
                 to be a 2px --panel-solid border, which worked by standing the
-                bubble on a disc of panel colour — and that was doing more than
-                it looked: the bubble overlaps the orb's top-right, exactly
-                where its warm bloom sits, and --notify against that bloom is
-                1.49:1. Bare, the edge would dissolve into the sphere. A shadow
+                dot on a disc of panel colour — and that was doing more than it
+                looked: the dot overlaps the orb's top-right, exactly where its
+                warm bloom sits, and --notify against that bloom is 1.49:1.
+                Bare, the edge would dissolve into the sphere. A shadow
                 separates by darkening what is behind the rim instead, which
                 holds over a gradient the way a single flat border colour
-                cannot.
-
-                Sizing: min-w matches the height so a single digit stays a
-                circle, and px-1.5 lets it grow into a pill for '9+' rather
-                than squeezing two glyphs into a circle's width. */}
+                cannot. */}
             {unread > 0 && (
               <span
                 aria-hidden
-                className={`pointer-events-none absolute -top-0.5 grid h-[22px] min-w-[22px] place-items-center rounded-full bg-notify px-1.5 text-xs leading-none font-bold text-on-notify shadow-md shadow-(color:--shadow-deep) ${
-                  right ? '-right-1.5' : '-left-1.5'
+                className={`pointer-events-none absolute -top-0.5 size-3 rounded-full bg-notify shadow-md shadow-(color:--shadow-deep) ${
+                  right ? '-right-0.5' : '-left-0.5'
                 }`}
-              >
-                {unread > 9 ? '9+' : unread}
-              </span>
+              />
             )}
           </div>
         </UiSizeProvider>
