@@ -5,6 +5,7 @@ import {
   useFeatureFlags,
   usePaletteClass,
   useStoredChoice,
+  type ComposerFeatures,
   type FeatureCatalogue,
   type FeatureFlagsValue,
 } from '../lib'
@@ -18,7 +19,8 @@ import {
  * different product means editing the two objects below and nothing else —
  * see the "User-toggleable features" recipe in the README.
  */
-export type DemoFeatureId = 'thinking' | 'tools' | 'sources' | 'followups' | 'actions' | 'trace'
+export type DemoFeatureId =
+  'suggestions' | 'queue' | 'thinking' | 'tools' | 'sources' | 'followups' | 'actions' | 'trace'
 
 /**
  * What this viewer may switch, grouped by where the feature lands in a
@@ -31,6 +33,23 @@ export type DemoFeatureId = 'thinking' | 'tools' | 'sources' | 'followups' | 'ac
  * switched on from storage, so entitlement is decided once, here.
  */
 export const DEMO_CATALOGUE: FeatureCatalogue<DemoFeatureId> = [
+  {
+    id: 'composer',
+    title: 'Before you ask',
+    description: 'What the message box offers while you write.',
+    features: [
+      {
+        id: 'suggestions',
+        label: 'Suggested questions',
+        hint: 'The sparkle drop-up of today’s suggestions, and suggest-as-you-type.',
+      },
+      {
+        id: 'queue',
+        label: 'Queueing and steering',
+        hint: 'Queue or interrupt while an answer runs, and chain questions to run in order.',
+      },
+    ],
+  },
   {
     id: 'before',
     title: 'Before the answer',
@@ -164,6 +183,19 @@ export function useDemoFeatureState(): DemoFeaturesValue {
       setHighlight(DEFAULT_HIGHLIGHT)
     },
   }
+}
+
+/**
+ * The composer's switches, read on their own — for the embedded widget, which
+ * mounts outside the app shell's provider. Same catalogue and key, so the
+ * choices made in the full app carry over.
+ */
+export function useDemoComposerFeatures(): ComposerFeatures {
+  const { flags } = useFeatureFlags<DemoFeatureId>({
+    catalogue: DEMO_CATALOGUE,
+    storageKey: FEATURES_KEY,
+  })
+  return { suggestions: flags.suggestions, queue: flags.queue }
 }
 
 const DemoFeaturesContext = createContext<DemoFeaturesValue | null>(null)

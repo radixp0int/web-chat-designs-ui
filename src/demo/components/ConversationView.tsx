@@ -1,11 +1,18 @@
-import { useRef, useState } from 'react'
+import { useMemo, useRef } from 'react'
 import { DISCLAIMER } from '../config'
-import type { Message, QueueMove, QueuedMessage } from '../../lib/types'
-import type { Persona } from '../../lib/types'
+import type {
+  ChainControls,
+  ComposerFeatures,
+  Message,
+  QueueMove,
+  QueuedMessage,
+  Suggestion,
+} from '../../lib/types'
 import { ChatMessage } from '../../lib/components/chat-message'
 import type { AskedOverChip, AskedOverScope } from '../../lib/types'
 import { Composer } from '../../lib/components/composer'
 import { QueueDock, type QueueDockHandle } from '../../lib/components/queue-dock'
+import { SuggestedQuestions } from '../../lib/components/suggestions'
 import { ScrollToBottomButton } from '../../lib/components/scroll-to-bottom-button'
 import { useStickToBottom } from '../../lib/hooks/useStickToBottom'
 import { Hero, HeroSuggestions } from './Hero'
@@ -16,7 +23,6 @@ type ConversationViewProps = {
   /** Messages written but not yet run — the dock above the composer. */
   queue: QueuedMessage[]
   held: boolean
-  undoable: boolean
   onSubmit: (text: string) => void
   onStop: () => void
   onSendNow: (text: string) => void
@@ -31,9 +37,14 @@ type ConversationViewProps = {
   onResume: () => void
   onCombineQueue: () => void
   onClearQueue: () => void
-  onUndoQueue: () => void
   onRetry: (id: number) => void
-  personas: Persona[]
+  /** The chain being built or run, and its controls. */
+  chain: ChainControls
+  /** Composer features switched on for this viewer. */
+  features?: ComposerFeatures
+  /** Today's suggested questions, and more for suggest-as-you-type. */
+  suggestions: Suggestion[]
+  typeaheadPool?: Suggestion[]
   /** Demo toggle: the copy / regenerate / vote row under a finished answer. */
   showActions?: boolean
 }
@@ -41,14 +52,12 @@ type ConversationViewProps = {
 /**
  * The center column: the greeting hero before the first message, the message
  * list after, and the composer — centered at first, then docked to the bottom.
- * Owns the persona selection shared by both composer positions.
  */
 export function ConversationView({
   messages,
   busy,
   queue,
   held,
-  undoable,
   onSubmit,
   onStop,
   onSendNow,
@@ -62,12 +71,13 @@ export function ConversationView({
   onResume,
   onCombineQueue,
   onClearQueue,
-  onUndoQueue,
   onRetry,
-  personas,
+  chain,
+  features = {},
+  suggestions,
+  typeaheadPool,
   showActions = true,
 }: ConversationViewProps) {
-  const [persona, setPersona] = useState<string>(personas[0].id)
   const dockRef = useRef<QueueDockHandle>(null)
   const { containerRef, contentRef, atBottom, scrollToBottom } = useStickToBottom()
   const inChat = messages.length > 0
@@ -81,6 +91,20 @@ export function ConversationView({
     onSubmit(text)
     scrollToBottom()
   }
+
+  const queueOn = features.queue !== false
+  const suggestOn = features.suggestions !== false
+  // Running a chain puts its first question on screen, so bring it into view.
+  const chainControls = useMemo<ChainControls>(
+    () => ({
+      ...chain,
+      run: () => {
+        chain.run()
+        scrollToBottom()
+      },
+    }),
+    [chain, scrollToBottom],
+  )
 
   const composer = (docked: boolean) => (
     <Composer
@@ -96,9 +120,13 @@ export function ConversationView({
         }
       }}
       onArrowUp={() => dockRef.current?.focusLast()}
-      personas={personas}
-      persona={persona}
-      onPersonaChange={setPersona}
+      // The empty state lays today's suggestions out above the composer, so
+      // the sparkle menu and the queue only arrive once the chat has begun.
+      suggestions={docked && suggestOn ? suggestions : undefined}
+      typeaheadPool={typeaheadPool}
+      typeaheadStorageKey="composer-typeahead:conversation"
+      queueing={queueOn}
+      chain={docked && queueOn ? chainControls : undefined}
     />
   )
 
@@ -108,7 +136,6 @@ export function ConversationView({
       items={queue}
       held={held}
       busy={busy}
-      undoable={undoable}
       storageKey="queue-dock-minimized:conversation"
       onSendNow={onSendQueuedNow}
       onEdit={onEditQueued}
@@ -118,7 +145,7 @@ export function ConversationView({
       onResume={onResume}
       onCombine={onCombineQueue}
       onClear={onClearQueue}
-      onUndo={onUndoQueue}
+      chain={queueOn ? chainControls : undefined}
     />
   )
 
@@ -151,7 +178,10 @@ export function ConversationView({
               /* my-auto centers when there is room, without clipping on short viewports */
               <div className="my-auto py-8">
                 <Hero />
-                <div className="mt-9 mb-8">{composer(false)}</div>
+                <div className="mt-9 mb-8 flex flex-col gap-4">
+                  <SuggestedQuestions suggestions={suggestions} onPick={submit} />
+                  {composer(false)}
+                </div>
                 <HeroSuggestions onPrompt={submit} />
               </div>
             )}

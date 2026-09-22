@@ -15,7 +15,7 @@ const demos = [
     to: '/chat',
     icon: ChatIcon,
     title: 'Full chat experience',
-    body: 'The full-page assistant — sidebar, streaming answers, inline citations with a reference reader, and switchable personas.',
+    body: 'The full-page assistant — sidebar, streaming answers, inline citations with a reference reader, daily suggested questions and chained queues.',
   },
   {
     to: '/widget-demo',

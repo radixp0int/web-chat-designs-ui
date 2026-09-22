@@ -1,3 +1,4 @@
 export * from './queue-dock'
 export * from './queue-row'
-export type { QueueDockProps, QueueDockHandle, QueueRowProps } from './types'
+export * from './queue-toggle'
+export type { QueueDockProps, QueueDockHandle, QueueRowProps, QueueToggleProps } from './types'

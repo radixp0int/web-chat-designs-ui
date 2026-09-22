@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useBranding } from '../branding'
 import { ChatMessage } from '../components/chat-message'
 import { Composer } from '../components/composer'
@@ -19,13 +19,15 @@ import { useStickToBottom } from '../hooks/useStickToBottom'
 import type {
   AskedOverChip,
   AskedOverScope,
+  ChainControls,
+  ComposerFeatures,
   Highlight,
   Message,
-  Persona,
   QueueMove,
   QueuedMessage,
   SidePanel,
   Source,
+  Suggestion,
 } from '../types'
 
 /** Host-provided profile shown in the header and greeting. */
@@ -36,8 +38,10 @@ type WidgetPanelProps = {
   busy: boolean
   expanded: boolean
   citation: { sources: Source[]; activeId: number; highlights?: Highlight[] } | null
-  /** Personas offered by the composer's persona menu. */
-  personas: Persona[]
+  /** Today's suggested questions (the composer's sparkle menu), and more
+   *  for suggest-as-you-type to match. */
+  suggestions?: Suggestion[]
+  typeaheadPool?: Suggestion[]
   /** Suggested prompts shown on the empty greeting screen. */
   starters: string[]
   /** Host-provided user profile (name / login). */
@@ -52,7 +56,6 @@ type WidgetPanelProps = {
   /** Messages written but not yet run — the dock above the composer. */
   queue: QueuedMessage[]
   held: boolean
-  undoable: boolean
   onSubmit: (text: string) => void
   onStop: () => void
   onSendNow: (text: string) => void
@@ -64,7 +67,10 @@ type WidgetPanelProps = {
   onResume: () => void
   onCombineQueue: () => void
   onClearQueue: () => void
-  onUndoQueue: () => void
+  /** The chain being built or run, and its controls. */
+  chain: ChainControls
+  /** Composer features switched on for this viewer. */
+  features?: ComposerFeatures
   onRetry: (id: number) => void
   onReset: () => void
   onToggleExpand: () => void
@@ -75,13 +81,14 @@ type WidgetPanelProps = {
 /** The inside of the widget: header, message list (or greeting), composer,
  *  and — when a citation is open — the reference frame (side-by-side split
  *  in the expanded layout, slide-over on the mobile full-screen sheet).
- *  Brand-agnostic: personas, starters, profile, and side panels are injected. */
+ *  Brand-agnostic: suggestions, starters, profile, and side panels are injected. */
 export function WidgetPanel({
   messages,
   busy,
   expanded,
   citation,
-  personas,
+  suggestions,
+  typeaheadPool,
   starters,
   profile,
   sidePanels,
@@ -91,7 +98,6 @@ export function WidgetPanel({
   onCloseCitation,
   queue,
   held,
-  undoable,
   onSubmit,
   onStop,
   onSendNow,
@@ -103,7 +109,8 @@ export function WidgetPanel({
   onResume,
   onCombineQueue,
   onClearQueue,
-  onUndoQueue,
+  chain,
+  features = {},
   onRetry,
   onReset,
   onToggleExpand,
@@ -111,7 +118,6 @@ export function WidgetPanel({
   onClose,
 }: WidgetPanelProps) {
   const { appName, disclaimer } = useBranding()
-  const [persona, setPersona] = useState<string>(personas[0]?.id ?? '')
   const dockRef = useRef<QueueDockHandle>(null)
   const { containerRef, contentRef, atBottom, scrollToBottom } = useStickToBottom()
   const inChat = messages.length > 0
@@ -139,6 +145,20 @@ export function WidgetPanel({
 
   const { name, loginId } = profile
   const firstName = name.split(' ')[0]
+
+  const queueOn = features.queue !== false
+  const suggestOn = features.suggestions !== false
+  // Running a chain puts its first question on screen, so bring it into view.
+  const chainControls = useMemo<ChainControls>(
+    () => ({
+      ...chain,
+      run: () => {
+        chain.run()
+        scrollToBottom()
+      },
+    }),
+    [chain, scrollToBottom],
+  )
 
   // A message the reader sends themselves always comes into view, even if
   // they'd scrolled up to reread earlier turns — streamed replies then keep
@@ -259,7 +279,6 @@ export function WidgetPanel({
               items={queue}
               held={held}
               busy={busy}
-              undoable={undoable}
               storageKey="queue-dock-minimized"
               onSendNow={onSendQueuedNow}
               onEdit={onEditQueued}
@@ -269,7 +288,7 @@ export function WidgetPanel({
               onResume={onResume}
               onCombine={onCombineQueue}
               onClear={onClearQueue}
-              onUndo={onUndoQueue}
+              chain={queueOn ? chainControls : undefined}
             />
             <Composer
               docked
@@ -284,9 +303,11 @@ export function WidgetPanel({
                 }
               }}
               onArrowUp={() => dockRef.current?.focusLast()}
-              personas={personas}
-              persona={persona}
-              onPersonaChange={setPersona}
+              suggestions={suggestOn ? suggestions : undefined}
+              typeaheadPool={typeaheadPool}
+              typeaheadStorageKey="composer-typeahead:widget"
+              queueing={queueOn}
+              chain={queueOn ? chainControls : undefined}
             />
             <p className="mt-1.5 text-center text-[10px] text-ink-soft/70">{disclaimer}</p>
           </div>

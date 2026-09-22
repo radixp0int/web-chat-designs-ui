@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Responder } from '../engine/chatEngine'
 import type {
   AskedOverScope,
+  ChainControls,
+  ChainState,
   Message,
   QueueMove,
   QueuedMessage,
@@ -13,9 +15,6 @@ import type {
 
 // Ids are unique across the whole session; they only ever move forward.
 let nextId = 1
-
-/** How long a removed or cleared queue stays restorable. */
-const UNDO_MS = 10_000
 
 /** Insert or update a tool call in place, matched by toolCallId. Later
  *  events omit fields sent earlier (completed has no input), so missing
@@ -165,8 +164,6 @@ export function useChat(responder: Responder, { captureScope }: UseChatOptions =
   const [busy, setBusy] = useState(false)
   const [queue, setQueue] = useState<QueuedMessage[]>([])
   const [held, setHeld] = useState(false)
-  // What `clearQueue`/`removeQueued` just took away, restorable for UNDO_MS.
-  const [undoable, setUndoable] = useState<QueuedMessage[] | null>(null)
   const abortRef = useRef<AbortController | null>(null)
   // Source of truth for the drain loop — the async pump can't read fresh React
   // state mid-flight, so every queue mutation goes through `writeQueue`.
@@ -179,20 +176,21 @@ export function useChat(responder: Responder, { captureScope }: UseChatOptions =
   // not invalidate runTurn and, with it, the whole pump.
   const captureRef = useRef(captureScope)
   captureRef.current = captureScope
-  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // A chain the reader is building (queue held until they run it) or running
+  // (progress counted against `total`). Mirrored in a ref for the same reason
+  // as the queue: callbacks below read it without re-binding every render.
+  const [chain, setChainState] = useState<ChainState | null>(null)
+  const chainRef = useRef<ChainState | null>(null)
+  const setChain = useCallback((next: ChainState | null) => {
+    chainRef.current = next
+    setChainState(next)
+  }, [])
 
   /** Single writer for both copies of the queue — the ref the pump reads and
    *  the state the dock renders. They cannot be allowed to drift. */
   const writeQueue = useCallback((next: QueuedMessage[]) => {
     queueRef.current = next
     setQueue(next)
-  }, [])
-
-  const offerUndo = useCallback((taken: QueuedMessage[]) => {
-    if (taken.length === 0) return
-    if (undoTimerRef.current) clearTimeout(undoTimerRef.current)
-    setUndoable(taken)
-    undoTimerRef.current = setTimeout(() => setUndoable(null), UNDO_MS)
   }, [])
 
   const patch = useCallback((id: number, apply: (m: Message) => Partial<Message>) => {
@@ -383,10 +381,22 @@ export function useChat(responder: Responder, { captureScope }: UseChatOptions =
       const body = text.trim()
       if (!body) return
       writeQueue([...queueRef.current, { id: nextId++, text: body }])
+      // Anything added while a chain runs joins the end of it, so the count
+      // has to grow with it or the progress would read "4 of 3".
+      const c = chainRef.current
+      if (c?.phase === 'running') setChain({ ...c, total: c.total + 1 })
       void pump()
     },
-    [pump, writeQueue],
+    [pump, setChain, writeQueue],
   )
+
+  /** Running any one step of a chain being built runs the rest behind it —
+   *  the hold is gone — so it becomes a running chain rather than leaving the
+   *  dock claiming nothing will send. */
+  const leavePlanning = useCallback(() => {
+    if (chainRef.current?.phase !== 'planning') return
+    setChain({ phase: 'running', total: queueRef.current.length })
+  }, [setChain])
 
   /**
    * Interrupt the running turn and answer this message next. The rest of the
@@ -400,12 +410,13 @@ export function useChat(responder: Responder, { captureScope }: UseChatOptions =
       heldRef.current = false
       setHeld(false)
       writeQueue([{ id: nextId++, text: body }, ...queueRef.current])
+      leavePlanning()
       // A running pump picks this up as soon as the aborted turn unwinds; the
       // trailing pump() call covers the idle case and no-ops otherwise.
       abortRef.current?.abort()
       void pump()
     },
-    [pump, writeQueue],
+    [leavePlanning, pump, writeQueue],
   )
 
   /** Stop the running turn and hold the queue. Both halves are deliberate: a
@@ -426,8 +437,58 @@ export function useChat(responder: Responder, { captureScope }: UseChatOptions =
   const resume = useCallback(() => {
     heldRef.current = false
     setHeld(false)
+    leavePlanning()
     void pump()
-  }, [pump])
+  }, [leavePlanning, pump])
+
+  /**
+   * Start building a chain: questions that run one after another, in order,
+   * each answered in this conversation so later steps can build on earlier
+   * answers.
+   *
+   * Building is a hold with a different face. Everything the reader adds
+   * waits in the queue — the pump already respects a hold — until they run it.
+   * Whatever was queued already becomes the chain's first steps.
+   */
+  const startChain = useCallback(() => {
+    if (chainRef.current?.phase === 'planning') return
+    heldRef.current = true
+    setHeld(true)
+    setChain({ phase: 'planning' })
+  }, [setChain])
+
+  /** Add a step to the chain being built, starting one if there is none. */
+  const addToChain = useCallback(
+    (text: string) => {
+      const body = text.trim()
+      if (!body) return
+      startChain()
+      writeQueue([...queueRef.current, { id: nextId++, text: body }])
+    },
+    [startChain, writeQueue],
+  )
+
+  /** Run the chain as built. Nothing to run leaves it open. */
+  const runChain = useCallback(() => {
+    if (chainRef.current?.phase !== 'planning' || queueRef.current.length === 0) return
+    setChain({ phase: 'running', total: queueRef.current.length })
+    heldRef.current = false
+    setHeld(false)
+    void pump()
+  }, [pump, setChain])
+
+  /** Stop building without running. Nothing is thrown away: steps already
+   *  added stay in the queue, held, where Resume or Clear deal with them like
+   *  any other held message. An empty chain simply releases the hold. */
+  const cancelChain = useCallback(() => {
+    if (chainRef.current?.phase !== 'planning') return
+    setChain(null)
+    if (queueRef.current.length === 0) {
+      heldRef.current = false
+      setHeld(false)
+      void pump()
+    }
+  }, [pump, setChain])
 
   /**
    * Re-run the turn that produced an assistant message. Drops that answer and
@@ -457,14 +518,12 @@ export function useChat(responder: Responder, { captureScope }: UseChatOptions =
     (id: number, text: string) => {
       const body = text.trim()
       if (!body) {
-        const taken = queueRef.current.filter((q) => q.id === id)
         writeQueue(queueRef.current.filter((q) => q.id !== id))
-        offerUndo(taken)
         return
       }
       writeQueue(queueRef.current.map((q) => (q.id === id ? { ...q, text: body } : q)))
     },
-    [offerUndo, writeQueue],
+    [writeQueue],
   )
 
   /** Move a queued message one place, to the front, or to an exact index
@@ -495,10 +554,11 @@ export function useChat(responder: Responder, { captureScope }: UseChatOptions =
       heldRef.current = false
       setHeld(false)
       writeQueue([items[at], ...items.filter((q) => q.id !== id)])
+      leavePlanning()
       abortRef.current?.abort()
       void pump()
     },
-    [pump, writeQueue],
+    [leavePlanning, pump, writeQueue],
   )
 
   /** Fold the whole queue into one turn, in order. */
@@ -508,50 +568,48 @@ export function useChat(responder: Responder, { captureScope }: UseChatOptions =
     writeQueue([{ id: items[0].id, text: items.map((q) => q.text).join('\n\n') }])
   }, [writeQueue])
 
-  /** Remove a message from the queue before it runs. Undoable. */
+  /** Remove a message from the queue before it runs. */
   const removeQueued = useCallback(
-    (id: number) => {
-      const taken = queueRef.current.filter((q) => q.id === id)
-      writeQueue(queueRef.current.filter((q) => q.id !== id))
-      offerUndo(taken)
-    },
-    [offerUndo, writeQueue],
+    (id: number) => writeQueue(queueRef.current.filter((q) => q.id !== id)),
+    [writeQueue],
   )
 
-  /** Empty the queue. Undoable — no dialog stands between a draft and the bin. */
-  const clearQueue = useCallback(() => {
-    const taken = queueRef.current
-    writeQueue([])
-    offerUndo(taken)
-  }, [offerUndo, writeQueue])
-
-  /** Put back what the last remove or clear took, at the end of the queue.
-   *  Ids are preserved, so a restored message is the same message. */
-  const undoQueue = useCallback(() => {
-    if (!undoable) return
-    const present = new Set(queueRef.current.map((q) => q.id))
-    writeQueue([...queueRef.current, ...undoable.filter((q) => !present.has(q.id))])
-    setUndoable(null)
-  }, [undoable, writeQueue])
+  /** Empty the queue. */
+  const clearQueue = useCallback(() => writeQueue([]), [writeQueue])
 
   const reset = useCallback(() => {
     writeQueue([])
+    setChain(null)
     heldRef.current = false
     setHeld(false)
-    setUndoable(null)
     abortRef.current?.abort()
     abortRef.current = null
     setMessages([])
     setBusy(false)
-  }, [writeQueue])
+  }, [setChain, writeQueue])
+
+  // A running chain is finished once nothing is left to run.
+  useEffect(() => {
+    if (chain?.phase === 'running' && !busy && queue.length === 0) setChain(null)
+  }, [busy, chain, queue.length, setChain])
 
   useEffect(
     () => () => {
       queueRef.current = []
-      if (undoTimerRef.current) clearTimeout(undoTimerRef.current)
       abortRef.current?.abort()
     },
     [],
+  )
+
+  const chainControls = useMemo<ChainControls>(
+    () => ({
+      state: chain,
+      start: startChain,
+      add: addToChain,
+      run: runChain,
+      cancel: cancelChain,
+    }),
+    [chain, startChain, addToChain, runChain, cancelChain],
   )
 
   return {
@@ -559,8 +617,8 @@ export function useChat(responder: Responder, { captureScope }: UseChatOptions =
     busy,
     queue,
     held,
-    /** True while the last remove or clear can still be undone. */
-    undoable: undoable !== null,
+    /** The chain being built or run, and its controls. */
+    chain: chainControls,
     send,
     sendNow,
     stop,
@@ -573,7 +631,6 @@ export function useChat(responder: Responder, { captureScope }: UseChatOptions =
     combineQueue,
     removeQueued,
     clearQueue,
-    undoQueue,
     reset,
   }
 }

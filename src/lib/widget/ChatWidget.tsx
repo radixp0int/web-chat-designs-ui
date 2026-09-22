@@ -9,7 +9,8 @@ import type {
   AskedOverScope,
   Highlight,
   Message,
-  Persona,
+  Suggestion,
+  ComposerFeatures,
   SidePanel,
   Source,
 } from '../types'
@@ -48,7 +49,16 @@ export type WidgetController = {
 export type WidgetContent = {
   responder: Responder
   branding: Branding
-  personas: Persona[]
+  /** Today's suggested questions for the tenant — the composer's sparkle
+   *  menu. Omit for no menu and no suggest-as-you-type. */
+  suggestions?: Suggestion[]
+  /** More questions suggest-as-you-type may match, after today's list. */
+  typeaheadPool?: Suggestion[]
+  /**
+   * Which composer features this viewer has. A hook, like `useScope`, so a
+   * settings change reaches the open widget. Omitted, everything is on.
+   */
+  useFeatures?: () => ComposerFeatures
   starters: string[]
   sidePanels: SidePanel[]
   /**
@@ -76,6 +86,12 @@ export type WidgetScope = {
   onRestore?: (scope: AskedOverScope) => void
 }
 
+const ALL_FEATURES: ComposerFeatures = {}
+/** Default so the hook call below is unconditional, as a hook must be. */
+function useAllFeatures(): ComposerFeatures {
+  return ALL_FEATURES
+}
+
 const NO_SCOPE: WidgetScope = {}
 /** Default so the hook call below is unconditional, as a hook must be. */
 function useNoScope(): WidgetScope {
@@ -99,7 +115,9 @@ type ChatWidgetProps = WidgetContent & {
 export function ChatWidget({
   responder,
   branding,
-  personas,
+  suggestions,
+  typeaheadPool,
+  useFeatures = useAllFeatures,
   starters,
   sidePanels,
   launcherLabel,
@@ -122,13 +140,13 @@ export function ChatWidget({
   const dark = useHostTheme(themeMode)
   const profile = useProfile()
   const scope = useScope()
+  const features = useFeatures()
 
   const {
     messages,
     busy,
     queue,
     held,
-    undoable,
     send,
     stop,
     sendNow,
@@ -140,7 +158,7 @@ export function ChatWidget({
     resume,
     combineQueue,
     clearQueue,
-    undoQueue,
+    chain,
     retry,
     reset,
   } = useChat(responder, { captureScope: scope.capture })
@@ -267,7 +285,8 @@ export function ChatWidget({
                 busy={busy}
                 expanded={expanded}
                 citation={citation}
-                personas={personas}
+                suggestions={suggestions}
+                typeaheadPool={typeaheadPool}
                 starters={starters}
                 profile={profile}
                 sidePanels={sidePanels}
@@ -275,7 +294,6 @@ export function ChatWidget({
                 onCloseCitation={() => setCitation(null)}
                 queue={queue}
                 held={held}
-                undoable={undoable}
                 onSubmit={send}
                 onStop={stop}
                 onSendNow={sendNow}
@@ -287,7 +305,8 @@ export function ChatWidget({
                 onResume={resume}
                 onCombineQueue={combineQueue}
                 onClearQueue={clearQueue}
-                onUndoQueue={undoQueue}
+                chain={chain}
+                features={features}
                 onRetry={retry}
                 onReset={newChat}
                 onToggleExpand={toggleExpand}

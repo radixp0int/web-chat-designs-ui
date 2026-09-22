@@ -1,4 +1,4 @@
-import type { QueueMove, QueuedMessage } from '../../types'
+import type { ChainControls, QueueMove, QueuedMessage } from '../../types'
 
 export type QueueDockProps = {
   /** Messages written but not yet run, in the order they will run. */
@@ -7,8 +7,6 @@ export type QueueDockProps = {
   held: boolean
   /** A turn is running, so item one is what happens when it finishes. */
   busy: boolean
-  /** A removal or clear is still undoable — the header offers it. */
-  undoable?: boolean
   /** When set, the minimized/expanded state persists to localStorage across
    *  sessions. Omit it (the default) to keep that state in memory only — a
    *  host mounting more than one dock needs a distinct key per instance, so
@@ -25,7 +23,9 @@ export type QueueDockProps = {
   /** Fold the whole queue into a single turn. */
   onCombine: () => void
   onClear: () => void
-  onUndo: () => void
+  /** The chain being built or run. Building, the dock shows even when empty —
+   *  it is where the steps go — and offers Run in place of Hold. */
+  chain?: ChainControls
 }
 
 /** Lets the composer hand focus to the queue (Up arrow on an empty draft). */
@@ -41,6 +41,8 @@ export type QueueRowProps = {
   next: boolean
   held: boolean
   busy: boolean
+  /** Part of a chain still being built: nothing runs until it is started. */
+  planning?: boolean
   /** Compact density shows no inline actions — everything is in the menu. */
   compact: boolean
   /** Folded dock: one line, no controls but the menu. */
@@ -52,4 +54,11 @@ export type QueueRowProps = {
   /** Move focus to the row above or below — arrow keys walk the queue. */
   onFocusSibling: (from: number, delta: -1 | 1) => void
   registerRef: (id: number, el: HTMLLIElement | null) => void
+}
+
+export type QueueToggleProps = {
+  compact: boolean
+  /** A chain is being built. */
+  pressed: boolean
+  onClick: () => void
 }
