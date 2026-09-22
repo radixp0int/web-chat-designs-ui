@@ -26,6 +26,7 @@ export function QueueRow({
   total,
   next,
   held,
+  planning = false,
   busy,
   compact,
   minimized,
@@ -227,7 +228,13 @@ export function QueueRow({
         </p>
         {expanded && (
           <span className="mt-0.5 block text-[10px] font-bold tracking-wider text-marker uppercase">
-            {held ? 'Held — nothing sends' : busy ? 'Sends when this reply finishes' : 'Sending…'}
+            {planning
+              ? 'Runs first when you start the chain'
+              : held
+                ? 'Held — nothing sends'
+                : busy
+                  ? 'Sends when this reply finishes'
+                  : 'Sending…'}
           </span>
         )}
       </div>

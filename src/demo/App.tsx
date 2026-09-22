@@ -17,7 +17,7 @@ import { TopBar } from './components/TopBar'
 import { aristotleBranding } from './config'
 import { DemoFeaturesProvider, useDemoFeatureState } from './demoFeatures'
 import { cannedTurns } from './mocks/cannedTurns'
-import { personas } from './personas'
+import { todaysSuggestions, typeaheadPool } from './mocks/suggestions'
 import { AmbientGlow } from './components/AmbientGlow'
 
 // With VITE_WS_URL set (see .env.development), responses stream from the
@@ -46,7 +46,6 @@ function App() {
     busy,
     queue,
     held,
-    undoable,
     send,
     stop,
     sendNow,
@@ -58,7 +57,7 @@ function App() {
     resume,
     combineQueue,
     clearQueue,
-    undoQueue,
+    chain,
     retry,
     reset,
   } = useChat(responder, { captureScope: scope.capture })
@@ -124,7 +123,6 @@ function App() {
                   showActions={demo.flags.actions}
                   queue={queue}
                   held={held}
-                  undoable={undoable}
                   onSubmit={send}
                   onStop={stop}
                   onSendNow={sendNow}
@@ -136,9 +134,11 @@ function App() {
                   onResume={resume}
                   onCombineQueue={combineQueue}
                   onClearQueue={clearQueue}
-                  onUndoQueue={undoQueue}
                   onRetry={retry}
-                  personas={personas}
+                  chain={chain}
+                  features={{ suggestions: demo.flags.suggestions, queue: demo.flags.queue }}
+                  suggestions={todaysSuggestions}
+                  typeaheadPool={typeaheadPool}
                 />
               </div>
 

@@ -15,7 +15,8 @@ import {
   XIcon,
 } from '../icons'
 import { IconButton } from '../icon-button'
-import { PersonaMenu } from '../persona-menu'
+import { QueueToggle } from '../queue-dock'
+import { SuggestionList, SuggestionsMenu, useTypeahead } from '../suggestions'
 import { useUiSize, type UiSize } from '../../uiSize'
 import { keyLabels } from '../../keyLabels'
 import type { ComposerProps } from './types'
@@ -46,9 +47,11 @@ export function Composer({
   onStop,
   onSubmit,
   onArrowUp,
-  personas,
-  persona,
-  onPersonaChange,
+  queueing = true,
+  chain,
+  suggestions = [],
+  typeaheadPool,
+  typeaheadStorageKey,
 }: ComposerProps) {
   const { appName } = useBranding()
   const size = useUiSize()
@@ -66,6 +69,27 @@ export function Composer({
 
   const fileRef = useRef<HTMLInputElement>(null)
   const textareaRef = useAutoGrowTextarea(value, expandedHeight, sizing)
+  const planning = chain?.state?.phase === 'planning'
+  const hasSuggestions = suggestions.length > 0
+  // Writing while an answer runs only goes anywhere if it can queue — or,
+  // building a chain, if it is a step for later.
+  const canSend = hasDraft && !disabled && (!streaming || queueing || planning)
+
+  // A picked suggestion lands in the draft, never sends itself: the reader
+  // may want to adjust it first.
+  const fill = (text: string) => {
+    setValue(text)
+    textareaRef.current?.focus()
+  }
+
+  const typeahead = useTypeahead({
+    value,
+    onAccept: fill,
+    suggestions,
+    pool: typeaheadPool,
+    storageKey: typeaheadStorageKey,
+    limit: compact ? 3 : 4,
+  })
 
   const speech = useSpeechRecognition({
     onResult: (chunk) => setValue((prev) => (prev ? `${prev} ${chunk}` : chunk)),
@@ -74,22 +98,27 @@ export function Composer({
 
   function submit(opts?: { steer?: boolean }) {
     const text = value.trim()
-    if (!text || disabled) return
+    if (!text || !canSend) return
     speech.stop()
     setValue('')
     setAttachments([])
     setExpanded(false)
-    onSubmit(text, opts)
+    typeahead.reset()
+    // Building a chain, Enter adds a step — and nothing steers, since nothing
+    // in a chain being built is running yet.
+    if (planning && chain) chain.add(text)
+    else onSubmit(text, queueing ? opts : undefined)
   }
 
   const toolIconSize = compact ? 16 : 18
 
   return (
     <div
-      // Named so PersonaMenu (and anything else nested here) can query this
-      // row's actual rendered width — e.g. when a resizable panel squeezes
-      // the chat column — rather than the app-wide compact/default density.
-      className={`glass @container/composer w-full shadow-lg shadow-(color:--shadow-soft) transition-shadow duration-300 focus-within:shadow-xl focus-within:shadow-(color:--shadow-raised) ${
+      // Named so the toolbar's triggers (and anything else nested here) can
+      // query this row's actual rendered width — e.g. when a resizable panel
+      // squeezes the chat column — rather than the app-wide density.
+      // Relative + z-10 so the suggestion panels open over what follows it.
+      className={`glass @container/composer relative z-10 w-full shadow-lg shadow-(color:--shadow-soft) transition-shadow duration-300 focus-within:shadow-xl focus-within:shadow-(color:--shadow-raised) ${
         compact ? 'rounded-lg' : 'rounded-xl'
       } ${docked ? '' : 'shadow-xl'}`}
     >
@@ -116,16 +145,40 @@ export function Composer({
         </div>
       )}
 
+      {typeahead.list && (
+        <SuggestionList {...typeahead.list} compact={compact} placement={docked ? 'up' : 'down'} />
+      )}
+
       <div className="relative">
+        {/* The completion, drawn behind the transparent textarea on the same
+            metrics: the typed text is invisible here and the rest shows after
+            it, so it reads as sitting right after the caret. */}
+        {typeahead.ghost && (
+          <div
+            aria-hidden
+            className={`pointer-events-none absolute inset-0 overflow-hidden pb-1 leading-relaxed break-words whitespace-pre-wrap ${
+              compact ? 'pt-3 pl-4 text-sm' : 'pt-4 pl-5 text-[15px]'
+            } ${canExpand ? (compact ? 'pr-10' : 'pr-12') : compact ? 'pr-4' : 'pr-5'}`}
+          >
+            <span className="text-transparent">{value}</span>
+            <span className="text-ink-soft/70">{typeahead.ghost}</span>
+          </div>
+        )}
         <textarea
           ref={textareaRef}
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => {
+            setValue(e.target.value)
+            typeahead.onInput()
+          }}
+          {...typeahead.inputProps}
           onKeyDown={(e) => {
+            if (typeahead.onKeyDown(e)) return
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault()
               // Cmd/Ctrl+Enter steers: interrupts the in-flight response and
-              // sends immediately. Plain Enter queues while streaming.
+              // sends immediately. Plain Enter queues while streaming. With
+              // queueing off, Enter mid-answer does nothing; the draft waits.
               submit({ steer: e.metaKey || e.ctrlKey })
             } else if (e.key === 'ArrowUp' && value === '' && onArrowUp) {
               // Up on an empty box reaches for the last thing you wrote — here
@@ -135,7 +188,13 @@ export function Composer({
             }
           }}
           rows={compact || docked ? 1 : 2}
-          placeholder={speech.listening ? 'Listening…' : 'Ask anything…'}
+          placeholder={
+            speech.listening
+              ? 'Listening…'
+              : planning
+                ? 'Add a step to the chain…'
+                : 'Ask anything…'
+          }
           aria-label={`Message ${appName}`}
           className={`w-full resize-none bg-transparent pb-1 leading-relaxed text-ink-strong outline-none placeholder:text-ink-soft ${
             compact ? 'pt-3 pl-4 text-sm' : 'pt-4 pl-5 text-[15px]'
@@ -206,12 +265,17 @@ export function Composer({
           </button>
         )}
 
-        <PersonaMenu
-          personas={personas}
-          persona={persona}
-          onChange={onPersonaChange}
-          compact={compact}
-        />
+        {hasSuggestions && (
+          <SuggestionsMenu
+            suggestions={suggestions}
+            onPick={fill}
+            onQueue={chain?.add}
+            typeahead={typeahead.enabled}
+            onTypeaheadChange={typeahead.setEnabled}
+            compact={compact}
+            placement={docked ? 'up' : 'down'}
+          />
+        )}
 
         {/* Stopping and sending are different intents, so they never share a
             button — but they do belong to each other, so they stay together at
@@ -219,7 +283,15 @@ export function Composer({
             from filled to outline and slides it one place left; it never
             crosses the row, and the pointer that was on it has barely moved. */}
         <div className={`ml-auto flex items-center ${compact ? 'gap-1' : 'gap-1.5'}`}>
-          {streaming && hasDraft && (
+          {chain && (
+            <QueueToggle
+              compact={compact}
+              pressed={planning}
+              onClick={planning ? chain.cancel : chain.start}
+            />
+          )}
+
+          {streaming && queueing && (hasDraft || planning) && (
             <button
               type="button"
               onClick={onStop}
@@ -233,7 +305,20 @@ export function Composer({
             </button>
           )}
 
-          {streaming && !hasDraft ? (
+          {planning ? (
+            <button
+              type="button"
+              onClick={() => submit()}
+              disabled={!canSend}
+              aria-label="Add step to the chain"
+              title={`Add step (${keyLabels.enter})`}
+              className={`flex items-center justify-center rounded-full bg-action text-on-action shadow-md shadow-(color:--shadow-raised) transition hover:brightness-95 disabled:bg-tint/15 disabled:text-ink-soft disabled:shadow-none ${
+                compact ? 'size-8' : 'size-9'
+              }`}
+            >
+              <PlusIcon width={compact ? 16 : 18} height={compact ? 16 : 18} />
+            </button>
+          ) : streaming && (!hasDraft || !queueing) ? (
             <button
               type="button"
               onClick={onStop}

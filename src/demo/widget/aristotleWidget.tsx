@@ -7,13 +7,14 @@ import { mountWidget, type MountOptions, type WidgetHandle } from '../../lib/wid
 import type { ThemeMode } from '../../lib/widget/useHostTheme'
 import { aristotleBranding } from '../config'
 import { cannedTurns } from '../mocks/cannedTurns'
-import { personas } from '../personas'
+import { todaysSuggestions, typeaheadPool } from '../mocks/suggestions'
 import {
   DemoFacetFiltersPanel,
   DemoPersonaPanel,
   DemoRecentChatsPanel,
   FiltersRailIcon,
 } from './sidePanels'
+import { useDemoComposerFeatures } from '../demoFeatures'
 import { useDemoScope } from '../useDemoFacets'
 import { useHostProfile } from './useHostProfile'
 
@@ -63,7 +64,9 @@ function buildContent(): WidgetContent {
   return {
     responder,
     branding: aristotleBranding,
-    personas,
+    suggestions: todaysSuggestions,
+    typeaheadPool,
+    useFeatures: useDemoComposerFeatures,
     starters,
     sidePanels: buildSidePanels(),
     launcherLabel: 'Ask Aristotle',

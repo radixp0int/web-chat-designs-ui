@@ -121,6 +121,45 @@ export type QueuedMessage = {
  *  ambiguous. */
 export type QueueMove = 'up' | 'down' | 'front' | number
 
+/**
+ * A chain: queued questions the reader lines up to run one after another.
+ * `planning` holds the queue while steps are added; `running` counts progress
+ * against the number of steps it started with (plus any added on the way).
+ */
+export type ChainState = { phase: 'planning' } | { phase: 'running'; total: number }
+
+/** A chain and what can be done to it — one object, so hosts pass it through
+ *  whole rather than as five props. `useChat` returns one. */
+export type ChainControls = {
+  state: ChainState | null
+  /** Start building: the queue holds until the chain is run. */
+  start: () => void
+  /** Add a step, starting a chain if none is being built. */
+  add: (text: string) => void
+  /** Run the chain as built. */
+  run: () => void
+  /** Stop building. Steps already added stay queued, held. */
+  cancel: () => void
+}
+
+/**
+ * Composer features a host can switch off — the data-free counterpart of the
+ * message feature gate. Both default to on; a host passes what its flags say.
+ */
+export type ComposerFeatures = {
+  /** The sparkle drop-up of today's suggestions, and suggest-as-you-type. */
+  suggestions?: boolean
+  /** Queueing and steering while an answer runs, and chains. */
+  queue?: boolean
+}
+
+/** One of the tenant's suggested questions for the day. */
+export type Suggestion = {
+  text: string
+  /** Why it is suggested — "Popular in your org", "New this week". */
+  reason?: string
+}
+
 export type Message = {
   id: number
   role: 'user' | 'assistant'

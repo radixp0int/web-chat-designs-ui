@@ -55,7 +55,7 @@ function injectFonts() {
 /**
  * Mount the chat widget into a shadow root so host-page CSS can't restyle it
  * and the widget's (Tailwind) CSS can't leak out. `content` supplies the
- * host-specific pieces (responder, branding, personas, starters, side panels,
+ * host-specific pieces (responder, branding, suggestions, starters, side panels,
  * profile); `options` covers placement and theme. Returns a control handle.
  */
 export function mountWidget(content: WidgetContent, options: MountOptions = {}): WidgetHandle {

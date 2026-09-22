@@ -15,8 +15,9 @@ import {
   ExpandVerticalIcon,
   PauseIcon,
   PlayIcon,
+  QueueIcon,
   TrashIcon,
-  UndoIcon,
+  XIcon,
 } from '../icons'
 import { IconButton } from '../icon-button'
 import { useUiSize } from '../../uiSize'
@@ -51,7 +52,6 @@ export function QueueDock({
   items,
   held,
   busy,
-  undoable = false,
   onSendNow,
   onEdit,
   onMove,
@@ -60,8 +60,8 @@ export function QueueDock({
   onResume,
   onCombine,
   onClear,
-  onUndo,
   storageKey,
+  chain,
   ref,
 }: QueueDockProps & { ref?: Ref<QueueDockHandle> }) {
   const compact = useUiSize() === 'compact'
@@ -110,7 +110,11 @@ export function QueueDock({
     [items],
   )
 
-  if (items.length === 0) return null
+  const planning = chain?.state?.phase === 'planning'
+  const running = chain?.state?.phase === 'running' ? chain.state : null
+  // A chain keeps its dock to the end: while building it is where steps go,
+  // and on the last step it still says how far along the chain is.
+  if (items.length === 0 && !planning && !running) return null
 
   // Folded, only the message that runs next is shown. Three rows is where a
   // dock stops being a glance and starts being a list, so the rest wait behind
@@ -122,47 +126,95 @@ export function QueueDock({
   const shown = items.slice(0, cap)
   const hidden = items.length - shown.length
   const label = compact ? 'Queued' : 'Up next'
+  // Building a chain is a hold, but not one the reader has to be warned
+  // about: it looks like a draft, not like something stuck.
+  const caution = held && !planning
+  const step = running ? Math.min(running.total, Math.max(1, running.total - items.length)) : 0
 
   return (
     <div
       className={`mb-1.5 rounded-lg border bg-panel-solid transition-colors ${
-        held ? 'border-caution-line bg-caution-surface' : 'border-line'
+        caution ? 'border-caution-line bg-caution-surface' : 'border-line'
       }`}
     >
       <div
         className={`flex items-center gap-1.5 rounded-t-lg border-b px-2 py-1 ${
-          held ? 'border-caution-line' : 'border-line bg-tint/4'
+          caution ? 'border-caution-line' : 'border-line bg-tint/4'
         }`}
       >
         {/* One live region for the whole state of the queue: how many are
             waiting, and whether anything is going to send. Queueing a message
             or holding the queue is otherwise silent to a screen reader. */}
         <span role="status" className="flex min-w-0 items-center gap-1.5">
-          <span className={held ? 'text-caution' : 'text-brand-fg'} aria-hidden>
-            {held ? <PauseIcon width={13} height={13} /> : <ClockIcon width={13} height={13} />}
-          </span>
-          <span className="text-[11.5px] font-bold text-ink-strong">{held ? 'Held' : label}</span>
-          <span
-            className={`rounded-full px-1.5 text-[10.5px] font-bold ${
-              held ? 'bg-caution/15 text-caution' : 'bg-chip text-chip-fg'
-            }`}
-          >
-            {items.length}
-          </span>
-          {held && (
-            <span className={`truncate text-[11px] text-ink-soft ${compact ? 'sr-only' : ''}`}>
-              Nothing sends until you resume
-            </span>
+          {planning ? (
+            <>
+              <span className="text-brand-fg" aria-hidden>
+                <QueueIcon width={13} height={13} />
+              </span>
+              <span className="text-[11.5px] font-bold text-ink-strong">
+                {compact ? 'Chain' : 'New chain'}
+              </span>
+              <span className="rounded-full bg-chip px-1.5 text-[10.5px] font-bold text-chip-fg">
+                {items.length}
+              </span>
+              <span className={`truncate text-[11px] text-ink-soft ${compact ? 'sr-only' : ''}`}>
+                Nothing runs until you start it
+              </span>
+            </>
+          ) : (
+            <>
+              <span className={caution ? 'text-caution' : 'text-brand-fg'} aria-hidden>
+                {caution ? (
+                  <PauseIcon width={13} height={13} />
+                ) : (
+                  <ClockIcon width={13} height={13} />
+                )}
+              </span>
+              <span className="text-[11.5px] font-bold text-ink-strong">
+                {caution ? 'Held' : running ? (compact ? 'Chain' : 'Running chain') : label}
+              </span>
+              {running ? (
+                <>
+                  <span className="text-[11px] font-bold text-ink-soft tabular-nums">
+                    {step} of {running.total}
+                  </span>
+                  {!compact && (
+                    <span
+                      className="h-1 w-14 overflow-hidden rounded-full bg-chip"
+                      role="progressbar"
+                      aria-label="Chain progress"
+                      aria-valuemin={0}
+                      aria-valuemax={running.total}
+                      aria-valuenow={step}
+                    >
+                      <span
+                        className="block h-full rounded-full bg-accent transition-[width] duration-500"
+                        style={{ width: `${(step / running.total) * 100}%` }}
+                      />
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span
+                  className={`rounded-full px-1.5 text-[10.5px] font-bold ${
+                    caution ? 'bg-caution/15 text-caution' : 'bg-chip text-chip-fg'
+                  }`}
+                >
+                  {items.length}
+                </span>
+              )}
+              {caution && (
+                <span className={`truncate text-[11px] text-ink-soft ${compact ? 'sr-only' : ''}`}>
+                  Nothing sends until you resume
+                </span>
+              )}
+            </>
           )}
         </span>
 
         <span className="flex-1" />
 
-        {undoable && (
-          <HeaderButton icon={<UndoIcon width={12} height={12} />} label="Undo" onClick={onUndo} />
-        )}
-
-        {held ? (
+        {planning ? null : held ? (
           <HeaderButton
             icon={<PlayIcon width={12} height={12} />}
             label="Resume"
@@ -180,7 +232,7 @@ export function QueueDock({
           />
         )}
 
-        {items.length > 1 && !compact && (
+        {items.length > 1 && !compact && !planning && (
           <HeaderButton
             icon={<CombineIcon width={12} height={12} />}
             label="Combine"
@@ -189,13 +241,15 @@ export function QueueDock({
           />
         )}
 
-        <HeaderButton
-          icon={<TrashIcon width={12} height={12} />}
-          label="Clear"
-          title="Remove every queued message"
-          onClick={onClear}
-          iconOnly={compact}
-        />
+        {items.length > 0 && (
+          <HeaderButton
+            icon={<TrashIcon width={12} height={12} />}
+            label="Clear"
+            title="Remove every queued message"
+            onClick={onClear}
+            iconOnly={compact}
+          />
+        )}
 
         {/* Beside Clear, and the last control in the row: the one that changes
             how much room the dock takes rather than what is in it. */}
@@ -214,9 +268,47 @@ export function QueueDock({
             <CollapseVerticalIcon width={13} height={13} />
           )}
         </IconButton>
+
+        {planning && chain && (
+          <>
+            <IconButton
+              size="sm"
+              shape="rounded"
+              onClick={chain.cancel}
+              aria-label="Stop building the chain"
+              title="Stop building — steps stay queued, held"
+            >
+              <XIcon width={13} height={13} />
+            </IconButton>
+            <button
+              type="button"
+              onClick={chain.run}
+              disabled={items.length === 0}
+              aria-label={compact ? 'Run the chain' : undefined}
+              title="Run every step in order"
+              className={`ml-0.5 flex items-center gap-1 rounded-md bg-brand-solid font-bold text-on-brand-solid transition hover:brightness-110 disabled:bg-tint/15 disabled:text-ink-soft ${
+                compact ? 'p-1.5' : 'px-2 py-1 text-[11.5px]'
+              }`}
+            >
+              <PlayIcon width={12} height={12} />
+              {!compact && 'Run chain'}
+            </button>
+          </>
+        )}
       </div>
 
-      <ul id={listId} aria-label="Queued messages" className="flex flex-col gap-px px-1.5 py-1">
+      {planning && items.length === 0 && (
+        <p className="px-3 py-2.5 text-[12px] text-ink-soft">
+          Type a question below and press Enter to add it as the first step. Steps run in order, in
+          this chat.
+        </p>
+      )}
+
+      <ul
+        id={listId}
+        aria-label="Queued messages"
+        className={`flex-col gap-px px-1.5 py-1 ${shown.length ? 'flex' : 'hidden'}`}
+      >
         {shown.map((item, i) => (
           <QueueRow
             key={item.id}
@@ -224,8 +316,9 @@ export function QueueDock({
             index={i}
             total={items.length}
             next={i === 0}
-            held={held}
+            held={caution}
             busy={busy}
+            planning={planning}
             compact={compact}
             minimized={minimized}
             onSendNow={onSendNow}
