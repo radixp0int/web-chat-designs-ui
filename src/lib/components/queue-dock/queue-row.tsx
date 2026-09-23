@@ -73,7 +73,7 @@ export function QueueRow({
     el.setSelectionRange(el.value.length, el.value.length)
   }, [editing])
 
-  // An edit started elsewhere (or a combine) rewrote this message underneath us.
+  // An edit started elsewhere rewrote this message underneath us.
   useEffect(() => {
     if (!editing) setDraft(item.text)
   }, [item.text, editing])
@@ -229,9 +229,9 @@ export function QueueRow({
         {expanded && (
           <span className="mt-0.5 block text-[10px] font-bold tracking-wider text-marker uppercase">
             {planning
-              ? 'Runs first when you start the chain'
+              ? 'Runs first when you start the queue'
               : held
-                ? 'Held — nothing sends'
+                ? 'Paused — this one is next'
                 : busy
                   ? 'Sends when this reply finishes'
                   : 'Sending…'}
@@ -250,16 +250,18 @@ export function QueueRow({
               : 'opacity-0 group-hover/row:opacity-100 group-focus-within/row:opacity-100'
           }`}
         >
-          <IconButton
-            size="sm"
-            shape="rounded"
-            onClick={() => onSendNow(item.id)}
-            aria-label={`Send message ${index + 1} now, interrupting the current reply`}
-            title={`Send now (${keyLabels.mod}${keyLabels.enter})`}
-            className="border border-accent/30 text-accent-fg hover:text-accent-fg"
-          >
-            <SendIcon width={13} height={13} />
-          </IconButton>
+          {next && (
+            <IconButton
+              size="sm"
+              shape="rounded"
+              onClick={() => onSendNow(item.id)}
+              aria-label={`Send message ${index + 1} now, interrupting the current reply`}
+              title={`Send now (${keyLabels.mod}${keyLabels.enter})`}
+              className="border border-accent/30 text-accent-fg hover:text-accent-fg"
+            >
+              <SendIcon width={13} height={13} />
+            </IconButton>
+          )}
           <IconButton
             size="sm"
             shape="rounded"
@@ -270,6 +272,25 @@ export function QueueRow({
             <PencilIcon width={13} height={13} />
           </IconButton>
         </span>
+      )}
+
+      {/* Every row but the first carries its own trash, dimmed at rest rather
+          than hidden: dropping a queued question is the commonest edit here,
+          and it was the one thing a menu kept from view. It is also the single
+          inline control compact density can afford. The row that runs next is
+          the exception — a one-click remove has no business sitting beside
+          Send now, so there it stays in the menu. */}
+      {!next && !minimized && (
+        <IconButton
+          size="sm"
+          shape="rounded"
+          onClick={() => onRemove(item.id)}
+          aria-label={`Remove queued message ${index + 1}`}
+          title={`Remove (${keyLabels.backspace})`}
+          className="opacity-60 transition-opacity group-hover/row:opacity-100 group-focus-within/row:opacity-100 hover:text-danger-fg"
+        >
+          <TrashIcon width={13} height={13} />
+        </IconButton>
       )}
 
       {!minimized && (
@@ -368,17 +389,23 @@ export function QueueRow({
                   navigator.clipboard?.writeText(item.text)
                 }}
               />
-              <div className="my-1 h-px bg-line" />
-              <MenuItem
-                icon={<TrashIcon width={14} height={14} />}
-                label="Remove"
-                hint={keyLabels.backspace}
-                danger
-                onClick={() => {
-                  setMenuOpen(false)
-                  onRemove(item.id)
-                }}
-              />
+              {/* Only the first row: every other one wears its trash on the
+                  row itself, and the same action twice in reach is noise. */}
+              {next && (
+                <>
+                  <div className="my-1 h-px bg-line" />
+                  <MenuItem
+                    icon={<TrashIcon width={14} height={14} />}
+                    label="Remove"
+                    hint={keyLabels.backspace}
+                    danger
+                    onClick={() => {
+                      setMenuOpen(false)
+                      onRemove(item.id)
+                    }}
+                  />
+                </>
+              )}
             </div>
           )}
         </div>

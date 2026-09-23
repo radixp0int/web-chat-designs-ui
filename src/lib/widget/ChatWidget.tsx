@@ -156,7 +156,6 @@ export function ChatWidget({
     removeQueued,
     hold,
     resume,
-    combineQueue,
     clearQueue,
     chain,
     retry,
@@ -303,7 +302,6 @@ export function ChatWidget({
                 onRemoveQueued={removeQueued}
                 onHold={hold}
                 onResume={resume}
-                onCombineQueue={combineQueue}
                 onClearQueue={clearQueue}
                 chain={chain}
                 features={features}

@@ -10,7 +10,7 @@ import {
   XIcon,
 } from '../components/icons'
 import { IconButton } from '../components/icon-button'
-import { QueueDock, type QueueDockHandle } from '../components/queue-dock'
+import { QueueDock, QueueDraft, type QueueDockHandle } from '../components/queue-dock'
 import { ReferencePanel } from '../components/reference-panel'
 import { ResizableColumn } from '../components/resizable-column'
 import { ScrollToBottomButton } from '../components/scroll-to-bottom-button'
@@ -65,7 +65,6 @@ type WidgetPanelProps = {
   onRemoveQueued: (id: number) => void
   onHold: () => void
   onResume: () => void
-  onCombineQueue: () => void
   onClearQueue: () => void
   /** The chain being built or run, and its controls. */
   chain: ChainControls
@@ -107,7 +106,6 @@ export function WidgetPanel({
   onRemoveQueued,
   onHold,
   onResume,
-  onCombineQueue,
   onClearQueue,
   chain,
   features = {},
@@ -278,41 +276,47 @@ export function WidgetPanel({
           </div>
 
           <div className="px-3 pb-2">
-            <QueueDock
-              ref={dockRef}
-              items={queue}
-              held={held}
-              busy={busy}
-              storageKey="queue-dock-minimized"
-              onSendNow={onSendQueuedNow}
-              onEdit={onEditQueued}
-              onMove={onMoveQueued}
-              onRemove={onRemoveQueued}
-              onHold={onHold}
-              onResume={onResume}
-              onCombine={onCombineQueue}
-              onClear={onClearQueue}
-              chain={queueOn ? chainControls : undefined}
-            />
-            <Composer
-              docked
-              streaming={busy}
-              onStop={onStop}
-              onSubmit={(text, opts) => {
-                if (opts?.steer) {
-                  onSendNow(text)
-                  scrollToBottom()
-                } else {
-                  submit(text)
-                }
-              }}
-              onArrowUp={() => dockRef.current?.focusLast()}
-              suggestions={suggestOn ? suggestions : undefined}
-              typeaheadPool={typeaheadPool}
-              typeaheadStorageKey="composer-typeahead:widget"
-              queueing={queueOn}
-              chain={queueOn ? chainControls : undefined}
-            />
+            <QueueDraft>
+              {(draft, onDraftChange) => (
+                <>
+                  <QueueDock
+                    ref={dockRef}
+                    items={queue}
+                    held={held}
+                    busy={busy}
+                    draft={draft}
+                    onSendNow={onSendQueuedNow}
+                    onEdit={onEditQueued}
+                    onMove={onMoveQueued}
+                    onRemove={onRemoveQueued}
+                    onHold={onHold}
+                    onResume={onResume}
+                    onClear={onClearQueue}
+                    chain={queueOn ? chainControls : undefined}
+                  />
+                  <Composer
+                    docked
+                    streaming={busy}
+                    onStop={onStop}
+                    onSubmit={(text, opts) => {
+                      if (opts?.steer) {
+                        onSendNow(text)
+                        scrollToBottom()
+                      } else {
+                        submit(text)
+                      }
+                    }}
+                    onArrowUp={() => dockRef.current?.focusLast()}
+                    onDraftChange={onDraftChange}
+                    suggestions={suggestOn ? suggestions : undefined}
+                    typeaheadPool={typeaheadPool}
+                    typeaheadStorageKey="composer-typeahead:widget"
+                    queueing={queueOn}
+                    chain={queueOn ? chainControls : undefined}
+                  />
+                </>
+              )}
+            </QueueDraft>
             <p className="mt-1.5 text-center text-[10px] text-ink-soft/70">{disclaimer}</p>
           </div>
 

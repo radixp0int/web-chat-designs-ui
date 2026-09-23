@@ -7,11 +7,9 @@ export type QueueDockProps = {
   held: boolean
   /** A turn is running, so item one is what happens when it finishes. */
   busy: boolean
-  /** When set, the minimized/expanded state persists to localStorage across
-   *  sessions. Omit it (the default) to keep that state in memory only — a
-   *  host mounting more than one dock needs a distinct key per instance, so
-   *  nothing is assumed on the component's behalf. */
-  storageKey?: string
+  /** What is being typed in the composer. Given and not empty, a ghost row at
+   *  the end of the list shows where it will land. */
+  draft?: string
   /** Run this message now, interrupting whatever is in flight. */
   onSendNow: (id: number) => void
   /** Rewrite a queued message. Empty text removes it. */
@@ -20,11 +18,9 @@ export type QueueDockProps = {
   onRemove: (id: number) => void
   onHold: () => void
   onResume: () => void
-  /** Fold the whole queue into a single turn. */
-  onCombine: () => void
   onClear: () => void
   /** The chain being built or run. Building, the dock shows even when empty —
-   *  it is where the steps go — and offers Run in place of Hold. */
+   *  it is where the questions go — and offers Run in place of Pause. */
   chain?: ChainControls
 }
 
@@ -41,7 +37,7 @@ export type QueueRowProps = {
   next: boolean
   held: boolean
   busy: boolean
-  /** Part of a chain still being built: nothing runs until it is started. */
+  /** Part of a queue still being built: nothing runs until it is started. */
   planning?: boolean
   /** Compact density shows no inline actions — everything is in the menu. */
   compact: boolean

@@ -241,12 +241,29 @@ export const CollapseDiagonalIcon = (p: IconProps) => (
 )
 
 /* --- Queue dock ----------------------------------------------------------
-   The send queue's own glyphs. QueueIcon's short last line is what separates
-   it from MenuIcon at a glance — the two sit metres apart in the composer. */
+   The send queue's own glyphs. QueueIcon is a list with a plus on it: the
+   plus is the verb — add this to a list — and it is what stops the glyph
+   being read as MenuIcon, which three bare lines always were. */
 
 export const QueueIcon = (p: IconProps) => (
   <svg {...base(p)}>
-    <path d="M4 7h16M4 12h16M4 17h9" />
+    <path d="M4 6.5h9M4 12h9M4 17.5h6" />
+    <path d="M17.5 13.5v7M14 17h7" />
+  </svg>
+)
+
+/**
+ * The composer's primary action while an answer runs: pressing it queues.
+ *
+ * SendIcon's arrow with QueueIcon's plus, and neither alone would do. A plain
+ * arrow promises the answer starts now, which is the one thing this button
+ * does not do; QueueIcon here put the mode's own glyph on the button beside
+ * it, twice over, a hairline apart.
+ */
+export const SendToQueueIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M10.5 19.5V6M5 11.5 10.5 6l5.5 5.5" />
+    <path d="M18.5 15.5v5M16 18h5" />
   </svg>
 )
 
@@ -315,12 +332,6 @@ export const ArrowDownIcon = (p: IconProps) => (
 )
 
 /** Two turns folded into one. */
-export const CombineIcon = (p: IconProps) => (
-  <svg {...base(p)}>
-    <path d="M12 3.5v5M9 6l3-2.5L15 6M12 20.5v-5M9 18l3 2.5 3-2.5M4 12h16" />
-  </svg>
-)
-
 export const UndoIcon = (p: IconProps) => (
   <svg {...base(p)}>
     <path d="M9 14.5 4.5 10 9 5.5M4.5 10h9a5.5 5.5 0 0 1 0 11h-2.5" />

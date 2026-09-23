@@ -11,7 +11,6 @@ import {
 import {
   ClockIcon,
   CollapseVerticalIcon,
-  CombineIcon,
   ExpandVerticalIcon,
   PauseIcon,
   PlayIcon,
@@ -27,16 +26,12 @@ import type { QueueDockHandle, QueueDockProps } from './types'
 /** Rows shown before the dock stops growing and starts counting. */
 const MAX_ROWS = 3
 
-/** Remembered across sessions when a `storageKey` is given: someone who folds
- *  the queue away meant it. Storage can throw (private windows, blocked site
- *  data) — an unreadable preference is simply no preference. */
-function readMinimized(storageKey: string | undefined): boolean {
-  if (!storageKey) return false
-  try {
-    return window.localStorage.getItem(storageKey) === '1'
-  } catch {
-    return false
-  }
+/** "3rd", for the ghost row's place in line. */
+function ordinal(n: number): string {
+  const teens = n % 100
+  if (teens >= 11 && teens <= 13) return `${n}th`
+  const last = n % 10
+  return `${n}${last === 1 ? 'st' : last === 2 ? 'nd' : last === 3 ? 'rd' : 'th'}`
 }
 
 /**
@@ -52,20 +47,21 @@ export function QueueDock({
   items,
   held,
   busy,
+  draft = '',
   onSendNow,
   onEdit,
   onMove,
   onRemove,
   onHold,
   onResume,
-  onCombine,
   onClear,
-  storageKey,
   chain,
   ref,
 }: QueueDockProps & { ref?: Ref<QueueDockHandle> }) {
   const compact = useUiSize() === 'compact'
-  const [minimized, setMinimized] = useState(() => readMinimized(storageKey))
+  // Collapsed is this session's business: nothing about the queue outlives a
+  // reload, so neither does the way it was folded.
+  const [minimized, setMinimized] = useState(false)
   const [showAll, setShowAll] = useState(false)
   const rowRefs = useRef(new Map<number, HTMLLIElement>())
   const listId = useId()
@@ -81,15 +77,6 @@ export function QueueDock({
       if (last) rowRefs.current.get(last.id)?.focus()
     },
   }))
-
-  useEffect(() => {
-    if (!storageKey) return
-    try {
-      window.localStorage.setItem(storageKey, minimized ? '1' : '0')
-    } catch {
-      // A preference that can't be stored still works for this session.
-    }
-  }, [minimized, storageKey])
 
   // Removing the row you were standing on drops focus to the document body,
   // which sends the next Tab back to the top of the page. Catch it and hand
@@ -112,8 +99,8 @@ export function QueueDock({
 
   const planning = chain?.state?.phase === 'planning'
   const running = chain?.state?.phase === 'running' ? chain.state : null
-  // A chain keeps its dock to the end: while building it is where steps go,
-  // and on the last step it still says how far along the chain is.
+  // A queue keeps its dock to the end: while building it is where the
+  // questions go, and on the last one it still says how far along it is.
   if (items.length === 0 && !planning && !running) return null
 
   // Folded, only the message that runs next is shown. Three rows is where a
@@ -125,8 +112,11 @@ export function QueueDock({
   const cap = minimized ? 1 : showAll ? items.length : MAX_ROWS
   const shown = items.slice(0, cap)
   const hidden = items.length - shown.length
-  const label = compact ? 'Queued' : 'Up next'
-  // Building a chain is a hold, but not one the reader has to be warned
+  // Folded, the dock is a glance at what runs next; a preview of something
+  // not written yet is not that, so the ghost row waits until it is open.
+  const ghost = minimized ? '' : draft.trim()
+  const label = compact ? 'In queue' : 'In the queue'
+  // Building a queue is a pause, but not one the reader has to be warned
   // about: it looks like a draft, not like something stuck.
   const caution = held && !planning
   const step = running ? Math.min(running.total, Math.max(1, running.total - items.length)) : 0
@@ -152,7 +142,7 @@ export function QueueDock({
                 <QueueIcon width={13} height={13} />
               </span>
               <span className="text-[11.5px] font-bold text-ink-strong">
-                {compact ? 'Chain' : 'New chain'}
+                {compact ? 'Building' : 'Building a queue'}
               </span>
               <span className="rounded-full bg-chip px-1.5 text-[10.5px] font-bold text-chip-fg">
                 {items.length}
@@ -171,7 +161,7 @@ export function QueueDock({
                 )}
               </span>
               <span className="text-[11.5px] font-bold text-ink-strong">
-                {caution ? 'Held' : running ? (compact ? 'Chain' : 'Running chain') : label}
+                {caution ? 'Paused' : running ? 'Running' : label}
               </span>
               {running ? (
                 <>
@@ -182,7 +172,7 @@ export function QueueDock({
                     <span
                       className="h-1 w-14 overflow-hidden rounded-full bg-chip"
                       role="progressbar"
-                      aria-label="Chain progress"
+                      aria-label="Queue progress"
                       aria-valuemin={0}
                       aria-valuemax={running.total}
                       aria-valuenow={step}
@@ -214,37 +204,31 @@ export function QueueDock({
 
         <span className="flex-1" />
 
+        {/* Paused, the way out is the only filled thing in the dock: a queue
+            that has stopped should say so and offer one obvious exit. */}
         {planning ? null : held ? (
           <HeaderButton
             icon={<PlayIcon width={12} height={12} />}
             label="Resume"
+            title="Resume sending — the queue picks up where it stopped"
             onClick={onResume}
-            accent
+            filled
             iconOnly={compact}
           />
         ) : (
           <HeaderButton
             icon={<PauseIcon width={12} height={12} />}
-            label="Hold"
-            title="Hold the queue — nothing sends until you resume"
+            label="Pause"
+            title="Pause sending — the queue waits until you press Resume"
             onClick={onHold}
             iconOnly={compact}
-          />
-        )}
-
-        {items.length > 1 && !compact && !planning && (
-          <HeaderButton
-            icon={<CombineIcon width={12} height={12} />}
-            label="Combine"
-            title="Fold every queued message into one turn"
-            onClick={onCombine}
           />
         )}
 
         {items.length > 0 && (
           <HeaderButton
             icon={<TrashIcon width={12} height={12} />}
-            label="Clear"
+            label="Clear all"
             title="Remove every queued message"
             onClick={onClear}
             iconOnly={compact}
@@ -275,8 +259,8 @@ export function QueueDock({
               size="sm"
               shape="rounded"
               onClick={chain.cancel}
-              aria-label="Cancel this chain — steps you added stay queued and held"
-              title="Cancel chain — steps you added stay queued and held"
+              aria-label="Stop building — questions you added stay queued and paused"
+              title="Stop building — questions you added stay queued and paused"
             >
               <XIcon width={13} height={13} />
             </IconButton>
@@ -284,14 +268,14 @@ export function QueueDock({
               type="button"
               onClick={chain.run}
               disabled={items.length === 0}
-              aria-label={compact ? 'Run the chain' : undefined}
-              title="Run every step in order"
+              aria-label={compact ? 'Run the queue' : undefined}
+              title="Run every question in order"
               className={`ml-0.5 flex items-center gap-1 rounded-md bg-brand-solid font-bold text-on-brand-solid transition hover:brightness-110 disabled:bg-tint/15 disabled:text-ink-soft ${
                 compact ? 'p-1.5' : 'px-2 py-1 text-[11.5px]'
               }`}
             >
               <PlayIcon width={12} height={12} />
-              {!compact && 'Run chain'}
+              {!compact && 'Run queue'}
             </button>
           </>
         )}
@@ -299,8 +283,8 @@ export function QueueDock({
 
       {planning && items.length === 0 && (
         <p className="px-3 py-2.5 text-[12px] text-ink-soft">
-          Type a question below and press Enter to add it as the first step. Steps run in order, in
-          this chat.
+          Type a question below and press Enter to add the first one. They run in order, in this
+          chat.
         </p>
       )}
 
@@ -343,24 +327,44 @@ export function QueueDock({
           {hidden} more queued
         </button>
       )}
+
+      {/* Where the draft will land. No glyph on the send button can say this
+          as plainly as the message itself taking its place in the line, and
+          it answers the question the button raises — did that go anywhere? —
+          before it is asked. Hidden from screen readers: it is the composer's
+          own text, and they have it from the composer. */}
+      {ghost && (
+        <p
+          aria-hidden
+          className="mx-1.5 mb-1.5 flex items-center gap-2 rounded-lg border border-dashed border-line bg-tint/4 py-1.5 pr-2 pl-3"
+        >
+          <span className="min-w-0 flex-1 truncate text-[13px] text-ink-soft">{ghost}</span>
+          <span className="shrink-0 text-[10px] font-bold tracking-wider text-marker uppercase">
+            {ordinal(items.length + 1)}
+            {compact ? '' : ' · on Enter'}
+          </span>
+        </p>
+      )}
     </div>
   )
 }
 
-/** Header actions: a label at full width, the glyph alone when compact. */
+/** Header actions: a label at full width, the glyph alone when compact.
+ *  `filled` is for the one action that is the way out of a state — Resume —
+ *  and only ever one at a time. */
 function HeaderButton({
   icon,
   label,
   title,
   onClick,
-  accent = false,
+  filled = false,
   iconOnly = false,
 }: {
   icon: ReactNode
   label: string
   title?: string
   onClick: () => void
-  accent?: boolean
+  filled?: boolean
   iconOnly?: boolean
 }) {
   if (iconOnly) {
@@ -371,7 +375,7 @@ function HeaderButton({
         onClick={onClick}
         aria-label={label}
         title={title ?? label}
-        className={accent ? 'text-accent-fg' : ''}
+        className={filled ? 'bg-brand-solid text-on-brand-solid hover:brightness-110' : ''}
       >
         {icon}
       </IconButton>
@@ -382,8 +386,10 @@ function HeaderButton({
       type="button"
       onClick={onClick}
       title={title ?? label}
-      className={`flex items-center gap-1 rounded-md px-1.5 py-1 text-[11.5px] font-semibold transition hover:bg-tint/8 ${
-        accent ? 'text-accent-fg' : 'text-ink-soft hover:text-ink-strong'
+      className={`flex items-center gap-1 rounded-md px-1.5 py-1 text-[11.5px] font-semibold transition ${
+        filled
+          ? 'bg-brand-solid text-on-brand-solid hover:brightness-110'
+          : 'text-ink-soft hover:bg-tint/8 hover:text-ink-strong'
       }`}
     >
       {icon}
