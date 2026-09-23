@@ -57,6 +57,10 @@ Cross-reference the adjacent docs for the surrounding ${topic.toLowerCase()} con
       id,
       title: `Doc ${id}: ${topic} Working Paper`,
       markdown: `## ${topic} — working paper ${id}\n\nOne of ${count} generated reference documents in the stress-test corpus.\n\n${body}`,
+      url: `https://library.example.com/working-papers/doc-${id}.pdf`,
+      fileType: 'PDF',
+      pageCount: 3 + (id % 10),
+      updatedLabel: `Q${(id % 4) + 1} 2026`,
     }
   })
 }
@@ -107,6 +111,10 @@ The classic guidance is **three to six months of essential expenses**, but the r
 - Transportation to work
 
 Discretionary spending — travel, dining out, subscriptions — is excluded, which is why the target is usually **60–75%** of normal monthly spending.`,
+        url: 'https://guides.example.com/emergency-fund-sizing.pdf',
+        fileType: 'PDF',
+        pageCount: 6,
+        updatedLabel: 'Jan 2026',
       },
       {
         id: 2,
@@ -129,6 +137,9 @@ A comparison of widely available high-yield savings accounts as of Q2 2026. APYs
 - **Promo rates** (like Foxglove's) are fine for parking cash short-term, but compare the *reversion* rate before committing.
 - The federal **6 transfers/month** convention survives at many banks even though the underlying regulation was relaxed.
 - Insurance cap is **$250,000 per depositor, per institution** — split larger balances across providers.`,
+        url: 'https://rates.example.com/high-yield-savings-2026',
+        fileType: 'Web page',
+        updatedLabel: 'Apr 2026',
       },
       {
         id: 3,
@@ -151,6 +162,10 @@ payday (1st, 15th)
 3. Increase the amount by 1% of income every quarter; the change is too small to feel.
 
 > Consistency beats optimization: a mediocre plan you follow for ten years outperforms a perfect plan you abandon in March.`,
+        url: 'https://guides.example.com/automation-beats-willpower.pdf',
+        fileType: 'PDF',
+        pageCount: 3,
+        updatedLabel: 'Nov 2025',
       },
       {
         id: 4,
@@ -177,6 +192,10 @@ The buffer's job is to keep the salary transfer alive through lean months.
 *Standard deviation of monthly income ÷ average monthly income, over the trailing year.
 
 **Bold move that pays off:** during a strong month, top the buffer *first* and only then raise your salary transfer.`,
+        url: 'https://guides.example.com/income-volatility-buffers.pdf',
+        fileType: 'PDF',
+        pageCount: 5,
+        updatedLabel: 'Feb 2026',
       },
       {
         id: 5,

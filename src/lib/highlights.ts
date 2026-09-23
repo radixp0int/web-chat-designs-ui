@@ -150,6 +150,9 @@ export type CitationPreview = {
   /** The document's opening. Set only when `passages` is empty, and never
    *  presented as a quotation — the assistant didn't cite it. */
   lead?: string
+  /** The source's own link, carried through so the card can offer "Open
+   *  original" without a second lookup. Absent when the source has none. */
+  url?: string
 }
 
 const MAX_PASSAGES = 3
@@ -176,6 +179,7 @@ export function citationPreview(
       title: source.title,
       passages,
       more: ranges.length - passages.length,
+      url: source.url,
     }
   }
 
@@ -188,6 +192,7 @@ export function citationPreview(
     passages: [],
     more: 0,
     lead: clip(plainExcerpt(body), limit + 40),
+    url: source.url,
   }
 }
 

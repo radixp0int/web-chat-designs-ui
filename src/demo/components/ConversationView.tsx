@@ -83,6 +83,9 @@ export function ConversationView({
   const inChat = messages.length > 0
   // Only the newest turn offers follow-ups, so branches don't stack up the thread.
   const lastId = messages[messages.length - 1]?.id
+  // The discoverability tip belongs on the first answer that actually has
+  // something to click — not every cited message, or it'd pile up.
+  const firstCitedId = messages.find((m) => m.sources && m.sources.length > 0)?.id
 
   // A message the reader sends themselves always comes into view, even if
   // they'd scrolled up to reread earlier turns — streamed replies then keep
@@ -171,6 +174,7 @@ export function ConversationView({
                     showActions={showActions}
                     scopeChips={scopeChips}
                     onRestoreScope={onRestoreScope}
+                    showSourceTip={m.id === firstCitedId}
                   />
                 ))}
               </div>

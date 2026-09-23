@@ -4,10 +4,19 @@
 // the answer — to find out whether the citation says what the sentence claims.
 // This is that answer without the trip.
 
+import { ExternalLinkIcon } from '../icons'
 import { useUiSize } from '../../uiSize'
 import type { CitationPreview } from '../../highlights'
 
-export function CitationPreviewCard({ preview }: { preview: CitationPreview }) {
+export function CitationPreviewCard({
+  preview,
+  onOpenReference,
+}: {
+  preview: CitationPreview
+  /** The chip's own click handler, mirrored here so "Open reference" in the
+   *  footer is a real second way in, not just a repeated instruction. */
+  onOpenReference?: () => void
+}) {
   const compact = useUiSize() === 'compact'
   const body = compact ? 'text-xs' : 'text-[13px]'
 
@@ -62,11 +71,31 @@ export function CitationPreviewCard({ preview }: { preview: CitationPreview }) {
         )}
       </div>
 
-      <p
-        className={`border-t border-line px-3 py-1.5 text-ink-soft ${compact ? 'text-[10px]' : 'text-[11px]'}`}
+      <div
+        className={`flex items-center gap-2 border-t border-line px-3 py-1.5 ${compact ? 'text-[10px]' : 'text-[11px]'}`}
       >
-        Click to open the reference
-      </p>
+        <button
+          type="button"
+          onClick={onOpenReference}
+          className="font-semibold text-ink-soft transition hover:text-ink-strong"
+        >
+          Open reference
+        </button>
+        {preview.url && (
+          <>
+            <span aria-hidden className="h-3 w-px bg-line" />
+            <a
+              href={preview.url}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 font-semibold text-brand-fg transition hover:text-brand-fg-hover"
+            >
+              <ExternalLinkIcon width={11} height={11} />
+              Open original
+            </a>
+          </>
+        )}
+      </div>
     </div>
   )
 }

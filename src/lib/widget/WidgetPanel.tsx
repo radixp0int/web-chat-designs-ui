@@ -123,6 +123,9 @@ export function WidgetPanel({
   const inChat = messages.length > 0
   // Only the newest turn offers follow-ups, so branches don't stack up the thread.
   const lastId = messages[messages.length - 1]?.id
+  // The discoverability tip belongs on the first answer that actually has
+  // something to click — not every cited message, or it'd pile up.
+  const firstCitedId = messages.find((m) => m.sources && m.sources.length > 0)?.id
 
   // Side rail: openTab drives visibility; lastTab keeps the panel's title and
   // content stable while the close animation plays.
@@ -232,6 +235,7 @@ export function WidgetPanel({
                         busy={busy}
                         scopeChips={scopeChips}
                         onRestoreScope={onRestoreScope}
+                        showSourceTip={m.id === firstCitedId}
                       />
                     ))}
                   </div>
