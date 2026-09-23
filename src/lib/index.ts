@@ -28,6 +28,9 @@ export * from './uiSize'
 export * from './types'
 export * from './highlights'
 
+// Core primitives — brand-agnostic, chat-agnostic (buttons, inputs, paging)
+export * from './core'
+
 // Components — one folder per component (index.ts, <name>.tsx, types.ts)
 export * from './components/icons'
 export * from './components/icon-button'

@@ -1,0 +1,68 @@
+import { ChevronDownIcon } from '../../components/icons'
+import type { SelectProps, SelectSize } from './types'
+
+const boxes: Record<SelectSize, string> = {
+  sm: 'h-8 pl-2.5 pr-7 text-[12.5px]',
+  md: 'h-9 pl-3 pr-8 text-[13px]',
+}
+
+/**
+ * A native `<select>` with the platform arrow replaced.
+ *
+ * Native for the same reason `Checkbox` is: the popup a real select opens is
+ * the one the platform already made keyboard-, touch- and screen-reader-
+ * correct, and on a phone it is a wheel rather than a cramped menu. A listbox
+ * built from divs is a genuine project, not a styling choice — reach for one
+ * only when the options need rich content, and then it is a different
+ * component, not a prop on this one.
+ *
+ * `label` is required rather than optional. A bare select in a table footer
+ * reads as "10" to a screen reader with no hint of what it sizes, and making
+ * the fix opt-in means it never happens.
+ */
+export function Select({
+  selectSize = 'md',
+  options,
+  children,
+  label,
+  showLabel = false,
+  className = '',
+  id,
+  ...rest
+}: SelectProps) {
+  const selectId = id ?? `sel-${label.replace(/\s+/g, '-').toLowerCase()}`
+
+  return (
+    <span className={['inline-flex items-center gap-2', className].filter(Boolean).join(' ')}>
+      <label
+        htmlFor={selectId}
+        className={showLabel ? 'text-[12.5px] whitespace-nowrap text-ink-soft' : 'sr-only'}
+      >
+        {label}
+      </label>
+      <span className="relative inline-flex items-center">
+        <select
+          id={selectId}
+          className={[
+            'w-full appearance-none rounded-lg border border-line bg-panel-solid font-bold text-ink transition',
+            'hover:bg-tint/5 disabled:pointer-events-none disabled:opacity-40',
+            boxes[selectSize],
+          ].join(' ')}
+          {...rest}
+        >
+          {options?.map((o) => (
+            <option key={o.value} value={o.value} disabled={o.disabled}>
+              {o.label}
+            </option>
+          ))}
+          {children}
+        </select>
+        <ChevronDownIcon
+          width={12}
+          height={12}
+          className="pointer-events-none absolute right-2.5 text-ink-soft"
+        />
+      </span>
+    </span>
+  )
+}
