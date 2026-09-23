@@ -345,3 +345,22 @@ export const UserIcon = (p: IconProps) => (
     <path d="M5 20a7 7 0 0 1 14 0" />
   </svg>
 )
+
+/** A push pin, for docking a floating panel. Toggle state is carried by the
+ *  button's `aria-pressed` and colour, not by a second glyph — a pin that
+ *  becomes a crossed-out pin makes the reader decode which state they are
+ *  looking at rather than which state they would get. */
+export const PinIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M9 4h6l-1 5 3.5 3.5H6.5L10 9 9 4Z" />
+    <path d="M12 12.5V20" />
+  </svg>
+)
+
+/** A calendar page. Paired with a native date input, never replacing one. */
+export const CalendarIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />
+    <path d="M3.5 10h17M8.5 3v4M15.5 3v4" />
+  </svg>
+)
