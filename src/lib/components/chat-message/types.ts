@@ -21,4 +21,12 @@ export type ChatMessageProps = {
   scopeChips?: AskedOverChip[]
   /** Offered on a changed record: put that scope back. */
   onRestoreScope?: (scope: AskedOverScope) => void
+  /**
+   * Show the one-time "citations open the source" tip on this message if it
+   * has sources and the tip hasn't been dismissed yet. The caller decides
+   * which message this is (typically the first cited answer in the
+   * conversation) — ChatMessage itself only knows about its own message, not
+   * its siblings.
+   */
+  showSourceTip?: boolean
 }

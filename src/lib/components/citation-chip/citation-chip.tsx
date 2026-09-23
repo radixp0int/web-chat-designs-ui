@@ -56,7 +56,7 @@ export function CitationChip({ n, onClick, preview }: CitationChipProps) {
           onPointerEnter={hover.cardProps.onPointerEnter}
           onPointerLeave={hover.cardProps.onPointerLeave}
         >
-          <CitationPreviewCard preview={data} />
+          <CitationPreviewCard preview={data} onOpenReference={onClick} />
         </HoverCard>
       )}
     </>

@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useCite } from '../../citations'
-import { RefreshIcon, ThumbDownIcon, ThumbUpIcon } from '../icons'
+import { BulbIcon, RefreshIcon, ThumbDownIcon, ThumbUpIcon } from '../icons'
 import { IconButton } from '../icon-button'
 import { AskedOverStrip } from '../asked-over'
 import { CopyButton } from '../copy-button'
+import { InlineTip } from '../inline-tip'
 import { MessageActions } from '../message-actions'
 import { Markdown } from '../markdown'
 import { FollowupChips } from '../followup-chips'
@@ -11,6 +12,7 @@ import { SourceStrip } from '../source-strip'
 import { ThinkingBlock } from '../thinking-block'
 import { ToolCallChip } from '../tool-call-chip'
 import { TurnTraceFailure, TurnTraceHandle, TurnTracePanel } from '../turn-trace'
+import { useDismissableTip } from '../../hooks/useDismissableTip'
 import { useUiSize } from '../../uiSize'
 import type { TurnTrace as Trace } from '../../types'
 import type { ChatMessageProps } from './types'
@@ -23,12 +25,19 @@ export function ChatMessage({
   showActions = true,
   scopeChips,
   onRestoreScope,
+  showSourceTip = false,
 }: ChatMessageProps) {
   const compact = useUiSize() === 'compact'
   const cite = useCite()
+  const sourceTip = useDismissableTip('citation-discovery')
   // Opening a citation carries the message's highlights so the reference frame
-  // can highlight the supporting passages inside the source doc.
-  const onCite = (id: number) => message.sources && cite(message.sources, id, message.highlights)
+  // can highlight the supporting passages inside the source doc. Also counts
+  // as having discovered the feature, so the tip (if showing) won't return.
+  const onCite = (id: number) => {
+    if (!message.sources) return
+    cite(message.sources, id, message.highlights)
+    sourceTip.dismiss()
+  }
 
   // A user message is only ever in the transcript because its turn has
   // started — anything still waiting lives in the queue dock, not here.
@@ -119,6 +128,20 @@ export function ChatMessage({
             />
           </div>
         )}
+
+        {showSourceTip &&
+          !message.streaming &&
+          !sourceTip.dismissed &&
+          message.sources &&
+          message.sources.length > 0 && (
+            <div className="mt-3 max-w-[68ch]">
+              <InlineTip icon={<BulbIcon width={16} height={16} />} onDismiss={sourceTip.dismiss}>
+                Numbered citations like <b className="font-semibold">[{message.sources[0].id}]</b>,
+                and the sources below, open the original — click one to see exactly where this
+                answer comes from.
+              </InlineTip>
+            </div>
+          )}
 
         {message.stopped && (
           <p className={`mt-2 italic text-ink-soft ${compact ? 'text-[11px]' : 'text-xs'}`}>

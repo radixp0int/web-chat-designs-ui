@@ -82,6 +82,20 @@ export type Source = {
   id: number
   title: string
   markdown: string
+  /**
+   * Link to the original document (its own PDF, page, or file), opened in a
+   * new tab. The rendered `markdown` is Claude's excerpt, not the source
+   * itself — this is what lets a reader leave the excerpt and get the real
+   * file. Omit when there's nothing to link to; every "Open original"
+   * affordance hides itself rather than rendering disabled.
+   */
+  url?: string
+  /** Short file-type label shown next to the source, e.g. "PDF". */
+  fileType?: string
+  /** Page count of the source document, if known. */
+  pageCount?: number
+  /** Human-readable "last updated" label, e.g. "Mar 2026". */
+  updatedLabel?: string
 }
 
 /**
