@@ -19,40 +19,46 @@ function getSpeechRecognition(): (new () => SpeechRecognitionLike) | null {
 }
 
 type Options = {
-  /** Called with the joined transcript each time the recognizer emits a result. */
+  /** Everything heard since `start`, re-sent in full each time the recognizer
+   *  emits. The browser's results are cumulative, so this is the whole dictated
+   *  passage, not the latest phrase: callers replace with it rather than
+   *  appending, or a second sentence repeats the first. */
   onResult: (text: string) => void
-  /** Fired right after listening starts (e.g. to refocus the input). */
-  onStart?: () => void
 }
 
 /**
- * Wraps the browser Speech Recognition API as a toggle. `supported` is false
- * where the API is unavailable, so callers can hide the control entirely. The
- * in-flight recognizer is stopped on unmount.
+ * Wraps the browser Speech Recognition API as press-and-hold: `start` while
+ * the button is down, `stop` when it comes up.
+ *
+ * Not a toggle. A toggle leaves the microphone on when someone forgets to
+ * press it again — which is the one failure here that is not recoverable by
+ * pressing something else, because by then the room has been transcribed into
+ * the draft. Holding cannot be forgotten: letting go is the same gesture.
+ *
+ * `supported` is false where the API is unavailable, so callers can hide the
+ * control entirely. The in-flight recognizer is stopped on unmount.
  */
-export function useSpeechRecognition({ onResult, onStart }: Options) {
+export function useSpeechRecognition({ onResult }: Options) {
   const [listening, setListening] = useState(false)
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null)
   const supported = useRef(getSpeechRecognition() !== null).current
 
-  // Hold the latest callbacks so the recognizer's handlers never go stale.
+  // Hold the latest callback so the recognizer's handlers never go stale.
   const onResultRef = useRef(onResult)
-  const onStartRef = useRef(onStart)
   onResultRef.current = onResult
-  onStartRef.current = onStart
 
   useEffect(() => () => recognitionRef.current?.stop(), [])
 
   const stop = useCallback(() => {
     recognitionRef.current?.stop()
+    recognitionRef.current = null
     setListening(false)
   }, [])
 
-  const toggle = useCallback(() => {
-    if (listening) {
-      stop()
-      return
-    }
+  const start = useCallback(() => {
+    // A second press while one is live would orphan the first recognizer,
+    // whose onend would then switch the indicator off under the new one.
+    if (recognitionRef.current) return
     const Recognition = getSpeechRecognition()
     if (!Recognition) return
     const recognition = new Recognition()
@@ -73,8 +79,7 @@ export function useSpeechRecognition({ onResult, onStart }: Options) {
     recognitionRef.current = recognition
     recognition.start()
     setListening(true)
-    onStartRef.current?.()
-  }, [listening, stop])
+  }, [])
 
-  return { supported, listening, toggle, stop }
+  return { supported, listening, start, stop }
 }

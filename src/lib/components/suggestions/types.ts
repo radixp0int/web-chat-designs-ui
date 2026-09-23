@@ -5,7 +5,7 @@ export type SuggestionsMenuProps = {
   suggestions: Suggestion[]
   /** Put a suggestion in the draft — picking one never sends by itself. */
   onPick: (text: string) => void
-  /** Add a suggestion to a chain. Omitted, rows offer no queue button. */
+  /** Add a suggestion to the queue. Omitted, rows offer no queue button. */
   onQueue?: (text: string) => void
   /** Suggest-as-you-type, switched from the menu's footer. */
   typeahead: boolean

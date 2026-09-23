@@ -138,8 +138,8 @@ export function SuggestionsMenu({
                         onQueue(s.text)
                         setOpen(false)
                       }}
-                      aria-label={`Add “${s.text}” to a chain`}
-                      title="Add to a chain"
+                      aria-label={`Add “${s.text}” to the queue`}
+                      title="Add to the queue"
                       className="shrink-0 opacity-60 group-focus-within/sugg:opacity-100 group-hover/sugg:opacity-100"
                     >
                       <QueueIcon width={14} height={14} />

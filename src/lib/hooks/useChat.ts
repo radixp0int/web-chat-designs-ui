@@ -561,13 +561,6 @@ export function useChat(responder: Responder, { captureScope }: UseChatOptions =
     [leavePlanning, pump, writeQueue],
   )
 
-  /** Fold the whole queue into one turn, in order. */
-  const combineQueue = useCallback(() => {
-    const items = queueRef.current
-    if (items.length < 2) return
-    writeQueue([{ id: items[0].id, text: items.map((q) => q.text).join('\n\n') }])
-  }, [writeQueue])
-
   /** Remove a message from the queue before it runs. */
   const removeQueued = useCallback(
     (id: number) => writeQueue(queueRef.current.filter((q) => q.id !== id)),
@@ -628,7 +621,6 @@ export function useChat(responder: Responder, { captureScope }: UseChatOptions =
     editQueued,
     moveQueued,
     sendQueuedNow,
-    combineQueue,
     removeQueued,
     clearQueue,
     reset,

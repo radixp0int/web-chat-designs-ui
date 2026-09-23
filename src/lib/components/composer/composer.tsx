@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useBranding } from '../../branding'
 import { useAutoGrowTextarea } from '../../hooks/useAutoGrowTextarea'
 import { useSpeechRecognition } from '../../hooks/useSpeechRecognition'
@@ -9,8 +9,8 @@ import {
   MicIcon,
   PaperclipIcon,
   PlusIcon,
-  QueueIcon,
   SendIcon,
+  SendToQueueIcon,
   StopIcon,
   XIcon,
 } from '../icons'
@@ -52,6 +52,7 @@ export function Composer({
   suggestions = [],
   typeaheadPool,
   typeaheadStorageKey,
+  onDraftChange,
 }: ComposerProps) {
   const { appName } = useBranding()
   const size = useUiSize()
@@ -72,7 +73,7 @@ export function Composer({
   const planning = chain?.state?.phase === 'planning'
   const hasSuggestions = suggestions.length > 0
   // Writing while an answer runs only goes anywhere if it can queue — or,
-  // building a chain, if it is a step for later.
+  // building a queue, if it is a question for later.
   const canSend = hasDraft && !disabled && (!streaming || queueing || planning)
 
   // A picked suggestion lands in the draft, never sends itself: the reader
@@ -91,10 +92,31 @@ export function Composer({
     limit: compact ? 3 : 4,
   })
 
+  // What the draft held when the microphone opened. Dictation writes over
+  // everything after it rather than appending, because the recognizer re-sends
+  // the whole passage each time it emits: appending would repeat the first
+  // sentence the moment a second one landed.
+  const dictationBase = useRef('')
+  // A held key, so a blur mid-hold can close the microphone the keyup will
+  // never arrive to close.
+  const keyHeld = useRef(false)
+
   const speech = useSpeechRecognition({
-    onResult: (chunk) => setValue((prev) => (prev ? `${prev} ${chunk}` : chunk)),
-    onStart: () => textareaRef.current?.focus(),
+    onResult: (heard) =>
+      setValue(dictationBase.current ? `${dictationBase.current} ${heard}` : heard),
   })
+
+  // Press and hold, never a toggle: the microphone closes when the button
+  // comes up, so it cannot be left open by walking away from it.
+  const beginDictation = () => {
+    dictationBase.current = value
+    speech.start()
+  }
+  const endDictation = () => {
+    speech.stop()
+    // Hand the caret back to the draft, where the words just landed.
+    textareaRef.current?.focus()
+  }
 
   function submit(opts?: { steer?: boolean }) {
     const text = value.trim()
@@ -104,11 +126,19 @@ export function Composer({
     setAttachments([])
     setExpanded(false)
     typeahead.reset()
-    // Building a chain, Enter adds a step — and nothing steers, since nothing
-    // in a chain being built is running yet.
+    // Building a queue, Enter adds a question — and nothing steers, since
+    // nothing in a queue being built is running yet.
     if (planning && chain) chain.add(text)
     else onSubmit(text, queueing ? opts : undefined)
   }
+
+  // The dock's ghost row shows this draft taking its place at the end of the
+  // queue, so it has to see every keystroke. An effect rather than a call in
+  // the change handler: the draft is also written by suggestions, dictation
+  // and submit, and every one of those has to reach the dock too.
+  useEffect(() => {
+    onDraftChange?.(value)
+  }, [value, onDraftChange])
 
   const toolIconSize = compact ? 16 : 18
 
@@ -190,9 +220,9 @@ export function Composer({
           rows={compact || docked ? 1 : 2}
           placeholder={
             speech.listening
-              ? 'Listening…'
+              ? 'Listening… release to stop'
               : planning
-                ? 'Add a step to the chain…'
+                ? 'Add a question to the queue…'
                 : 'Ask anything…'
           }
           aria-label={`Message ${appName}`}
@@ -245,11 +275,46 @@ export function Composer({
         {speech.supported && (
           <button
             type="button"
-            onClick={speech.toggle}
+            // Pointer capture, so a finger that slides off the button still
+            // ends the recording on release rather than stranding it open.
+            onPointerDown={(e) => {
+              if (e.pointerType === 'mouse' && e.button !== 0) return
+              // Keeps focus in the draft and stops touch from selecting text.
+              e.preventDefault()
+              beginDictation()
+              try {
+                e.currentTarget.setPointerCapture(e.pointerId)
+              } catch {
+                // A tap short enough to be over already cannot be captured;
+                // its own pointerup still closes the microphone.
+              }
+            }}
+            onPointerUp={endDictation}
+            onPointerCancel={endDictation}
+            onLostPointerCapture={endDictation}
+            // The keyboard equivalent of holding: browsers repeat keydown
+            // while a key is down and fire keyup once, on release.
+            onKeyDown={(e) => {
+              if (e.key !== ' ' && e.key !== 'Enter') return
+              e.preventDefault()
+              if (e.repeat || keyHeld.current) return
+              keyHeld.current = true
+              beginDictation()
+            }}
+            onKeyUp={(e) => {
+              if (e.key !== ' ' && e.key !== 'Enter') return
+              keyHeld.current = false
+              endDictation()
+            }}
+            onBlur={() => {
+              if (!keyHeld.current) return
+              keyHeld.current = false
+              endDictation()
+            }}
             aria-pressed={speech.listening}
-            aria-label={speech.listening ? 'Stop voice input' : 'Start voice input'}
-            title="Voice to text"
-            className={`relative rounded-full transition ${compact ? 'p-1.5' : 'p-2'} ${
+            aria-label={speech.listening ? 'Listening — release to stop' : 'Hold to speak'}
+            title="Hold to speak — release to stop"
+            className={`relative touch-none rounded-full transition ${compact ? 'p-1.5' : 'p-2'} ${
               speech.listening
                 ? 'bg-brand-fg/15 text-brand-fg'
                 : 'text-ink-soft hover:bg-tint/8 hover:text-ink-strong'
@@ -284,11 +349,16 @@ export function Composer({
             crosses the row, and the pointer that was on it has barely moved. */}
         <div className={`ml-auto flex items-center ${compact ? 'gap-1' : 'gap-1.5'}`}>
           {chain && (
-            <QueueToggle
-              compact={compact}
-              pressed={planning}
-              onClick={planning ? chain.cancel : chain.start}
-            />
+            <>
+              <QueueToggle
+                compact={compact}
+                pressed={planning}
+                onClick={planning ? chain.cancel : chain.start}
+              />
+              {/* Queue belongs to the draft, Send to the turn. The hairline is
+                  what says they are two groups rather than two ways to send. */}
+              <span aria-hidden className="mx-0.5 h-5 w-px shrink-0 bg-line" />
+            </>
           )}
 
           {streaming && queueing && (hasDraft || planning) && (
@@ -310,8 +380,8 @@ export function Composer({
               type="button"
               onClick={() => submit()}
               disabled={!canSend}
-              aria-label="Add step to the chain"
-              title={`Add step (${keyLabels.enter})`}
+              aria-label="Add this question to the queue"
+              title={`Add to the queue (${keyLabels.enter})`}
               className={`flex items-center justify-center rounded-full bg-action text-on-action shadow-md shadow-(color:--shadow-raised) transition hover:brightness-95 disabled:bg-tint/15 disabled:text-ink-soft disabled:shadow-none ${
                 compact ? 'size-8' : 'size-9'
               }`}
@@ -456,7 +526,7 @@ function SendControl({
           compact ? 'size-8' : 'size-9'
         }`}
       >
-        <QueueIcon width={compact ? 15 : 17} height={compact ? 15 : 17} />
+        <SendToQueueIcon width={compact ? 16 : 18} height={compact ? 16 : 18} />
       </button>
       {open && (
         // The wrapper carries the gap as padding so crossing from button to

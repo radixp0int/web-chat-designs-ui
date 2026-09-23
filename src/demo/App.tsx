@@ -55,7 +55,6 @@ function App() {
     removeQueued,
     hold,
     resume,
-    combineQueue,
     clearQueue,
     chain,
     retry,
@@ -132,7 +131,6 @@ function App() {
                   onRemoveQueued={removeQueued}
                   onHold={hold}
                   onResume={resume}
-                  onCombineQueue={combineQueue}
                   onClearQueue={clearQueue}
                   onRetry={retry}
                   chain={chain}

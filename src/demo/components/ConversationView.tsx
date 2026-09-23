@@ -11,7 +11,7 @@ import type {
 import { ChatMessage } from '../../lib/components/chat-message'
 import type { AskedOverChip, AskedOverScope } from '../../lib/types'
 import { Composer } from '../../lib/components/composer'
-import { QueueDock, type QueueDockHandle } from '../../lib/components/queue-dock'
+import { QueueDock, QueueDraft, type QueueDockHandle } from '../../lib/components/queue-dock'
 import { SuggestedQuestions } from '../../lib/components/suggestions'
 import { ScrollToBottomButton } from '../../lib/components/scroll-to-bottom-button'
 import { useStickToBottom } from '../../lib/hooks/useStickToBottom'
@@ -35,7 +35,6 @@ type ConversationViewProps = {
   onRemoveQueued: (id: number) => void
   onHold: () => void
   onResume: () => void
-  onCombineQueue: () => void
   onClearQueue: () => void
   onRetry: (id: number) => void
   /** The chain being built or run, and its controls. */
@@ -69,7 +68,6 @@ export function ConversationView({
   onRemoveQueued,
   onHold,
   onResume,
-  onCombineQueue,
   onClearQueue,
   onRetry,
   chain,
@@ -109,9 +107,10 @@ export function ConversationView({
     [chain, scrollToBottom],
   )
 
-  const composer = (docked: boolean) => (
+  const composer = (docked: boolean, onDraftChange?: (text: string) => void) => (
     <Composer
       docked={docked}
+      onDraftChange={onDraftChange}
       streaming={busy}
       onStop={onStop}
       onSubmit={(text, opts) => {
@@ -133,20 +132,19 @@ export function ConversationView({
     />
   )
 
-  const dock = (
+  const dock = (draft: string) => (
     <QueueDock
       ref={dockRef}
       items={queue}
       held={held}
       busy={busy}
-      storageKey="queue-dock-minimized:conversation"
+      draft={draft}
       onSendNow={onSendQueuedNow}
       onEdit={onEditQueued}
       onMove={onMoveQueued}
       onRemove={onRemoveQueued}
       onHold={onHold}
       onResume={onResume}
-      onCombine={onCombineQueue}
       onClear={onClearQueue}
       chain={queueOn ? chainControls : undefined}
     />
@@ -201,8 +199,14 @@ export function ConversationView({
 
       {inChat && (
         <div className="mx-auto w-full max-w-3xl px-5 pb-5 animate-fade-up">
-          {dock}
-          {composer(true)}
+          <QueueDraft>
+            {(draft, onDraftChange) => (
+              <>
+                {dock(draft)}
+                {composer(true, onDraftChange)}
+              </>
+            )}
+          </QueueDraft>
           <p className="mt-2.5 text-center text-xs text-ink-soft/80">{DISCLAIMER}</p>
         </div>
       )}
