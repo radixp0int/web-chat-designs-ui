@@ -2,16 +2,16 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "chat-interfaces",
+      "name": "chat",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": ["run", "dev", "-w", "apps/chat"],
       "port": 5173,
       "autoPort": true
     },
     {
       "name": "widget-preview",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "preview:widget"],
+      "runtimeArgs": ["run", "preview:widget", "-w", "apps/chat"],
       "port": 4173,
       "autoPort": true
     },
@@ -20,6 +20,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "../chat-ws-server", "run", "dev"],
       "port": 8787
+    },
+    {
+      "name": "workflow-ws-server",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "../workflow-ws-server", "run", "dev"],
+      "port": 8788
     }
   ]
 }

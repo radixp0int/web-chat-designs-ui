@@ -955,7 +955,7 @@ The widget can be built as a single self-contained IIFE that any page loads with
 one script tag:
 
 ```sh
-npm run build:widget       # → dist-widget/aristotle-widget.js (exposes window.AristotleChat)
+npm run build:widget       # → apps/chat/dist-widget/aristotle-widget.js (exposes window.AristotleChat)
 npm run preview:widget
 ```
 
@@ -992,6 +992,6 @@ returns an `open` / `close` / `setTheme` / `destroy` handle.
 | `npm run preview`        | Serve the built demo app                       |
 | `npm run build:widget`   | Build the embeddable widget bundle             |
 | `npm run preview:widget` | Serve the built widget + its embed test page   |
-| `npm run typecheck`      | `tsc -b`                                       |
+| `npm run typecheck`      | `tsc -b` in every workspace                    |
 | `npm run lint`           | oxlint                                         |
 | `npm run format`         | Prettier write (`format:check` to verify only) |
