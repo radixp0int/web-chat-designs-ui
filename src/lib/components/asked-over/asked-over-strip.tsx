@@ -82,7 +82,7 @@ export function AskedOverStrip({
       <div className="mb-2 flex items-center gap-1.5">
         <FunnelIcon width={12} height={12} className="shrink-0 text-accent-fg" />
         <span className="flex-1 text-[11.5px] font-semibold text-ink-strong">
-          Asked over <span className="tabular-nums">{items}</span>
+          Searched over <span className="tabular-nums">{items}</span>
         </span>
         {changed && (
           <span className="rounded-full border border-caution-line bg-caution-surface px-1.5 py-px text-[9.5px] font-bold tracking-wide text-caution uppercase">
