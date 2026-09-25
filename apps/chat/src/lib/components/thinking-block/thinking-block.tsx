@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { ChevronRightIcon } from '../icons'
-import { useUiSize } from '../../uiSize'
+import { ChevronRightIcon, useUiSize } from '@chat/ui'
 import type { ThinkingBlockProps } from './types'
 
 export function ThinkingBlock({ text, active, durationSec }: ThinkingBlockProps) {

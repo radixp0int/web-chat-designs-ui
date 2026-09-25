@@ -20,10 +20,13 @@ import {
   type DateRange,
   type FilterField,
   type Sort,
-} from '../../lib/core'
-import { IconButton } from '../../lib/components/icon-button'
-import { DotsIcon, FunnelIcon, PencilIcon, TrashIcon } from '../../lib/components/icons'
-import { ThemeToggle } from '../components/ThemeToggle'
+  IconButton,
+  DotsIcon,
+  FunnelIcon,
+  PencilIcon,
+  TrashIcon,
+  ThemeToggle,
+} from '@chat/ui'
 
 type Status = 'active' | 'pending' | 'suspended'
 type FieldKey = 'name' | 'email' | 'contact'

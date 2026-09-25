@@ -1,7 +1,5 @@
 import { useState } from 'react'
-import { CountBadge } from '../../lib/components/count-badge'
-import { FacetFilters } from '../../lib/components/facet-filters'
-import { FunnelIcon } from '../../lib/components/icons'
+import { CountBadge, FacetFilters, FunnelIcon } from '@chat/ui'
 import { PersonaPanel } from '../../lib/components/persona-panel'
 import { RecentChatsPanel } from '../../lib/components/recent-chats-panel'
 import { describeFacetType, FACET_TYPES } from '../mocks/facets'

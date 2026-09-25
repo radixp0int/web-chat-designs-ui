@@ -9,9 +9,9 @@ import {
   MenuIcon,
   SearchIcon,
   XIcon,
-} from '../../lib/components/icons'
-import { IconButton } from '../../lib/components/icon-button'
-import { FacetFilters } from '../../lib/components/facet-filters'
+  IconButton,
+  FacetFilters,
+} from '@chat/ui'
 import { describeFacetType, FACET_TYPES } from '../mocks/facets'
 import { useDemoFacets } from '../useDemoFacets'
 import { AccountMenu } from './AccountMenu'

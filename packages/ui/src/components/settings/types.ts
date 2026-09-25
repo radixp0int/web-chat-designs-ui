@@ -1,4 +1,5 @@
-import type { FeatureCatalogue, FeatureFlags, HighlightOption, PaletteOption } from '../../settings'
+import type { FeatureCatalogue, FeatureFlags } from '../../settings/types'
+import type { HighlightOption, PaletteOption } from '../../settings/appearance'
 
 /**
  * Copy for a section heading. Every settings control takes these so a tenant

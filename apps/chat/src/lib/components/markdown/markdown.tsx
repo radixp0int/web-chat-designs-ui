@@ -7,7 +7,7 @@ import { citationPreview, markRanges, type CitationPreview } from '../../highlig
 import { useHighlightRanges } from '../../hooks/useHighlights'
 import { CitationChip } from '../citation-chip'
 import type { CitationPreviewLookup } from '../citation-chip'
-import { useUiSize } from '../../uiSize'
+import { useUiSize } from '@chat/ui'
 import type { MarkdownProps } from './types'
 
 /**

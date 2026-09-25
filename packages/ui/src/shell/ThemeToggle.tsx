@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react'
-import { MoonIcon, SunIcon } from '../../lib/components/icons'
+import { MoonIcon, SunIcon } from '../components/icons'
+
+/**
+ * Where the light/dark choice is kept. Every app's index.html reads the same
+ * key before first paint (@chat/tokens' head.html), so the two must agree.
+ */
+export const THEME_MODE_KEY = 'aristotle-theme'
 
 export function ThemeToggle() {
   const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'))
@@ -10,7 +16,7 @@ export function ThemeToggle() {
     // preference instead of this toggle.
     document.documentElement.classList.toggle('dark', dark)
     document.documentElement.classList.toggle('light', !dark)
-    localStorage.setItem('aristotle-theme', dark ? 'dark' : 'light')
+    localStorage.setItem(THEME_MODE_KEY, dark ? 'dark' : 'light')
   }, [dark])
 
   return (

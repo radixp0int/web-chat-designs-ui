@@ -13,8 +13,7 @@ import type { AskedOverChip, AskedOverScope } from '../../lib/types'
 import { Composer } from '../../lib/components/composer'
 import { QueueDock, QueueDraft, type QueueDockHandle } from '../../lib/components/queue-dock'
 import { SuggestedQuestions } from '../../lib/components/suggestions'
-import { ScrollToBottomButton } from '../../lib/components/scroll-to-bottom-button'
-import { useStickToBottom } from '../../lib/hooks/useStickToBottom'
+import { ScrollToBottomButton, useStickToBottom } from '@chat/ui'
 import { Hero } from './Hero'
 
 type ConversationViewProps = {

@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { CheckIcon, ChevronRightIcon, XIcon } from '../icons'
-import { useUiSize } from '../../uiSize'
+import { CheckIcon, ChevronRightIcon, XIcon, useUiSize } from '@chat/ui'
 import type { ToolCallChipProps } from './types'
 
 /**

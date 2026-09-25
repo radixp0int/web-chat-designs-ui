@@ -4,7 +4,7 @@ A React Flow canvas for multi-step agentic runs with a human in the loop: nodes
 that say who does the work, two densities, and level-of-detail as you zoom out.
 
 Nothing here imports from `../example` or from the host app. It depends on React,
-React Flow, and `lib/components/icons` for a handful of shared glyphs. Copy the
+React Flow, and `@chat/ui` icons for a handful of shared glyphs. Copy the
 folder, supply your own run, and you have a canvas.
 
 ## What you supply

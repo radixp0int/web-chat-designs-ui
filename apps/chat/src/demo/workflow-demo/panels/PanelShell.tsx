@@ -1,7 +1,6 @@
 // The right-hand panel's frame: a title, a close button, and whatever is being
 // looked at. Shared by the step and stage views so the two cannot drift apart.
-import { XIcon } from '../../../lib/components/icons'
-import { IconButton } from '../../../lib/components/icon-button'
+import { XIcon, IconButton } from '@chat/ui'
 
 export function PanelShell({
   title,

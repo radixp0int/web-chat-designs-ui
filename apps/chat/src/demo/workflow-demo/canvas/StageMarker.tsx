@@ -1,6 +1,6 @@
 // The one marker that says where a stage stands. Used by the column headers, the
 // compact view's group headers and the left panel, so the three can't drift.
-import { CheckIcon } from '../../../lib/components/icons'
+import { CheckIcon } from '@chat/ui'
 import type { StageStatus } from './types'
 
 export function StageMarker({ status, size = 18 }: { status: StageStatus; size?: number }) {

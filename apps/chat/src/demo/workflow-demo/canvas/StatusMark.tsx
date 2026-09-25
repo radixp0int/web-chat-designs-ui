@@ -3,7 +3,7 @@
 // The words are the caller's: a status NAME ("Queued") is kit vocabulary and has
 // a default here, but anything situational — a countdown, an SLA — comes in as
 // `text`, because a node component has no business knowing one run's deadlines.
-import { CheckIcon, XIcon } from '../../../lib/components/icons'
+import { CheckIcon, XIcon } from '@chat/ui'
 import { SkipIcon } from './icons'
 import type { StepStatus } from './types'
 import type { ZoomTier } from './zoom'

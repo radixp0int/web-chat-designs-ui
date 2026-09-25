@@ -1,7 +1,7 @@
-// The five glyphs the workflow canvas needs that lib/components/icons doesn't
+// The five glyphs the workflow canvas needs that @chat/ui's icons don't
 // carry. Same base as the library set — 24px box, 1.8 stroke, round caps — so
 // they sit beside CheckIcon and XIcon without looking imported from elsewhere.
-import type { IconProps } from '../../../lib/components/icons/types'
+import type { IconProps } from '@chat/ui'
 
 function base(props: IconProps): IconProps {
   return {

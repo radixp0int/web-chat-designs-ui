@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { CheckIcon, ChevronDownIcon, SparkleIcon } from '../icons'
+import { CheckIcon, ChevronDownIcon, SparkleIcon } from '@chat/ui'
 import type { PersonaMenuProps } from './types'
 
 /** Persona picker: a trigger (labelled pill, or icon-only when compact) and a

@@ -17,9 +17,9 @@ import {
   QueueIcon,
   TrashIcon,
   XIcon,
-} from '../icons'
-import { IconButton } from '../icon-button'
-import { useUiSize } from '../../uiSize'
+  IconButton,
+  useUiSize,
+} from '@chat/ui'
 import { QueueRow } from './queue-row'
 import type { QueueDockHandle, QueueDockProps } from './types'
 

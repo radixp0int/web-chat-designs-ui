@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { BrandingProvider, type Branding } from '../branding'
 import { CitationsProvider } from '../citations'
-import { XIcon } from '../components/icons'
+import { XIcon, UiSizeProvider } from '@chat/ui'
 import type { Responder } from '../engine/chatEngine'
 import { useChat } from '../hooks/useChat'
 import type {
@@ -14,7 +14,6 @@ import type {
   SidePanel,
   Source,
 } from '../types'
-import { UiSizeProvider } from '../uiSize'
 import { useHostTheme, type ThemeMode } from './useHostTheme'
 import { WidgetPanel, type WidgetProfile } from './WidgetPanel'
 

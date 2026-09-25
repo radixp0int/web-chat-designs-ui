@@ -13,7 +13,7 @@ import {
   type FacetQuery,
   type FacetSelection,
   type FacetValue,
-} from '../../lib/components/facet-filters'
+} from '@chat/ui'
 import type { AskedOverChip } from '../../lib/types'
 
 export const LOAN_COUNT = 20412

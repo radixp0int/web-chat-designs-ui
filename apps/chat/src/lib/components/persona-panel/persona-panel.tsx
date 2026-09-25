@@ -1,8 +1,7 @@
 import { useId } from 'react'
 import { useBranding } from '../../branding'
-import { useAutoGrowTextarea } from '../../hooks/useAutoGrowTextarea'
+import { useAutoGrowTextarea, ChevronDownIcon } from '@chat/ui'
 import type { PromptTemplate } from '../../types'
-import { ChevronDownIcon } from '../icons'
 import type { PersonaPanelProps } from './types'
 
 // Each layer sizes to its own body so the stack reads as a stack — no nested

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ThemeToggle } from '../components/ThemeToggle'
+import { ThemeToggle } from '@chat/ui'
 import { RENDERER_META } from './renderers/types'
 import { RendererColumn } from './RendererColumn'
 import { SAMPLES, type Sample, type SampleKind } from './samples'

@@ -2,7 +2,7 @@
 // zoom is. The zoom readout names the tier, so a node shedding its subtitle
 // never looks like a bug.
 import { Panel, useReactFlow } from '@xyflow/react'
-import { ExpandDiagonalIcon, MinusIcon, PlusIcon } from '../../../lib/components/icons'
+import { ExpandDiagonalIcon, MinusIcon, PlusIcon } from '@chat/ui'
 import { KindIcon } from './KindIcon'
 import { EDGE_DASH, EDGE_STROKE } from './build'
 import { TIER_LABEL, useZoomPercent, useZoomTier } from './zoom'

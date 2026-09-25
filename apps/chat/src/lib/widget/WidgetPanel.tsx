@@ -8,14 +8,16 @@ import {
   MinusIcon,
   RefreshIcon,
   XIcon,
-} from '../components/icons'
-import { IconButton } from '../components/icon-button'
+  IconButton,
+  ResizableColumn,
+  ScrollToBottomButton,
+  SideTabPanel,
+  SideTabRail,
+  type SideTab,
+  useStickToBottom,
+} from '@chat/ui'
 import { QueueDock, QueueDraft, type QueueDockHandle } from '../components/queue-dock'
 import { ReferencePanel } from '../components/reference-panel'
-import { ResizableColumn } from '../components/resizable-column'
-import { ScrollToBottomButton } from '../components/scroll-to-bottom-button'
-import { SideTabPanel, SideTabRail, type SideTab } from '../components/side-tabs'
-import { useStickToBottom } from '../hooks/useStickToBottom'
 import type {
   AskedOverChip,
   AskedOverScope,

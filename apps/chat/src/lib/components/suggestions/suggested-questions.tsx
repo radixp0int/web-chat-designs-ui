@@ -1,4 +1,4 @@
-import { SparkleIcon } from '../icons'
+import { SparkleIcon } from '@chat/ui'
 import type { SuggestedQuestionsProps } from './types'
 
 /**

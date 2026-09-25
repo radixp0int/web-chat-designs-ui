@@ -1,5 +1,18 @@
 import type { Message } from '../types'
-import type { FeatureFlags, MessageFieldMap } from './types'
+import type { FeatureFlags } from '@chat/ui'
+
+/**
+ * Which `Message` fields a feature owns. Switching the feature off deletes
+ * them just before render, which is why no component in this library has ever
+ * heard of a feature flag — it only ever sees a message that genuinely lacks
+ * reasoning, tools or sources.
+ *
+ * A feature with no fields (the demo's `actions`, which rides a ChatMessage
+ * prop) simply has no entry; gate it where you render instead.
+ */
+export type MessageFieldMap<Id extends string = string> = Partial<
+  Record<Id, readonly (keyof Message)[]>
+>
 
 /**
  * The field map for the features this library actually renders.

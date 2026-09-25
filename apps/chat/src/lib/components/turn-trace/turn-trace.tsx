@@ -18,8 +18,7 @@
 // panel expands full-width beneath it.
 
 import { useState } from 'react'
-import { ChevronRightIcon } from '../icons'
-import { useUiSize } from '../../uiSize'
+import { ChevronRightIcon, useUiSize } from '@chat/ui'
 import type { TurnStep, TurnTrace as Trace } from '../../types'
 import type { TurnTraceFailureProps, TurnTraceHandleProps, TurnTracePanelProps } from './types'
 

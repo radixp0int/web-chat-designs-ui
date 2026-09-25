@@ -5,10 +5,10 @@ import {
   useFeatureFlags,
   usePaletteClass,
   useStoredChoice,
-  type ComposerFeatures,
   type FeatureCatalogue,
   type FeatureFlagsValue,
-} from '../lib'
+} from '@chat/ui'
+import type { ComposerFeatures } from '../lib'
 
 /**
  * The demo's settings surface, built on the library's generic machinery

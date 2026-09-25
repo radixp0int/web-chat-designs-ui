@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useState, type KeyboardEvent } from 'react'
-import { readString, resolveStorage, write } from '../../settings/safeStorage'
+import { readString, resolveStorage, write } from '@chat/ui'
 import type { Suggestion } from '../../types'
 import { completionFor, matchSuggestions } from './match'
 import type { SuggestionListProps } from './types'

@@ -1,13 +1,11 @@
 import { useEffect, useRef } from 'react'
-import { IconButton } from '../../lib/components/icon-button'
-import { XIcon } from '../../lib/components/icons'
-import { FeatureToggles } from '../../lib/components/settings'
+import { IconButton, XIcon, FeatureToggles } from '@chat/ui'
 import { DEMO_CATALOGUE, useDemoFeatures } from '../demoFeatures'
 
 /**
  * The demo's feature-toggle shell — and nothing but a shell.
  *
- * Everything inside it comes from `lib/components/settings`, driven by the
+ * Everything inside it comes from `components/settings` in @chat/ui, driven by the
  * catalogue in demoFeatures.ts. That split is the point: the dialog, its
  * anchoring, the title and the reset footer are this app's opinions, while the
  * switch list is the library's. The two appearance pickers are the library's

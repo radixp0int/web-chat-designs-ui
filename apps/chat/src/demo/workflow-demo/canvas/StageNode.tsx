@@ -5,7 +5,7 @@
 // to a list of step rows; the current stage and the next stay open.
 import { memo } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
-import { ChevronDownIcon, ChevronRightIcon } from '../../../lib/components/icons'
+import { ChevronDownIcon, ChevronRightIcon } from '@chat/ui'
 import { KindIcon } from './KindIcon'
 import { StatusMark } from './StatusMark'
 import { DEFAULT_STATUS_LABEL } from './types'

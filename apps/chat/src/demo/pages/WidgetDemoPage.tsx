@@ -1,6 +1,6 @@
 import { useEffect, type CSSProperties } from 'react'
 import { Link } from 'react-router'
-import { ThemeToggle } from '../components/ThemeToggle'
+import { ThemeToggle } from '@chat/ui'
 import { init } from '../widget/aristotleWidget'
 
 // A fictional wealth firm embedding the chat widget. Both the page and the

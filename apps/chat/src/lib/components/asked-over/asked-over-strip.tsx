@@ -1,6 +1,11 @@
 import { useState } from 'react'
-import { FilterChip, type FilterChipTone } from '../filter-chip'
-import { ChevronDownIcon, ChevronUpIcon, FunnelIcon } from '../icons'
+import {
+  FilterChip,
+  type FilterChipTone,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  FunnelIcon,
+} from '@chat/ui'
 import type { AskedOverChip } from '../../types'
 import { scopeChanged } from './scope'
 import type { AskedOverStripProps } from './types'

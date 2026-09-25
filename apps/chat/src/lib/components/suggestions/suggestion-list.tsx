@@ -1,4 +1,4 @@
-import { SparkleIcon } from '../icons'
+import { SparkleIcon } from '@chat/ui'
 import type { SuggestionListProps } from './types'
 
 /** Split `text` around the first case-insensitive occurrence of `query`. */

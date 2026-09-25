@@ -8,9 +8,9 @@ import {
   PencilIcon,
   SendIcon,
   TrashIcon,
-} from '../icons'
-import { IconButton } from '../icon-button'
-import { keyLabels } from '../../keyLabels'
+  IconButton,
+  keyLabels,
+} from '@chat/ui'
 import type { QueueRowProps } from './types'
 
 /**

@@ -4,8 +4,7 @@
 // the answer — to find out whether the citation says what the sentence claims.
 // This is that answer without the trip.
 
-import { ExternalLinkIcon } from '../icons'
-import { useUiSize } from '../../uiSize'
+import { ExternalLinkIcon, useUiSize } from '@chat/ui'
 import type { CitationPreview } from '../../highlights'
 
 export function CitationPreviewCard({

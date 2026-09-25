@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { ChevronDownIcon, SlidersIcon, UserIcon } from '../../lib/components/icons'
-import { useOverlayLayer } from '../../lib/hooks/useOverlayLayer'
+import { ChevronDownIcon, SlidersIcon, UserIcon, useOverlayLayer } from '@chat/ui'
 import { DEMO_USER } from '../config'
 
 type AccountMenuProps = {
@@ -24,7 +23,7 @@ const GAP = 8
  * that opens a named list says what each thing is.
  *
  * The menu is portalled rather than absolutely positioned, for the reason
- * lib/overlay.ts exists: the sidebar is `.glass`, and a backdrop-filter clips
+ * overlay.ts (@chat/ui) exists: the sidebar is `.glass`, and a backdrop-filter clips
  * its descendants to its own box — so a 224px menu inside a 64px rail loses
  * everything past the rail's edge. It drops *up* because the trigger is pinned
  * to the bottom of the viewport.

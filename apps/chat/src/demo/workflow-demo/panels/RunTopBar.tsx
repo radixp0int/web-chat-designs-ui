@@ -9,9 +9,14 @@
 // words, then the pill, then the run controls — and only then does the title
 // truncate. The details toggle is never dropped: a narrow window is exactly when
 // someone wants that 400px back. See DESIGN.md.
-import { ChevronRightIcon, HistoryIcon, MenuIcon, RefreshIcon } from '../../../lib/components/icons'
-import { IconButton } from '../../../lib/components/icon-button'
-import { ThemeToggle } from '../../components/ThemeToggle'
+import {
+  ChevronRightIcon,
+  HistoryIcon,
+  MenuIcon,
+  RefreshIcon,
+  IconButton,
+  ThemeToggle,
+} from '@chat/ui'
 import { PanelRightIcon, PauseIcon, PlayIcon } from '../canvas/icons'
 import type { View } from '../canvas'
 import type { ControlAction, RunPhase } from '../run'

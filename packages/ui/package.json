@@ -1,0 +1,24 @@
+{
+  "name": "@chat/ui",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "The generic UI layer: core primitives, icons, overlays, settings plumbing and the demo shell. Source-only; each app's Vite compiles it.",
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./ui.css": "./src/ui.css"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@chat/tokens": "*"
+  },
+  "peerDependencies": {
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  }
+}

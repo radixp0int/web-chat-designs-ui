@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react'
-import type { FacetGroup } from '../lib/components/facet-filters'
+import type { FacetGroup } from '@chat/ui'
 import type { AskedOverChip, AskedOverScope } from '../lib/types'
 import {
   activeFacetCount,

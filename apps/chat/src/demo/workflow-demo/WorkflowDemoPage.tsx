@@ -13,7 +13,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { ReactFlowProvider } from '@xyflow/react'
-import { AmbientGlow } from '../components/AmbientGlow'
+import { AmbientGlow } from '@chat/ui'
 import { EDGE_TOKENS, WorkflowCanvas } from './WorkflowCanvas'
 import { WorkflowSkeleton } from './WorkflowSkeleton'
 import { CollapsiblePanel } from './panels/CollapsiblePanel'

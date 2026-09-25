@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useUiSize } from '../../uiSize'
+import { useUiSize } from '@chat/ui'
 import type { FollowupChipsProps } from './types'
 
 /**

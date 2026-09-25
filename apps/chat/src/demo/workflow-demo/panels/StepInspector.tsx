@@ -7,8 +7,7 @@
 //
 // The blocks it stacks are shared with StepDetail — see stepParts.tsx. This file
 // is the narrow arrangement of them; that one is the wide arrangement.
-import { ExpandDiagonalIcon } from '../../../lib/components/icons'
-import { IconButton } from '../../../lib/components/icon-button'
+import { ExpandDiagonalIcon, IconButton } from '@chat/ui'
 import type { StepSeed, StepStatus } from '../canvas'
 import type { Decision, RunDetail } from '../run/wireProtocol'
 import { PanelShell } from './PanelShell'

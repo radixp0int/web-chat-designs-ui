@@ -10,8 +10,7 @@
 // It covers the run's column, not the sidebar: what this run *is* and what else
 // is waiting on you are still worth seeing while you decide.
 import { useEffect } from 'react'
-import { ChevronLeftIcon, XIcon } from '../../../lib/components/icons'
-import { IconButton } from '../../../lib/components/icon-button'
+import { ChevronLeftIcon, XIcon, IconButton } from '@chat/ui'
 import type { StepSeed, StepStatus } from '../canvas'
 import type { Decision, RunDetail } from '../run/wireProtocol'
 import { SectionLabel } from './SectionLabel'

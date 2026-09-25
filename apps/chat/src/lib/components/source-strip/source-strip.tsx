@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { ExternalLinkIcon } from '../icons'
-import { useUiSize } from '../../uiSize'
+import { ExternalLinkIcon, useUiSize } from '@chat/ui'
 import type { SourceStripProps } from './types'
 
 // Past this many sources, collapse the strip behind a "+N more" toggle so a

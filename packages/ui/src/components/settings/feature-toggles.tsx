@@ -1,5 +1,5 @@
 import { useId } from 'react'
-import type { FeatureDescriptor } from '../../settings'
+import type { FeatureDescriptor } from '../../settings/types'
 import type { FeatureTogglesProps } from './types'
 
 /**

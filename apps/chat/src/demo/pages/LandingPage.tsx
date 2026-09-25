@@ -5,10 +5,10 @@ import {
   HistoryIcon,
   PlanIcon,
   SparkleIcon,
-} from '../../lib/components/icons'
-import { ThemeToggle } from '../components/ThemeToggle'
+  ThemeToggle,
+  AmbientGlow,
+} from '@chat/ui'
 import { APP_NAME } from '../config'
-import { AmbientGlow } from '../components/AmbientGlow'
 
 const demos = [
   {

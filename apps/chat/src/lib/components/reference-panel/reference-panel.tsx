@@ -1,9 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronLeftIcon, ChevronRightIcon, ExternalLinkIcon, XIcon } from '../icons'
-import { IconButton } from '../icon-button'
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ExternalLinkIcon,
+  XIcon,
+  IconButton,
+  useUiSize,
+  useWheelToHorizontal,
+} from '@chat/ui'
 import { Markdown } from '../markdown'
-import { useUiSize } from '../../uiSize'
-import { useWheelToHorizontal } from '../../hooks/useWheelToHorizontal'
 import type { ReferencePanelProps } from './types'
 
 // Above this many sources, the pill rail alone is a long horizontal scroll, so

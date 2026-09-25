@@ -1,6 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { QueueIcon, SparkleIcon } from '../icons'
-import { IconButton } from '../icon-button'
+import { QueueIcon, SparkleIcon, IconButton } from '@chat/ui'
 import type { SuggestionsMenuProps } from './types'
 
 /**

@@ -4,7 +4,7 @@
 // before it could be shown would defeat the point. It draws the shell the real
 // page resolves into (panel, canvas, inspector) so the layout doesn't jump, and
 // it borrows the app's own motion: the drifting orb and the shimmer sweep.
-import { AmbientGlow } from '../components/AmbientGlow'
+import { AmbientGlow } from '@chat/ui'
 
 export function WorkflowSkeleton() {
   return (

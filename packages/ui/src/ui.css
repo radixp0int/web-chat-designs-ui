@@ -1,10 +1,21 @@
+/* @chat/ui's stylesheet. An app imports it after @chat/tokens — see the app's
+   app.css — and never the other way round: package sheets don't import one
+   another, because Tailwind's import inliner does not dedupe.
+
+   The @source line is what makes this package's class names reach the app's
+   CSS at all. Tailwind only auto-scans the app's own Vite root, and this
+   package is outside it, so without the line every utility used in here
+   would silently compile to nothing. It resolves against this file's real
+   path, so it holds however the package is linked in. */
+@source "./**/*.{ts,tsx}";
+
 /* Utilities for the generic components — today just the demo shell's
-   bookmark. Moves into packages/ui with the components it styles. */
+   bookmark. */
 
 @layer utilities {
   /* The demo shell's bookmark — a rounded tab parked off the left edge of
      every demo page, with only its nose showing until you point at it. See
-     demo/components/DemoFrame.tsx, which is its only caller.
+     shell/DemoFrame.tsx, which is its only caller.
 
      Not utilities, for two reasons that each bite: the rest position has to be
      a rule the `:hover` rule can outrank (as an inline style or an arbitrary

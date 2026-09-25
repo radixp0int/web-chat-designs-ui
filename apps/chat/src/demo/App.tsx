@@ -6,7 +6,7 @@ import { createWsResponder } from '../lib/engine/wsResponder'
 import { CitationsProvider } from '../lib/citations'
 import { applyFeatureGate } from '../lib/settings'
 import { ReferencePanel } from '../lib/components/reference-panel'
-import { ResizableColumn } from '../lib/components/resizable-column'
+import { ResizableColumn, AmbientGlow } from '@chat/ui'
 import { useChat } from '../lib/hooks/useChat'
 import { useDemoScope } from './useDemoFacets'
 import { ConversationView } from './components/ConversationView'
@@ -18,7 +18,6 @@ import { aristotleBranding } from './config'
 import { DemoFeaturesProvider, useDemoFeatureState } from './demoFeatures'
 import { cannedTurns } from './mocks/cannedTurns'
 import { todaysSuggestions, typeaheadPool } from './mocks/suggestions'
-import { AmbientGlow } from './components/AmbientGlow'
 
 // With VITE_WS_URL set (see .env.development), responses stream from the
 // mock WebSocket server in ../chat-ws-server; otherwise fall back to the

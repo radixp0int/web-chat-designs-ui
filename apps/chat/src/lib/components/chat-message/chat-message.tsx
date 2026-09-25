@@ -1,10 +1,17 @@
 import { useState } from 'react'
 import { useCite } from '../../citations'
-import { BulbIcon, RefreshIcon, ThumbDownIcon, ThumbUpIcon } from '../icons'
-import { IconButton } from '../icon-button'
+import {
+  BulbIcon,
+  RefreshIcon,
+  ThumbDownIcon,
+  ThumbUpIcon,
+  IconButton,
+  CopyButton,
+  InlineTip,
+  useDismissableTip,
+  useUiSize,
+} from '@chat/ui'
 import { AskedOverStrip } from '../asked-over'
-import { CopyButton } from '../copy-button'
-import { InlineTip } from '../inline-tip'
 import { MessageActions } from '../message-actions'
 import { Markdown } from '../markdown'
 import { FollowupChips } from '../followup-chips'
@@ -12,8 +19,6 @@ import { SourceStrip } from '../source-strip'
 import { ThinkingBlock } from '../thinking-block'
 import { ToolCallChip } from '../tool-call-chip'
 import { TurnTraceFailure, TurnTraceHandle, TurnTracePanel } from '../turn-trace'
-import { useDismissableTip } from '../../hooks/useDismissableTip'
-import { useUiSize } from '../../uiSize'
 import type { TurnTrace as Trace } from '../../types'
 import type { ChatMessageProps } from './types'
 

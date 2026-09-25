@@ -5,10 +5,7 @@
 // side panels it animates its height rather than unmounting, which keeps React
 // Flow re-measuring smoothly instead of snapping.
 import { useEffect } from 'react'
-import { XIcon } from '../../../lib/components/icons'
-import { IconButton } from '../../../lib/components/icon-button'
-import { ScrollToBottomButton } from '../../../lib/components/scroll-to-bottom-button'
-import { useStickToBottom } from '../../../lib/hooks/useStickToBottom'
+import { XIcon, IconButton, ScrollToBottomButton, useStickToBottom } from '@chat/ui'
 import type { LogEntry } from '../run'
 import { SectionLabel } from './SectionLabel'
 

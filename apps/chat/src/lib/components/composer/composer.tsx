@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useBranding } from '../../branding'
-import { useAutoGrowTextarea } from '../../hooks/useAutoGrowTextarea'
-import { useSpeechRecognition } from '../../hooks/useSpeechRecognition'
 import {
+  useAutoGrowTextarea,
   CheckIcon,
   CollapseVerticalIcon,
   ExpandVerticalIcon,
@@ -13,12 +12,14 @@ import {
   SendToQueueIcon,
   StopIcon,
   XIcon,
-} from '../icons'
-import { IconButton } from '../icon-button'
+  IconButton,
+  useUiSize,
+  type UiSize,
+  keyLabels,
+} from '@chat/ui'
+import { useSpeechRecognition } from '../../hooks/useSpeechRecognition'
 import { QueueToggle } from '../queue-dock'
 import { SuggestionList, SuggestionsMenu, useTypeahead } from '../suggestions'
-import { useUiSize, type UiSize } from '../../uiSize'
-import { keyLabels } from '../../keyLabels'
 import type { ComposerProps } from './types'
 
 // Textarea growth behavior per density. `expandThreshold` is the draft length

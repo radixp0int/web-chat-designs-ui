@@ -1,5 +1,5 @@
 // Unlisted on purpose: /primitives is not linked from the landing page. It is
-// a workbench for src/lib/core — every primitive in every state on one screen,
+// a workbench for packages/ui/src/core — every primitive in every state on one screen,
 // so a change to a token or a size can be eyeballed in both themes at once.
 //
 // Wired into main.tsx under DemoFrame, so the back-to-demos bookmark still
@@ -14,9 +14,12 @@ import {
   TextInput,
   djangoPageAdapter,
   formatSort,
-} from '../../lib/core'
-import { PencilIcon, PlusIcon, SearchIcon, TrashIcon } from '../../lib/components/icons'
-import { ThemeToggle } from '../components/ThemeToggle'
+  PencilIcon,
+  PlusIcon,
+  SearchIcon,
+  TrashIcon,
+  ThemeToggle,
+} from '@chat/ui'
 
 /** One titled block. `note` is the design rule the block is evidence for. */
 function Section({
@@ -105,8 +108,10 @@ export function PrimitivesPage() {
               Core primitives
             </h1>
             <p className="text-[13px] text-ink-soft">
-              <code className="rounded bg-code px-1.5 py-0.5 text-[12px]">src/lib/core</code> — the
-              brand-agnostic set the DataTable will be built on. Unlisted route.
+              <code className="rounded bg-code px-1.5 py-0.5 text-[12px]">
+                packages/ui/src/core
+              </code>{' '}
+              — the brand-agnostic set the DataTable will be built on. Unlisted route.
             </p>
           </div>
           <ThemeToggle />
@@ -421,7 +426,8 @@ export function PrimitivesPage() {
         </Section>
 
         <footer className="pb-4 text-[12px] text-ink-soft">
-          Next: <code className="rounded bg-code px-1.5 py-0.5">src/lib/core/data-table</code> —
+          Next:{' '}
+          <code className="rounded bg-code px-1.5 py-0.5">packages/ui/src/core/data-table</code> —
           sortable header, row-click expansion, selection and bulk bar.
         </footer>
       </div>

@@ -9,7 +9,7 @@
 //
 // A real app would not need this: it already has a store, and `FacetFilters`
 // is controlled precisely so it can be driven from one.
-import type { CustomFacet, FacetQuery, FacetSelection } from '../lib/components/facet-filters'
+import type { CustomFacet, FacetQuery, FacetSelection } from '@chat/ui'
 
 export type DemoFacetState = {
   selection: FacetSelection

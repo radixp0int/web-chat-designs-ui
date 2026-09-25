@@ -1,4 +1,4 @@
-import { QueueIcon } from '../icons'
+import { QueueIcon } from '@chat/ui'
 import type { QueueToggleProps } from './types'
 
 /**

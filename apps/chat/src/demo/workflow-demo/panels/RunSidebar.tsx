@@ -3,8 +3,7 @@
 // Everything run-shaped arrives as props. "Needs you" is a *list*, not a
 // boolean: a run can stop on two approvals at once (the onboarding variant
 // does), and the old single hardcoded card made the second one invisible.
-import { ChevronDownIcon, ChevronLeftIcon } from '../../../lib/components/icons'
-import { IconButton } from '../../../lib/components/icon-button'
+import { ChevronDownIcon, ChevronLeftIcon, IconButton } from '@chat/ui'
 import { APP_NAME } from '../../config'
 import { SectionLabel } from './SectionLabel'
 import type { StageSeed } from '../canvas'

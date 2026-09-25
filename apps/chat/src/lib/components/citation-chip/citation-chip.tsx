@@ -1,8 +1,6 @@
 import { useId, useState } from 'react'
 import { previewDescription } from '../../highlights'
-import { useHoverCard } from '../../hooks/useHoverCard'
-import { useUiSize } from '../../uiSize'
-import { HoverCard } from '../hover-card'
+import { useHoverCard, useUiSize, HoverCard } from '@chat/ui'
 import { CitationPreviewCard } from './citation-preview'
 import type { CitationChipProps } from './types'
 

@@ -1,8 +1,8 @@
-// lib/core — the brand-agnostic primitives the rest of the library and its
+// core — the brand-agnostic primitives the rest of the library and its
 // hosts build on. Nothing here knows anything about chat.
 //
 // One folder per component (index.ts, <name>.tsx, types.ts), the same shape
-// lib/components uses. `paging` is the exception: model and adapters, no UI.
+// components/ uses. `paging` is the exception: model and adapters, no UI.
 
 export * from './button'
 export * from './checkbox'

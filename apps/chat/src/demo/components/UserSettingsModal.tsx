@@ -1,9 +1,13 @@
 import { useEffect, useRef } from 'react'
-import { IconButton } from '../../lib/components/icon-button'
-import { XIcon } from '../../lib/components/icons'
-import { HighlightPicker, PalettePicker } from '../../lib/components/settings'
+import {
+  IconButton,
+  XIcon,
+  HighlightPicker,
+  PalettePicker,
+  SHIPPED_HIGHLIGHTS,
+  SHIPPED_PALETTES,
+} from '@chat/ui'
 import { DEMO_USER } from '../config'
-import { SHIPPED_HIGHLIGHTS, SHIPPED_PALETTES } from '../../lib/settings'
 import { DEMO_APPEARANCE, useDemoFeatures } from '../demoFeatures'
 
 /**
@@ -13,7 +17,7 @@ import { DEMO_APPEARANCE, useDemoFeatures } from '../demoFeatures'
  * written for: the two pickers are a *viewer's* preferences, so they belong
  * here beside the profile, while FeatureTogglesModal keeps the switches that
  * decide what a response is allowed to render. Both dialogs are this app's
- * shell around `lib/components/settings`; neither owns a control.
+ * shell around `components/settings` in @chat/ui; neither owns a control.
  *
  * Same anchoring as the other dialog — right, unblurred scrim — because both
  * change the conversation you are looking at, and a centred card would cover

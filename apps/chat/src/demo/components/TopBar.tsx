@@ -1,7 +1,5 @@
 import { Link } from 'react-router'
-import { ChatIcon, MenuIcon } from '../../lib/components/icons'
-import { IconButton } from '../../lib/components/icon-button'
-import { ThemeToggle } from './ThemeToggle'
+import { ChatIcon, MenuIcon, IconButton, ThemeToggle } from '@chat/ui'
 
 export function TopBar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
   return (

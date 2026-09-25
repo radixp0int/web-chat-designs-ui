@@ -1,5 +1,3 @@
-import type { Message } from '../types'
-
 /**
  * One switchable feature, as a tenant's settings surface would describe it.
  *
@@ -47,16 +45,3 @@ export type FeatureCatalogue<Id extends string = string> = FeatureSection<Id>[]
 
 /** Every id in the catalogue, mapped to whether it is currently on. */
 export type FeatureFlags<Id extends string = string> = Record<Id, boolean>
-
-/**
- * Which `Message` fields a feature owns. Switching the feature off deletes
- * them just before render, which is why no component in this library has ever
- * heard of a feature flag — it only ever sees a message that genuinely lacks
- * reasoning, tools or sources.
- *
- * A feature with no fields (the demo's `actions`, which rides a ChatMessage
- * prop) simply has no entry; gate it where you render instead.
- */
-export type MessageFieldMap<Id extends string = string> = Partial<
-  Record<Id, readonly (keyof Message)[]>
->
