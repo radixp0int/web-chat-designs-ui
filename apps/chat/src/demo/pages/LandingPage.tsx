@@ -8,9 +8,14 @@ import {
   ThemeToggle,
   AmbientGlow,
 } from '@chat/ui'
-import { APP_NAME } from '../config'
+import { APP_NAME, WORKFLOWS_URL } from '../config'
 
-const demos = [
+type Demo = { icon: typeof ChatIcon; title: string; body: string } & (
+  | { to: string } // a route in this app
+  | { href: string } // the workflows app — a separate deploy this app's router can't reach
+)
+
+const demos: Demo[] = [
   {
     to: '/chat',
     icon: ChatIcon,
@@ -24,18 +29,21 @@ const demos = [
     body: 'The same chat as a floating widget dropped onto a host page with a single script tag — shadow-DOM isolated and theme-synced.',
   },
   {
-    to: '/workflow-demo',
+    href: `${WORKFLOWS_URL}/workflow-demo`,
     icon: PlanIcon,
     title: 'Agentic workflow',
     body: 'A multi-step run that stops for a human approval — stage columns, a compact view for big runs, and nodes that simplify as you zoom out.',
   },
   {
-    to: '/workflow-live',
+    href: `${WORKFLOWS_URL}/workflow-live`,
     icon: HistoryIcon,
     title: 'Live workflow runs',
     body: 'The same canvas driven by a server: three different workflows stream in, the run log fills as work happens, and your approval goes back over the socket.',
   },
 ]
+
+const CARD =
+  'glass group flex flex-col rounded-xl p-6 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg hover:shadow-(color:--shadow-raised)'
 
 /** Simple entry page linking to each demo route. */
 export function LandingPage() {
@@ -55,27 +63,35 @@ export function LandingPage() {
         <p className="mt-2 text-base text-ink-soft">Ways to see the chat UI.</p>
 
         <div className="mt-10 grid w-full gap-4 sm:grid-cols-2">
-          {demos.map(({ to, icon: Icon, title, body }) => (
-            <Link
-              key={to}
-              to={to}
-              className="glass group flex flex-col rounded-xl p-6 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg hover:shadow-(color:--shadow-raised)"
-            >
-              <span className="flex size-11 items-center justify-center rounded-2xl bg-chip text-chip-fg">
-                <Icon width={20} height={20} className="text-accent" />
-              </span>
-              <h2 className="mt-4 text-lg font-semibold text-ink-strong">{title}</h2>
-              <p className="mt-1.5 flex-1 text-sm leading-relaxed text-ink-soft">{body}</p>
-              <span className="mt-4 flex items-center gap-1 text-sm font-semibold text-accent-fg">
-                Open demo
-                <ChevronRightIcon
-                  width={16}
-                  height={16}
-                  className="transition-transform group-hover:translate-x-0.5"
-                />
-              </span>
-            </Link>
-          ))}
+          {demos.map((demo) => {
+            const { icon: Icon, title, body } = demo
+            const card = (
+              <>
+                <span className="flex size-11 items-center justify-center rounded-2xl bg-chip text-chip-fg">
+                  <Icon width={20} height={20} className="text-accent" />
+                </span>
+                <h2 className="mt-4 text-lg font-semibold text-ink-strong">{title}</h2>
+                <p className="mt-1.5 flex-1 text-sm leading-relaxed text-ink-soft">{body}</p>
+                <span className="mt-4 flex items-center gap-1 text-sm font-semibold text-accent-fg">
+                  Open demo
+                  <ChevronRightIcon
+                    width={16}
+                    height={16}
+                    className="transition-transform group-hover:translate-x-0.5"
+                  />
+                </span>
+              </>
+            )
+            return 'href' in demo ? (
+              <a key={demo.href} href={demo.href} className={CARD}>
+                {card}
+              </a>
+            ) : (
+              <Link key={demo.to} to={demo.to} className={CARD}>
+                {card}
+              </Link>
+            )
+          })}
         </div>
 
         {/* Temporary — remove with src/demo/mermaid-lab/ once a renderer is chosen. */}

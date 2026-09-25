@@ -7,11 +7,6 @@ import { LandingPage } from './demo/pages/LandingPage.tsx'
 import { WidgetDemoPage } from './demo/pages/WidgetDemoPage.tsx'
 // Temporary — remove with src/demo/mermaid-lab/ once a renderer is chosen.
 import { MermaidLabPage } from './demo/mermaid-lab/MermaidLabPage.tsx'
-// React Flow is only needed by this one route, so it rides its own chunk behind
-// a branded skeleton — see WorkflowRoute.tsx.
-import { WorkflowRoute } from './demo/workflow-demo/WorkflowRoute.tsx'
-// The same page, driven by workflow-ws-server instead of the hard-coded run.
-import { WorkflowLiveRoute } from './demo/workflow-demo/WorkflowLiveRoute.tsx'
 // Unlisted workbench for @chat/ui's core primitives. Deliberately absent from the landing
 // page — reachable only by typing /primitives.
 import { PrimitivesPage } from './demo/pages/PrimitivesPage.tsx'
@@ -34,8 +29,6 @@ createRoot(document.getElementById('root')!).render(
         >
           <Route path="/chat" element={<App />} />
           <Route path="/widget-demo" element={<WidgetDemoPage />} />
-          <Route path="/workflow-demo" element={<WorkflowRoute />} />
-          <Route path="/workflow-live" element={<WorkflowLiveRoute />} />
           <Route path="/mermaid-lab" element={<MermaidLabPage />} />
           <Route path="/primitives" element={<PrimitivesPage />} />
           <Route path="/data-table" element={<DataTablePage />} />

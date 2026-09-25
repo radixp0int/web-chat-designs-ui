@@ -9,12 +9,14 @@
   ],
   "scripts": {
     "dev": "npm run dev -w apps/chat",
+    "dev:workflows": "npm run dev -w apps/workflows",
     "build": "npm run build --workspaces --if-present",
     "build:widget": "npm run build:widget -w apps/chat",
     "lint": "oxlint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "preview": "npm run preview -w apps/chat",
+    "preview:workflows": "npm run preview -w apps/workflows",
     "preview:widget": "npm run preview:widget -w apps/chat",
     "prepare": "husky",
     "typecheck": "npm run typecheck --workspaces --if-present"

@@ -9,6 +9,12 @@
       "autoPort": true
     },
     {
+      "name": "workflows",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "-w", "apps/workflows"],
+      "port": 5174
+    },
+    {
       "name": "widget-preview",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "preview:widget", "-w", "apps/chat"],

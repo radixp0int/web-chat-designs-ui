@@ -2,7 +2,7 @@
 
 A multi-step agentic run with a human in the loop. The rules below are the ones
 that are easy to break by accident; everything else follows the app's usual
-tokens in [brand.css](../../lib/brand.css).
+tokens in [brand.css](../../../packages/tokens/src/brand.css).
 
 For _what the demo does_ rather than why, see [README.md](./README.md).
 
@@ -139,7 +139,7 @@ own motion (`animate-orb-drift`, `shimmer-text`, `animate-fade-up`).
 
 The page holds no run content. It takes a `RunSource` and draws whatever comes
 out of it — the same shape `Responder` gives the chat demo in
-[chatEngine.ts](../../lib/engine/chatEngine.ts), one level up.
+[chatEngine.ts](../../../packages/chat-ui/src/engine/chatEngine.ts) in `@chat/chat-ui`.
 
 | Route            | Source                    | Server                           |
 | ---------------- | ------------------------- | -------------------------------- |
@@ -200,7 +200,7 @@ an old gradient:
 
 | Now in                                                           | Was                                                                             |
 | ---------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| [AmbientGlow](../components/AmbientGlow.tsx)                     | Four byte-identical copies across the demo pages                                |
+| [AmbientGlow](../../../packages/ui/src/shell/AmbientGlow.tsx)    | Four byte-identical copies across the demo pages                                |
 | [SectionLabel](./panels/SectionLabel.tsx)                        | The small-caps heading, written out five times                                  |
 | [CollapsiblePanel](./panels/CollapsiblePanel.tsx)                | The width-animating wrapper, twice, with the explanation only on one            |
 | `DECISION_BUTTON` in [StepInspector](./panels/StepInspector.tsx) | Three near-identical buttons whose alignment depended on which siblings existed |

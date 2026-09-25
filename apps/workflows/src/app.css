@@ -1,0 +1,7 @@
+/* This app's whole stylesheet, and the one place its import order is decided.
+   No @chat/chat-ui: nothing here renders a chat component, and the utilities
+   this app shares with chat (.glass, .orb, .shimmer-text, .turn-rail) live in
+   @chat/tokens for exactly that reason. */
+@import 'tailwindcss';
+@import '@chat/tokens/tokens.css';
+@import '@chat/ui/ui.css';

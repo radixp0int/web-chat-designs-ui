@@ -8,6 +8,7 @@ import tailwindcss from '@tailwindcss/vite'
 // pre-paint theme script. Read per request, so an edit shows on reload. Fails
 // the build rather than shipping a page with no fonts and a theme flash. The
 // snippet's own comments are for its readers, so they are dropped on the way.
+// Same plugin as apps/chat/vite.config.ts.
 function tokensHead(): Plugin {
   const marker = '<!--@chat/tokens/head-->'
   const file = createRequire(import.meta.url).resolve('@chat/tokens/head.html')
@@ -23,14 +24,16 @@ function tokensHead(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig(({ command, mode }) => {
-  // The landing page's workflow cards go to the workflows app. Without its URL
-  // they would link nowhere, so a build stops here instead of shipping that.
-  if (command === 'build' && !loadEnv(mode, import.meta.dirname, 'VITE_').VITE_WORKFLOWS_URL) {
-    throw new Error(
-      'Set VITE_WORKFLOWS_URL to the workflows app’s URL — the landing page links to it.',
-    )
+  // "Back to Demos" goes to the chat app. Without its URL the link would go
+  // nowhere, so a build stops here instead of shipping that.
+  if (command === 'build' && !loadEnv(mode, import.meta.dirname, 'VITE_').VITE_CHAT_URL) {
+    throw new Error('Set VITE_CHAT_URL to the chat app’s URL — the link home needs it.')
   }
   return {
     plugins: [react(), tailwindcss(), tokensHead()],
+    // Pinned so it never collides with the chat app on 5173 — .env.development
+    // in each app points at the other by port.
+    server: { port: 5174, strictPort: true },
+    preview: { port: 4174, strictPort: true },
   }
 })
