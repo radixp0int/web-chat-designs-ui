@@ -1,17 +1,19 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDownIcon, ChevronUpIcon, ExpandVerticalIcon } from '../../components/icons'
+import { CopyButton } from '../../components/copy-button'
 import { IconButton } from '../../components/icon-button'
-import { tokenClass, tokenizeLine } from '../code-editor/languages'
-import type { CodeLanguage, CodeTokenKind } from '../code-editor'
+import { tokenizeLine } from '../code-editor/languages'
+import type { CodeLanguage } from '../code-editor'
 import { Pill } from '../pill'
 import { Switch } from '../switch'
 import { alignChange, changedRanges, diffBlocks } from './diff'
 import type { Range } from './diff'
+import { EditPane } from './edit-pane'
+import type { PaneRow } from './edit-pane'
+import { Gutter, Sign, Tokens } from './parts'
+import { HATCH, tone } from './tone'
+import type { Segment, Side, SideKind } from './tone'
 import type { DiffView, DiffViewerProps } from './types'
-
-type Segment = { text: string; kind: CodeTokenKind; changed: boolean }
-type SideKind = 'equal' | 'delete' | 'insert' | 'empty'
-type Side = { kind: SideKind; num: number | null; segments: Segment[] }
 
 type Row =
   | { type: 'fold'; block: number; count: number }
@@ -47,78 +49,11 @@ function segments(language: CodeLanguage, text: string, ranges: Range[]): Segmen
 
 const EMPTY: Side = { kind: 'empty', num: null, segments: [] }
 
-/**
- * Added lines are the accent, removed lines --danger — not the usual green.
- * brand.css has no green ramp (see Pill's tones), and a hard-coded one would
- * be the only colour in the library that ignores a `chat-theme-*` switch and
- * dark mode. Blue against red also parts more clearly than green against red
- * for the commonest colour-vision deficiencies, and the +/− column carries
- * the meaning for anyone who cannot separate them at all.
- */
-const tone: Record<SideKind, { row: string; gutter: string; sign: string; mark: string }> = {
-  equal: { row: '', gutter: 'text-ink-soft', sign: '', mark: '' },
-  delete: {
-    row: 'bg-danger/8',
-    gutter: 'bg-danger/14 text-danger-fg',
-    sign: 'text-danger-fg',
-    mark: 'bg-danger/25',
-  },
-  insert: {
-    row: 'bg-accent/8',
-    gutter: 'bg-accent/15 text-accent-fg',
-    sign: 'text-accent-fg',
-    mark: 'bg-accent/25',
-  },
-  empty: { row: '', gutter: '', sign: '', mark: '' },
-}
-
-const HATCH = {
-  backgroundImage: 'repeating-linear-gradient(-45deg, var(--line) 0 1px, transparent 1px 7px)',
-}
-
-const SIGN: Record<SideKind, string> = { equal: '', delete: '−', insert: '+', empty: '' }
-
 function Code({ side }: { side: Side }) {
   return (
     <span className="min-w-0 grow pr-3 whitespace-pre-wrap [overflow-wrap:anywhere]">
-      {side.segments.map((s, i) => (
-        <span
-          key={i}
-          className={[tokenClass[s.kind], s.changed ? `rounded-[3px] ${tone[side.kind].mark}` : '']
-            .filter(Boolean)
-            .join(' ')}
-        >
-          {s.text}
-        </span>
-      ))}
+      <Tokens side={side} />
     </span>
-  )
-}
-
-function Gutter({
-  num,
-  kind,
-  width = 'w-13',
-}: {
-  num: number | null
-  kind: SideKind
-  width?: string
-}) {
-  return (
-    <span
-      aria-hidden="true"
-      className={`${width} shrink-0 pr-2.5 text-right text-[12px] tabular-nums select-none ${tone[kind].gutter}`}
-    >
-      {num}
-    </span>
-  )
-}
-
-function Sign({ kind }: { kind: SideKind }) {
-  // Real text rather than aria-hidden, so a screen reader hears "plus" or
-  // "minus" before the line — the colour alone would say nothing.
-  return (
-    <span className={`w-6 shrink-0 text-center select-none ${tone[kind].sign}`}>{SIGN[kind]}</span>
   )
 }
 
@@ -142,7 +77,8 @@ function SplitSide({ side, divider }: { side: Side; divider?: boolean }) {
 }
 
 /**
- * A read-only comparison of two texts, side by side or inline.
+ * A comparison of two texts, side by side or inline — read-only by default,
+ * with either side, or both, editable through `editable`.
  *
  * Lines are matched with Myers' diff; a removed line and the added line that
  * replaced it are then diffed again word by word, so the exact edit inside the
@@ -153,6 +89,15 @@ function SplitSide({ side, divider }: { side: Side; divider?: boolean }) {
  * two sides of a row the same height — one grid row holds both — so they can
  * never drift out of step, which is what a pair of independently scrolling
  * panes needs a scroll-sync to prevent.
+ *
+ * Editing changes that. A side you can type in is an EditPane — CodeEditor's
+ * transparent textarea over the coloured rows — and a textarea line is
+ * exactly one row tall, so in edit mode lines do not wrap, each pane scrolls
+ * sideways on its own and the two are scroll-synced vertically. Folding is
+ * off too: a folded line has nowhere to be in the textarea. The diff is
+ * recomputed on every keystroke from the `original` and `modified` props, so
+ * the component stays controlled — each side's edits come back through
+ * `onOriginalChange` and `onModifiedChange`.
  */
 export function DiffViewer({
   original,
@@ -167,6 +112,12 @@ export function DiffViewer({
   defaultHideUnchanged = true,
   context = 3,
   hideControls = false,
+  editable = 'none',
+  onOriginalChange,
+  onModifiedChange,
+  onCopyOriginal,
+  onCopyModified,
+  tabSize = 2,
   className = '',
 }: DiffViewerProps) {
   const [viewState, setViewState] = useState<DiffView>(defaultView)
@@ -175,7 +126,16 @@ export function DiffViewer({
     if (viewProp === undefined) setViewState(v)
     onViewChange?.(v)
   }
+  // A side takes typing only with its handler too, as CodeEditor's onChange.
+  const canEditOriginal = (editable === 'original' || editable === 'both') && !!onOriginalChange
+  const canEditModified = (editable === 'modified' || editable === 'both') && !!onModifiedChange
+  const editing = canEditOriginal || canEditModified
+  // Unified view has room for one textarea: the modified side's, unless only
+  // the original is editable.
+  const unifiedEdits = canEditModified ? 'modified' : 'original'
+
   const [hide, setHide] = useState(defaultHideUnchanged)
+  const folding = hide && !editing
   const [expanded, setExpanded] = useState<ReadonlySet<number>>(() => new Set())
   const [currentRaw, setCurrent] = useState(0)
 
@@ -193,7 +153,7 @@ export function DiffViewer({
       if (block.type === 'equal') {
         const head = bi === 0 ? 0 : context
         const tail = bi === blocks.length - 1 ? 0 : context
-        const collapse = hide && !expanded.has(bi) && block.pairs.length > head + tail + 1
+        const collapse = folding && !expanded.has(bi) && block.pairs.length > head + tail + 1
         block.pairs.forEach((p, k) => {
           if (collapse && k >= head && k < block.pairs.length - tail) {
             if (k === head)
@@ -260,14 +220,55 @@ export function DiffViewer({
       }
     })
     return { rows, changes: change + 1, added, removed }
-  }, [blocks, a, b, language, view, hide, expanded, context])
+  }, [blocks, a, b, language, view, folding, expanded, context])
   // Clamped, so a shorter diff arriving in new props never points past its end.
   const current = Math.min(currentRaw, Math.max(0, changes - 1))
+
+  // Edit mode draws the same rows as columns, one per pane. No folds reach
+  // here — folding is off while editing.
+  const panes = useMemo(() => {
+    if (!editing) return null
+    const left: PaneRow[] = []
+    const right: PaneRow[] = []
+    for (const row of rows) {
+      if (row.type === 'split') {
+        for (const [into, side] of [
+          [left, row.left],
+          [right, row.right],
+        ] as const) {
+          into.push({
+            kind: side.kind,
+            nums: [side.num],
+            segments: side.segments,
+            line: side.num === null ? null : side.num - 1,
+            change: row.change,
+          })
+        }
+      } else if (row.type === 'unified') {
+        const num = unifiedEdits === 'modified' ? row.b : row.a
+        right.push({
+          kind: row.side.kind,
+          nums: [row.a, row.b],
+          segments: row.side.segments,
+          line: num === null ? null : num - 1,
+          change: row.change,
+        })
+      }
+    }
+    return { left, right }
+  }, [editing, rows, unifiedEdits])
 
   // The overview ruler is measured, not computed: wrapped lines make row
   // heights uneven, and only the DOM knows where each change landed.
   const scroller = useRef<HTMLDivElement>(null)
   const content = useRef<HTMLDivElement>(null)
+  // Split edit mode's left pane; `scroller` is the right one.
+  const leftPane = useRef<HTMLDivElement>(null)
+  const follow = (from: typeof scroller, to: typeof scroller) => () => {
+    if (from.current && to.current && to.current.scrollTop !== from.current.scrollTop) {
+      to.current.scrollTop = from.current.scrollTop
+    }
+  }
   const [marks, setMarks] = useState<{ top: number; height: number; kind: SideKind | 'both' }[]>([])
 
   useLayoutEffect(() => {
@@ -297,7 +298,7 @@ export function DiffViewer({
     ro.observe(sc)
     ro.observe(body)
     return () => ro.disconnect()
-  }, [rows, blocks])
+  }, [rows, blocks, editing, view])
 
   // A functional update, so clicks that land before the re-render still
   // count; the scroll follows in an effect once the new index has rendered.
@@ -324,7 +325,8 @@ export function DiffViewer({
   return (
     <div
       className={[
-        'flex min-h-0 flex-col overflow-hidden rounded-xl border border-line bg-panel-solid',
+        'flex min-h-0 flex-col overflow-hidden rounded-xl border border-line bg-panel-solid transition',
+        'has-[textarea:focus-visible]:border-accent has-[textarea:focus-visible]:ring-3 has-[textarea:focus-visible]:ring-accent/20',
         className,
       ]
         .filter(Boolean)
@@ -368,14 +370,16 @@ export function DiffViewer({
                 <ChevronDownIcon width={16} height={16} />
               </IconButton>
             </div>
-            <Switch
-              label="Hide unchanged"
-              checked={hide}
-              onChange={(on) => {
-                setHide(on)
-                setExpanded(new Set())
-              }}
-            />
+            {!editing && (
+              <Switch
+                label="Hide unchanged"
+                checked={hide}
+                onChange={(on) => {
+                  setHide(on)
+                  setExpanded(new Set())
+                }}
+              />
+            )}
             <div
               role="group"
               aria-label="Layout"
@@ -402,77 +406,139 @@ export function DiffViewer({
         )}
       </div>
 
-      <div className="grid h-8 shrink-0 border-b border-line bg-code-block text-[12px]">
+      <div className="grid min-h-8 shrink-0 border-b border-line bg-code-block text-[12px]">
         {view === 'split' ? (
           <div className="grid grid-cols-2 pr-3.5">
-            <div className="flex items-center gap-2 border-r border-line pl-4">
+            <div className="flex min-w-0 items-center gap-2 border-r border-line pl-4">
               <span className="font-bold text-ink-strong">{originalLabel}</span>
               <span className="text-ink-soft">{a.length} lines</span>
+              <span className="ml-auto flex shrink-0 items-center gap-1 pr-1">
+                {editing && <Access editable={canEditOriginal} />}
+                {onCopyOriginal && (
+                  <CopySide text={original} label={originalLabel} onCopy={onCopyOriginal} />
+                )}
+              </span>
             </div>
-            <div className="flex items-center gap-2 pl-4">
+            <div className="flex min-w-0 items-center gap-2 pl-4">
               <span className="font-bold text-ink-strong">{modifiedLabel}</span>
               <span className="text-ink-soft">{b.length} lines</span>
+              <span className="ml-auto flex shrink-0 items-center gap-1 pr-1">
+                {editing && <Access editable={canEditModified} />}
+                {onCopyModified && (
+                  <CopySide text={modified} label={modifiedLabel} onCopy={onCopyModified} />
+                )}
+              </span>
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-4 pl-4">
-            <span className="font-bold text-danger-fg">
+          <div className="flex flex-wrap items-center gap-x-4 pl-4">
+            <span className="flex items-center gap-1 font-bold text-danger-fg">
               − {originalLabel} · {a.length} lines
+              {onCopyOriginal && (
+                <CopySide text={original} label={originalLabel} onCopy={onCopyOriginal} />
+              )}
             </span>
-            <span className="font-bold text-accent-fg">
+            <span className="flex items-center gap-1 font-bold text-accent-fg">
               + {modifiedLabel} · {b.length} lines
+              {onCopyModified && (
+                <CopySide text={modified} label={modifiedLabel} onCopy={onCopyModified} />
+              )}
             </span>
+            {editing && (
+              <span className="ml-auto pr-5 text-ink-soft">
+                Editing {unifiedEdits === 'modified' ? modifiedLabel : originalLabel}
+              </span>
+            )}
           </div>
         )}
       </div>
 
       <div className="flex min-h-0 grow">
-        <div
-          ref={scroller}
-          className="relative min-w-0 grow overflow-y-auto font-mono text-[13px] leading-5 [font-variant-ligatures:none]"
-        >
-          <div ref={content}>
-            {rows.map((row, i) => {
-              if (row.type === 'fold') {
-                return (
-                  <button
-                    key={`fold-${row.block}`}
-                    type="button"
-                    onClick={() => setExpanded((s) => new Set(s).add(row.block))}
-                    className="flex h-7 w-full items-center gap-2 border-y border-line bg-code-block pl-5 font-sans text-[12px] font-bold text-brand-fg transition hover:bg-tint/8"
-                  >
-                    <ExpandVerticalIcon width={14} height={14} />
-                    Show {row.count} unchanged {row.count === 1 ? 'line' : 'lines'}
-                  </button>
-                )
+        {panes ? (
+          <div className="flex min-w-0 grow">
+            {view === 'split' && (
+              <EditPane
+                rows={panes.left}
+                lines={a}
+                editable={canEditOriginal}
+                onChange={onOriginalChange}
+                language={language}
+                tabSize={tabSize}
+                label={originalLabel}
+                current={current}
+                scrollRef={leftPane}
+                onScroll={follow(leftPane, scroller)}
+                className="border-r border-line"
+              />
+            )}
+            <EditPane
+              rows={panes.right}
+              lines={view === 'split' || unifiedEdits === 'modified' ? b : a}
+              editable={view === 'split' ? canEditModified : true}
+              onChange={
+                view === 'split' || unifiedEdits === 'modified'
+                  ? onModifiedChange
+                  : onOriginalChange
               }
-              if (row.type === 'split') {
+              language={language}
+              tabSize={tabSize}
+              label={
+                view === 'split' || unifiedEdits === 'modified' ? modifiedLabel : originalLabel
+              }
+              current={current}
+              scrollRef={scroller}
+              contentRef={content}
+              onScroll={follow(scroller, leftPane)}
+            />
+          </div>
+        ) : (
+          <div
+            ref={scroller}
+            className="relative min-w-0 grow overflow-y-auto font-mono text-[13px] leading-5 [font-variant-ligatures:none]"
+          >
+            <div ref={content}>
+              {rows.map((row, i) => {
+                if (row.type === 'fold') {
+                  return (
+                    <button
+                      key={`fold-${row.block}`}
+                      type="button"
+                      onClick={() => setExpanded((s) => new Set(s).add(row.block))}
+                      className="flex h-7 w-full items-center gap-2 border-y border-line bg-code-block pl-5 font-sans text-[12px] font-bold text-brand-fg transition hover:bg-tint/8"
+                    >
+                      <ExpandVerticalIcon width={14} height={14} />
+                      Show {row.count} unchanged {row.count === 1 ? 'line' : 'lines'}
+                    </button>
+                  )
+                }
+                if (row.type === 'split') {
+                  return (
+                    <div
+                      key={i}
+                      data-change={row.change ?? undefined}
+                      className={`grid grid-cols-2 ${markClass(row.change)}`}
+                    >
+                      <SplitSide side={row.left} divider />
+                      <SplitSide side={row.right} />
+                    </div>
+                  )
+                }
                 return (
                   <div
                     key={i}
                     data-change={row.change ?? undefined}
-                    className={`grid grid-cols-2 ${markClass(row.change)}`}
+                    className={`flex min-h-5 ${tone[row.side.kind].row} ${markClass(row.change)}`}
                   >
-                    <SplitSide side={row.left} divider />
-                    <SplitSide side={row.right} />
+                    <Gutter num={row.a} kind={row.side.kind} width="w-12" />
+                    <Gutter num={row.b} kind={row.side.kind} width="w-12" />
+                    <Sign kind={row.side.kind} />
+                    <Code side={row.side} />
                   </div>
                 )
-              }
-              return (
-                <div
-                  key={i}
-                  data-change={row.change ?? undefined}
-                  className={`flex min-h-5 ${tone[row.side.kind].row} ${markClass(row.change)}`}
-                >
-                  <Gutter num={row.a} kind={row.side.kind} width="w-12" />
-                  <Gutter num={row.b} kind={row.side.kind} width="w-12" />
-                  <Sign kind={row.side.kind} />
-                  <Code side={row.side} />
-                </div>
-              )
-            })}
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Where the changes are in the whole file, at a glance. */}
         <div
@@ -496,5 +562,36 @@ export function DiffViewer({
         </div>
       </div>
     </div>
+  )
+}
+
+/** Which side takes typing, on the label bar — the panes look alike otherwise. */
+function Access({ editable }: { editable: boolean }) {
+  return (
+    <span className="pr-3 text-[11px] font-bold tracking-[0.06em] text-ink-soft uppercase">
+      {editable ? 'Editable' : 'Read only'}
+    </span>
+  )
+}
+
+/** Copies one side as it is now — with edits, since `text` is the live prop. */
+function CopySide({
+  text,
+  label,
+  onCopy,
+}: {
+  text: string
+  label: string
+  onCopy: (value: string) => void
+}) {
+  return (
+    <CopyButton
+      text={text}
+      label={`Copy ${label}`}
+      copiedLabel={`Copied ${label}`}
+      size="sm"
+      iconSize={14}
+      onCopied={onCopy}
+    />
   )
 }

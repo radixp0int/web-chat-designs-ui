@@ -10,4 +10,6 @@ export type CopyButtonProps = Omit<IconButtonProps, 'children' | 'onClick'> & {
   /** How long the confirmation holds, in ms. */
   holdMs?: number
   iconSize?: number
+  /** Called with `text` after each copy. */
+  onCopied?: (text: string) => void
 }

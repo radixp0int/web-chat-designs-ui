@@ -19,6 +19,7 @@ export function CopyButton({
   iconSize = 15,
   size = 'md',
   shape = 'rounded',
+  onCopied,
   ...rest
 }: CopyButtonProps) {
   const [copied, setCopied] = useState(false)
@@ -41,6 +42,7 @@ export function CopyButton({
         title={copied ? copiedLabel : label}
         onClick={() => {
           navigator.clipboard?.writeText(text)
+          onCopied?.(text)
           setCopied(true)
           if (timer.current) clearTimeout(timer.current)
           timer.current = setTimeout(() => setCopied(false), holdMs)

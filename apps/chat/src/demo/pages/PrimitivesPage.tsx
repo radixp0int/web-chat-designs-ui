@@ -25,7 +25,7 @@ import {
   TrashIcon,
   ThemeToggle,
 } from '@chat/ui'
-import type { CodeLanguage } from '@chat/ui'
+import type { CodeLanguage, DiffEditable } from '@chat/ui'
 import { codeSamples, diffSample } from '../mocks/codeSamples'
 
 /** One titled block. `note` is the design rule the block is evidence for. */
@@ -84,6 +84,13 @@ export function PrimitivesPage() {
   }))
   const doc = docs[lang]
   const setDoc = (next: string) => setDocs((d) => ({ ...d, [lang]: next }))
+
+  // DiffViewer — both sides live, so every `editable` combination can be typed into.
+  const [diffEditable, setDiffEditable] = useState<DiffEditable>('none')
+  const [diffOriginal, setDiffOriginal] = useState(diffSample.original)
+  const [diffModified, setDiffModified] = useState(diffSample.modified)
+  const diffEdited = diffOriginal !== diffSample.original || diffModified !== diffSample.modified
+  const [diffCopied, setDiffCopied] = useState<string | null>(null)
 
   // Pagination — live, and the envelope below is rebuilt from this state, so
   // the adapter readout is proof rather than illustration.
@@ -500,13 +507,48 @@ export function PrimitivesPage() {
 
         <Section
           title="DiffViewer"
-          note="Myers' diff by line, then again by word inside each changed pair, so the edit itself gets the stronger wash. Added is the accent and removed is --danger rather than green — brand.css has no green ramp, and the +/− column carries the meaning without colour. Long lines wrap, so the two sides of a row can't drift apart."
+          note="Myers' diff by line, then again by word inside each changed pair, so the edit itself gets the stronger wash. Added is the accent and removed is --danger rather than green — brand.css has no green ramp, and the +/− column carries the meaning without colour. Long lines wrap, so the two sides of a row can't drift apart. Make a side editable and it becomes a textarea editor — no wrapping, synced scrolling, the diff redrawn on every keystroke."
         >
+          <Row label="Editable">
+            <Select
+              label="Editable sides"
+              selectSize="sm"
+              value={diffEditable}
+              onChange={(e) => setDiffEditable(e.target.value as DiffEditable)}
+              options={[
+                { value: 'none', label: 'None — read only' },
+                { value: 'original', label: 'Original only' },
+                { value: 'modified', label: 'Modified only' },
+                { value: 'both', label: 'Both sides' },
+              ]}
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={!diffEdited}
+              onClick={() => {
+                setDiffOriginal(diffSample.original)
+                setDiffModified(diffSample.modified)
+              }}
+            >
+              Reset text
+            </Button>
+            {diffCopied && (
+              <span className="text-[12.5px] text-ink-soft" aria-live="polite">
+                {diffCopied}
+              </span>
+            )}
+          </Row>
           <DiffViewer
             title={diffSample.file}
             language="yaml"
-            original={diffSample.original}
-            modified={diffSample.modified}
+            original={diffOriginal}
+            modified={diffModified}
+            editable={diffEditable}
+            onOriginalChange={setDiffOriginal}
+            onModifiedChange={setDiffModified}
+            onCopyOriginal={(v) => setDiffCopied(`Copied original — ${v.split('\n').length} lines`)}
+            onCopyModified={(v) => setDiffCopied(`Copied modified — ${v.split('\n').length} lines`)}
             className="h-[30rem]"
           />
         </Section>
