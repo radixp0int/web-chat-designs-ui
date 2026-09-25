@@ -8,6 +8,11 @@ import { useMemo, useState } from 'react'
 import {
   Button,
   Checkbox,
+  CodeEditor,
+  CopyButton,
+  DiffViewer,
+  formatCode,
+  lintCode,
   Pagination,
   Select,
   Pill,
@@ -20,6 +25,8 @@ import {
   TrashIcon,
   ThemeToggle,
 } from '@chat/ui'
+import type { CodeLanguage } from '@chat/ui'
+import { codeSamples, diffSample } from '../mocks/codeSamples'
 
 /** One titled block. `note` is the design rule the block is evidence for. */
 function Section({
@@ -67,6 +74,16 @@ export function PrimitivesPage() {
   const some = picked.length > 0 && !allOn
 
   const [query, setQuery] = useState('crestview')
+
+  // CodeEditor — one document per language, so switching and back keeps edits.
+  const [lang, setLang] = useState<CodeLanguage>('json')
+  const [docs, setDocs] = useState(() => ({
+    json: codeSamples.json.text,
+    yaml: codeSamples.yaml.text,
+    text: codeSamples.text.text,
+  }))
+  const doc = docs[lang]
+  const setDoc = (next: string) => setDocs((d) => ({ ...d, [lang]: next }))
 
   // Pagination — live, and the envelope below is rebuilt from this state, so
   // the adapter readout is proof rather than illustration.
@@ -423,6 +440,75 @@ export function PrimitivesPage() {
               </code>
             </span>
           </Row>
+        </Section>
+
+        <Section
+          title="CodeEditor"
+          note="A transparent <textarea> over a highlighted copy of the same text — typing, selection, undo and screen readers are the browser's. Tab indents (Shift+Tab outdents, multi-line too), Enter keeps the indent, Escape then Tab leaves the field. JSON is checked with JSON.parse; break a comma to see the diagnostic."
+        >
+          <CodeEditor
+            label="Code"
+            language={lang}
+            value={doc}
+            onChange={setDoc}
+            className="h-[26rem]"
+            title={
+              <>
+                <span className="truncate">{codeSamples[lang].file}</span>
+                {doc !== codeSamples[lang].text && (
+                  <span className="shrink-0 text-[12px] font-normal text-ink-soft">· Edited</span>
+                )}
+              </>
+            }
+            actions={
+              <>
+                <Select
+                  label="Language"
+                  selectSize="sm"
+                  value={lang}
+                  onChange={(e) => setLang(e.target.value as CodeLanguage)}
+                  options={[
+                    { value: 'json', label: 'JSON' },
+                    { value: 'yaml', label: 'YAML' },
+                    { value: 'text', label: 'Plain text' },
+                  ]}
+                />
+                {lang === 'json' && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={lintCode('json', doc) !== null}
+                    onClick={() => setDoc(formatCode('json', doc))}
+                  >
+                    Format
+                  </Button>
+                )}
+                <CopyButton text={doc} size="sm" />
+              </>
+            }
+          />
+          <span className="pt-2 text-[11px] font-extrabold tracking-[0.07em] text-ink-soft uppercase">
+            Read only, no status bar
+          </span>
+          <CodeEditor
+            label="persona.json, read only"
+            language="json"
+            value={codeSamples.json.text.split('\n').slice(0, 7).join('\n')}
+            statusBar={false}
+          />
+        </Section>
+
+        <Section
+          title="DiffViewer"
+          note="Myers' diff by line, then again by word inside each changed pair, so the edit itself gets the stronger wash. Added is the accent and removed is --danger rather than green — brand.css has no green ramp, and the +/− column carries the meaning without colour. Long lines wrap, so the two sides of a row can't drift apart."
+        >
+          <DiffViewer
+            title={diffSample.file}
+            language="yaml"
+            original={diffSample.original}
+            modified={diffSample.modified}
+            className="h-[30rem]"
+          />
         </Section>
 
         <footer className="pb-4 text-[12px] text-ink-soft">
