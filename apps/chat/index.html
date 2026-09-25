@@ -4,31 +4,8 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="light dark" />
     <title>Aristotle — AI Chat</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
-      rel="stylesheet"
-    />
-    <script>
-      // Apply theme before first paint to avoid a flash of the wrong mode.
-      const stored = localStorage.getItem('aristotle-theme')
-      const dark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
-      document.documentElement.classList.toggle('dark', dark)
-      document.documentElement.classList.toggle('light', !dark)
-      // The brand palette goes on this same element. A real app hardcodes one
-      // `chat-theme-*` class here and is done; the demo lets a presenter switch
-      // between them (see the Palette picker in Demo features), so it reads the
-      // stored choice — and does it here rather than in React so a reload does
-      // not flash the default navy before the chosen palette lands.
-      const palette = localStorage.getItem('aristotle-brand-theme')
-      document.documentElement.classList.add(
-        'chat-theme-' +
-          (['default', 'aristotle2', 'graphite'].includes(palette) ? palette : 'default'),
-      )
-    </script>
+    <!--@chat/tokens/head-->
   </head>
   <body>
     <div id="root"></div>

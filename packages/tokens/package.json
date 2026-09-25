@@ -2,8 +2,9 @@
   "name": "@chat/tokens",
   "private": true,
   "version": "0.0.0",
-  "description": "The brand as CSS: palettes, the Tailwind theme bridge, base styles and shared utilities. No JavaScript.",
+  "description": "The brand as CSS: palettes, the Tailwind theme bridge, base styles, shared utilities, and the inline <head> snippet. No JavaScript.",
   "exports": {
-    "./tokens.css": "./src/tokens.css"
+    "./tokens.css": "./src/tokens.css",
+    "./head.html": "./src/head.html"
   }
 }

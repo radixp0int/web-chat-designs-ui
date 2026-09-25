@@ -6,7 +6,7 @@
 
      1. RAMPS + SURFACES   a theme declares these  (§3, §4)
      2. SEMANTIC TOKENS    derived from tier 1     (§1 light, §2 dark)
-     3. TAILWIND NAMES     `@theme inline` in styles.css maps tier 2 onto
+     3. TAILWIND NAMES     `@theme inline` in tokens.css maps tier 2 onto
                            utilities, so `bg-accent` compiles straight to
                            `var(--accent)` with no `:root` pinning — which is
                            what lets any scope re-theme the whole tree.
@@ -154,7 +154,7 @@
   --on-notify: #ffffff;
 
   /* The demo shell's back-to-demos bookmark (see `.demo-marker` in
-     styles.css). The second place the warm hue carries meaning rather than
+     ui.css). The second place the warm hue carries meaning rather than
      decoration, so like --notify it is contrast-checked and unlike the raw
      --ember-* ramp it may not be swapped for a prettier step: the 600 is the
      shallowest one that clears 4.5:1 behind a white label (5.2:1), where the
@@ -189,7 +189,7 @@
   --shadow-menu: color-mix(in oklab, var(--brand-950) 20%, transparent);
   --shadow-deep: color-mix(in oklab, var(--brand-950) 25%, transparent);
 
-  /* the orb logo mark — five stacked radial gradients, see .orb in styles.css.
+  /* the orb logo mark — five stacked radial gradients, see .orb in tokens.css.
      Its two warm blooms come from --ember-*, which is deliberately NOT part of
      the accent ramp: the mark is aria-hidden decoration, so it can carry a hue
      that would never clear 4.5:1 as text. Keep it that way — a warm value

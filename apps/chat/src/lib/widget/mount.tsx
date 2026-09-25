@@ -1,6 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import cssText from '@chat/tokens/tokens.css?inline'
+// The app's whole sheet for now; the widget gets its own, scanning only the
+// library, once lib/ becomes a package.
+import cssText from '../../app.css?inline'
 import {
   ChatWidget,
   type WidgetContent,

@@ -216,7 +216,7 @@ export function MermaidLabPage() {
               <h2 className="text-sm font-semibold text-ink-strong">Inside a shadow root</h2>
               <span className="text-[11px] text-ink-soft">
                 Same two renderers, mounted the way <code className="font-mono">mount.tsx</code>{' '}
-                mounts the widget: styles.css injected as a &lt;style&gt;, theme class on the inner
+                mounts the widget: app.css injected as a &lt;style&gt;, theme class on the inner
                 root.
               </span>
             </div>

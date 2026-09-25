@@ -51,7 +51,7 @@ const variants: Record<ButtonVariant, string> = {
  * swapping the element under a component that says "button" is how keyboard
  * semantics quietly break.
  *
- * Focus comes from the global `:focus-visible` outline in styles.css, so there
+ * Focus comes from the global `:focus-visible` outline in @chat/tokens, so there
  * is no ring class here; adding one would double the indicator.
  */
 export function Button({

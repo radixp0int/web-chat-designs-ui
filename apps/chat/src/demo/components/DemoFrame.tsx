@@ -6,7 +6,7 @@
 // sidebar, a nav item on the widget's host site, a sentence fragment in the
 // Mermaid lab — and /chat had none at all. A layout route rather than a wrapper
 // per page so a new demo route inherits the way home by being listed, not by
-// remembering to wrap it. The styling lives in `.demo-marker` (lib/styles.css);
+// remembering to wrap it. The styling lives in `.demo-marker` (lib/ui.css);
 // see there for why it is not utilities.
 import { Link, Outlet } from 'react-router'
 import { ChevronLeftIcon } from '../../lib/components/icons'

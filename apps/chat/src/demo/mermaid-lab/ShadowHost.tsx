@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import cssText from '@chat/tokens/tokens.css?inline'
+import cssText from '../../app.css?inline'
 
 /**
  * Renders children inside a real shadow root, set up the same way
- * `src/lib/widget/mount.tsx` does: styles.css injected as a <style>, and a
+ * `src/lib/widget/mount.tsx` does: app.css injected as a <style>, and a
  * `chat-theme-*` class on the inner root.
  *
  * This is the widget-compatibility verdict. Anything a renderer puts into
