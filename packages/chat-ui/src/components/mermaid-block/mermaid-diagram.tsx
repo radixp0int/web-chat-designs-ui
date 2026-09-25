@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import DOMPurify from 'dompurify'
 import { renderMermaidSVG } from 'beautiful-mermaid'
 import { CopyButton, useUiSize } from '@chat/ui'
-import { MermaidFrame, MermaidPending } from './frame'
+import { DrawingBox, MermaidFrame, MermaidPending } from './frame'
 import { completeLines, describeDiagram, hasBody } from './source'
 import type { MermaidBlockProps } from './types'
 
@@ -45,6 +45,32 @@ purify.addHook('uponSanitizeAttribute', (_node, data) => {
   if (/javascript:/i.test(data.attrValue.replace(/\s+/g, ''))) data.keepAttr = false
 })
 
+/**
+ * How often a streaming diagram's preview moves on. Deliberately slower than
+ * the stream: each step is a crossfade the eye can follow rather than a
+ * flicker, and elkjs's layout — the expensive part, on the main thread — runs
+ * once per step instead of once per line.
+ */
+const PREVIEW_EVERY_MS = 1500
+
+/** `value`, changing at most once every `ms` — always ending on the latest. */
+function usePaced<T>(value: T, ms: number, enabled: boolean): T {
+  const [paced, setPaced] = useState(value)
+  const last = useRef(0)
+  useEffect(() => {
+    if (!enabled) return
+    const t = setTimeout(
+      () => {
+        last.current = Date.now()
+        setPaced(value)
+      },
+      Math.max(0, last.current + ms - Date.now()),
+    )
+    return () => clearTimeout(t)
+  }, [value, ms, enabled])
+  return enabled ? paced : value
+}
+
 function draw(source: string): string | null {
   try {
     return purify.sanitize(renderMermaidSVG(source, OPTIONS), {
@@ -61,7 +87,9 @@ export default function MermaidDiagram({ code, streaming }: MermaidBlockProps) {
   const compact = useUiSize() === 'compact'
   const [showSource, setShowSource] = useState(false)
 
-  const source = streaming ? completeLines(code) : code
+  // Mid-stream, only finished lines, and only as often as the preview moves.
+  // Once the fence closes the whole source draws at once, unpaced.
+  const source = usePaced(streaming ? completeLines(code) : code, PREVIEW_EVERY_MS, !!streaming)
   const svg = useMemo(() => (drawable && hasBody(source) ? draw(source) : null), [source, drawable])
 
   // The last diagram that drew. Mid-stream, a finished line can still leave the
@@ -77,7 +105,9 @@ export default function MermaidDiagram({ code, streaming }: MermaidBlockProps) {
     if (!shown) return <MermaidPending label={label} />
     return (
       <MermaidFrame label={label} busy>
-        <Drawing svg={shown} label={label} />
+        <DrawingBox>
+          <Preview svg={shown} />
+        </DrawingBox>
       </MermaidFrame>
     )
   }
@@ -130,15 +160,48 @@ export default function MermaidDiagram({ code, streaming }: MermaidBlockProps) {
   )
 }
 
+/**
+ * The finished diagram, at its natural size. It fades in over the box it
+ * replaces — opacity only, nothing that moves — and the global reduced-motion
+ * rule makes even that instant.
+ */
 function Drawing({ svg, label }: { svg: string; label: string }) {
   return (
     <div
       role="img"
       aria-label={label}
-      className="overflow-x-auto p-4 [&>svg]:mx-auto [&>svg]:h-auto [&>svg]:max-w-full"
+      className="overflow-x-auto p-4 transition-opacity duration-500 starting:opacity-0 [&>svg]:mx-auto [&>svg]:h-auto [&>svg]:max-w-full"
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   )
+}
+
+/**
+ * The work so far, blurred and dimmed inside the fixed DrawingBox: enough to
+ * see the shape growing, not enough to read into a half-drawn diagram. Each
+ * snapshot is scaled to fit the box, so a growing diagram never changes the
+ * box's size, and crossfades in over the last one — the outgoing snapshot
+ * fades out as the incoming one fades in, so the two never show at once.
+ *
+ * With reduced motion the preview is left out entirely: the static
+ * placeholder, then the finished diagram.
+ */
+function Preview({ svg }: { svg: string }) {
+  // The last two snapshots, keyed, so the outgoing one can fade out.
+  const [frames, setFrames] = useState<{ id: number; svg: string }[]>([])
+  const newest = frames[frames.length - 1]
+  if (svg !== newest?.svg) setFrames([...frames.slice(-1), { id: (newest?.id ?? 0) + 1, svg }])
+
+  return frames.map((frame) => (
+    <div
+      key={frame.id}
+      aria-hidden
+      className={`absolute inset-0 flex items-center justify-center p-5 blur-[5px] transition-opacity duration-700 starting:opacity-0 motion-reduce:hidden [&>svg]:h-auto [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:max-w-full ${
+        frame === frames[frames.length - 1] ? 'opacity-45' : 'opacity-0'
+      }`}
+      dangerouslySetInnerHTML={{ __html: frame.svg }}
+    />
+  ))
 }
 
 function Source({ code, compact }: { code: string; compact: boolean }) {

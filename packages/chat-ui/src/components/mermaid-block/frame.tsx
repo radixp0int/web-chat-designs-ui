@@ -29,13 +29,33 @@ export function MermaidFrame({
   )
 }
 
+/**
+ * Everything a diagram shows before it is finished, in one fixed-height box.
+ *
+ * Fixed because the alternative moves the page: a diagram drawn line by line
+ * changes height with every line, pushing the text below it down and making
+ * the transcript's scroll chase it — a burst of layout shifts per diagram,
+ * which is exactly the motion that is hard on vestibular and attention
+ * sensitivities. This box holds one size from the placeholder to the last
+ * streamed line, so the only layout change is the finished diagram
+ * replacing it, once.
+ */
+export function DrawingBox({ children }: { children?: ReactNode }) {
+  return (
+    <div className="relative h-48 overflow-hidden">
+      {children}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="shimmer-text text-sm font-medium">Drawing diagram…</span>
+      </div>
+    </div>
+  )
+}
+
 /** Before the first frame is drawable — and while the renderer itself loads. */
 export function MermaidPending({ label }: { label: string }) {
   return (
     <MermaidFrame label={label} busy>
-      <div className="flex h-28 items-center justify-center">
-        <span className="shimmer-text text-sm font-medium">Drawing diagram…</span>
-      </div>
+      <DrawingBox />
     </MermaidFrame>
   )
 }
