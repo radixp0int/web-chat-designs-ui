@@ -155,7 +155,7 @@ export function ConversationView({
   return (
     <>
       <div className="relative min-h-0 flex-1">
-        <div ref={containerRef} className="h-full overflow-y-auto scroll-smooth">
+        <div ref={containerRef} className="h-full overflow-y-auto">
           <div
             ref={contentRef}
             className={`mx-auto flex w-full max-w-3xl flex-col px-5 transition-all duration-500 ${

@@ -185,6 +185,10 @@ function Drawing({ svg, label }: { svg: string; label: string }) {
  *
  * With reduced motion the preview is left out entirely: the static
  * placeholder, then the finished diagram.
+ *
+ * `will-change` gives each layer its own compositing layer, so fading it only
+ * changes that layer's opacity; without it WebKit re-rasterizes the blur on
+ * every frame of the crossfade.
  */
 function Preview({ svg }: { svg: string }) {
   // The last two snapshots, keyed, so the outgoing one can fade out.
@@ -196,7 +200,7 @@ function Preview({ svg }: { svg: string }) {
     <div
       key={frame.id}
       aria-hidden
-      className={`absolute inset-0 flex items-center justify-center p-5 blur-[5px] transition-opacity duration-700 starting:opacity-0 motion-reduce:hidden [&>svg]:h-auto [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:max-w-full ${
+      className={`absolute inset-0 flex items-center justify-center p-5 blur-[5px] transition-opacity duration-700 will-change-[opacity] starting:opacity-0 motion-reduce:hidden [&>svg]:h-auto [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:max-w-full ${
         frame === frames[frames.length - 1] ? 'opacity-45' : 'opacity-0'
       }`}
       dangerouslySetInnerHTML={{ __html: frame.svg }}
