@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import ReactMarkdown, { type Components } from 'react-markdown'
+import { createContext, useContext, useMemo, type ComponentProps } from 'react'
+import ReactMarkdown, { type Components, type ExtraProps } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import type { Source } from '../../types'
@@ -7,7 +7,9 @@ import { citationPreview, markRanges, type CitationPreview } from '../../highlig
 import { useHighlightRanges } from '../../hooks/useHighlights'
 import { CitationChip } from '../citation-chip'
 import type { CitationPreviewLookup } from '../citation-chip'
+import { MermaidBlock } from '../mermaid-block'
 import { useUiSize } from '@chat/ui'
+import { isClosedFence, mapProse } from './fences'
 import type { MarkdownProps } from './types'
 
 /**
@@ -17,22 +19,67 @@ import type { MarkdownProps } from './types'
  * While streaming, a half-received trailing marker ("[" / "[12") is hidden
  * so it never flickers as plain text.
  *
- * Limitation: markers inside code spans/blocks would also be rewritten;
- * the canned demo data keeps [n] out of code.
+ * Fenced blocks are left alone: `A[1]` is a mermaid node, not a citation, and
+ * rewriting it would break the diagram. Markers inside inline code spans
+ * would still be rewritten; the canned demo data keeps [n] out of those.
  */
 function linkifyCitations(text: string, sources: Source[] | undefined, streaming: boolean): string {
-  let out = text
-  if (sources?.length) {
-    const ids = new Set(sources.map((s) => s.id))
-    out = out.replace(/\[(\d+)\]/g, (match, n) =>
-      ids.has(Number(n)) ? `[${n}](#cite-${n})` : match,
-    )
-  }
-  if (streaming) out = out.replace(/\[\d*$/, '')
-  return out
+  const ids = new Set(sources?.map((s) => s.id))
+  return mapProse(text, (prose, last) => {
+    let out = ids.size
+      ? prose.replace(/\[(\d+)\]/g, (match, n) =>
+          ids.has(Number(n)) ? `[${n}](#cite-${n})` : match,
+        )
+      : prose
+    if (streaming && last) out = out.replace(/\[\d*$/, '')
+    return out
+  })
 }
 
 const CITE_PREFIX = '#cite-'
+
+/**
+ * What `Pre` needs to know about the whole message. A context rather than a
+ * closure because of how react-markdown uses `components`: each entry is a
+ * component *type*, and `Markdown` rebuilds that object every render — so an
+ * inline `pre` would be a new type on every streamed token, and React would
+ * remount everything under it. A diagram would lose the frame it is holding,
+ * once per token. `Pre` lives at module level and never changes identity.
+ */
+const BlockContext = createContext<{ source: string; streaming: boolean }>({
+  source: '',
+  streaming: false,
+})
+
+function Pre({ node, children }: ComponentProps<'pre'> & ExtraProps) {
+  const { source, streaming } = useContext(BlockContext)
+  const compact = useUiSize() === 'compact'
+  const code = node?.children[0]
+  const lang =
+    code?.type === 'element' && Array.isArray(code.properties.className)
+      ? code.properties.className
+      : []
+
+  if (code?.type === 'element' && lang.includes('language-mermaid')) {
+    const text = code.children.map((c) => (c.type === 'text' ? c.value : '')).join('')
+    const { start, end } = node?.position ?? {}
+    // Positions index the markdown actually rendered, so slicing it gives the
+    // fence as written — closing line included, once it has arrived.
+    const closed =
+      start?.offset != null &&
+      end?.offset != null &&
+      isClosedFence(source.slice(start.offset, end.offset))
+    return <MermaidBlock code={text.replace(/\n$/, '')} streaming={streaming && !closed} />
+  }
+
+  return (
+    <pre
+      className={`my-3 overflow-x-auto rounded-xl border border-line bg-code-block p-3.5 font-mono leading-relaxed [&>code]:bg-transparent [&>code]:p-0 ${compact ? 'text-xs' : 'text-[13px]'}`}
+    >
+      {children}
+    </pre>
+  )
+}
 
 /** Shared markdown renderer for assistant messages and reference documents. */
 export function Markdown({
@@ -109,13 +156,7 @@ export function Markdown({
         {children}
       </code>
     ),
-    pre: ({ children }) => (
-      <pre
-        className={`my-3 overflow-x-auto rounded-xl border border-line bg-code-block p-3.5 font-mono leading-relaxed [&>code]:bg-transparent [&>code]:p-0 ${compact ? 'text-xs' : 'text-[13px]'}`}
-      >
-        {children}
-      </pre>
-    ),
+    pre: Pre,
     table: ({ children }) => (
       <div className="my-3 overflow-x-auto rounded-xl border border-line">
         <table className={`w-full border-collapse ${compact ? 'text-[13px]' : 'text-sm'}`}>
@@ -144,7 +185,7 @@ export function Markdown({
   }
 
   return (
-    <>
+    <BlockContext value={{ source: rendered, streaming: !!streaming }}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         // rehype-raw only when there are highlights to render, so ordinary
@@ -155,6 +196,6 @@ export function Markdown({
         {rendered}
       </ReactMarkdown>
       {streaming && <span className="text-accent">▍</span>}
-    </>
+    </BlockContext>
   )
 }

@@ -16,6 +16,7 @@ export const todaysSuggestions: Suggestion[] = [
 /** More of what the organization asks often — suggest-as-you-type matches
  *  these too, after today's list. */
 export const typeaheadPool: Suggestion[] = [
+  { text: 'Draw the wire transfer approval flow as a diagram', reason: 'New this week' },
   { text: 'Which investment accounts changed most since Friday?', reason: 'Asked before' },
   { text: 'Which internal policies were updated this month?', reason: 'New this week' },
   { text: 'Summarize open approvals waiting on me', reason: 'Asked before' },

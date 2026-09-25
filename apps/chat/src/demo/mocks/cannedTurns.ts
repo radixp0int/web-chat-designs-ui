@@ -377,6 +377,50 @@ Internet, insurance, and phone plans are priced for inertia. A single retention 
       'A turn can also stop for good. This sentence is as far as this one gets before the connection goes',
     fault: { at: 0.72, message: 'Connection lost. The model stopped responding.', fatal: true },
   },
+  // Played on demand: two diagrams streamed as ```mermaid fences, so the
+  // drawing-while-arriving path gets exercised — a flowchart that grows node
+  // by node, then a sequence diagram.
+  {
+    match: /diagram|mermaid|flowchart|draw/i,
+    thinking:
+      'A process question answers best as a picture. I will draw the approval path as a flowchart, then show the same transfer as the messages that pass between the parties, and keep the prose to what the diagrams cannot say.',
+    content: `Here is how a wire transfer gets from your request to the recipient's account.
+
+\`\`\`mermaid
+flowchart TD
+  A[Transfer requested] --> B{Over $10,000?}
+  B -- No --> C[Automated fraud screen]
+  B -- Yes --> D[Second approver signs off]
+  D --> C
+  C -->|Clear| E[Sent to the payment network]
+  C -->|Flagged| F[Held for a specialist]
+  F -->|Released| E
+  E --> G[Settled in the recipient's account]
+\`\`\`
+
+Most transfers take the short path down the left: under the threshold, clear of the fraud screen, and settled the same business day. The two places a transfer can wait are the second approval and a specialist hold — both are people, not systems, which is why they are the ones worth asking about when a transfer is late.
+
+The same transfer, as the messages that pass between you, your bank and the network:
+
+\`\`\`mermaid
+sequenceDiagram
+  participant You
+  participant Bank as Your bank
+  participant Net as Payment network
+  You->>Bank: Request a wire
+  Bank->>Bank: Fraud screen
+  Bank->>Net: Send payment
+  Net-->>Bank: Accepted
+  Bank-->>You: Transfer complete
+\`\`\`
+
+Once the network has accepted it, a wire can no longer be recalled by your bank alone — so the fraud screen is the last cheap place to stop one.`,
+    followups: [
+      'What triggers a specialist hold?',
+      'How long does the second approval usually take?',
+      'Draw the same flow for an ACH transfer',
+    ],
+  },
 ]
 
 // Illustrative metadata for the trace panel. Applied after the fact, like the
