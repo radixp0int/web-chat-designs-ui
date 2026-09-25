@@ -2,3 +2,6 @@ dist
 dist-widget
 node_modules
 package-lock.json
+
+# Per-machine Claude Code settings — ignored by git globally, never formatted
+.claude/settings.local.json
