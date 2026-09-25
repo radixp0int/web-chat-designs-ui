@@ -1,5 +1,14 @@
-/* Utilities only the chat components use. Moves into packages/chat-ui with
-   the components it styles. */
+/* @chat/chat-ui's stylesheet. An app imports it after @chat/tokens and
+   @chat/ui — see the app's app.css — and it imports neither: package sheets
+   don't import one another, because Tailwind's import inliner does not
+   dedupe. widget/widget.css is the one exception, and says why.
+
+   The @source line is what makes this package's class names reach the app's
+   CSS at all: Tailwind only auto-scans the app's own Vite root, and this
+   package is outside it. It resolves against this file's real path. */
+@source "./**/*.{ts,tsx}";
+
+/* Utilities only the chat components use. */
 
 @layer utilities {
   /* The controls under a message: always rendered, seen only when the turn is

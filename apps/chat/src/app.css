@@ -4,4 +4,4 @@
 @import 'tailwindcss';
 @import '@chat/tokens/tokens.css';
 @import '@chat/ui/ui.css';
-@import './lib/chat-ui.css';
+@import '@chat/chat-ui/chat-ui.css';

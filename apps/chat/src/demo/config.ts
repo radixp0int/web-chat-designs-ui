@@ -1,6 +1,6 @@
 // Branding and copy in one place — rename the assistant without hunting
 // through components.
-import type { Branding } from '../lib/branding'
+import type { Branding } from '@chat/chat-ui'
 
 export const APP_NAME = 'Aristotle'
 export const MODEL_NAME = 'Aristotle AI'

@@ -8,12 +8,12 @@ import type { MessageActionsProps } from './types'
  * crosses it. It reveals against the whole turn, which must therefore carry
  * `group/turn`, and it is always visible where there is no hover at all.
  *
- * The rule itself lives in `.message-actions` (lib/chat-ui.css), with the
+ * The rule itself lives in `.message-actions` (chat-ui.css), with the
  * reasoning for each of those; the class is here so callers say `reveal`
  * rather than remembering a stylesheet name.
  */
 export function MessageActions({ children, reveal = false, className = '' }: MessageActionsProps) {
-  // `.message-actions` (lib/chat-ui.css) owns the reveal — see there for why
+  // `.message-actions` (chat-ui.css) owns the reveal — see there for why
   // it is not a pair of utilities.
   return (
     <div className={`flex items-center gap-1 ${reveal ? 'message-actions' : ''} ${className}`}>

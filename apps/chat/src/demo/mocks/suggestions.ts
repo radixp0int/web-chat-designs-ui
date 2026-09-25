@@ -1,4 +1,4 @@
-import type { Suggestion } from '../../lib/types'
+import type { Suggestion } from '@chat/chat-ui'
 
 /**
  * Today's suggested questions for the tenant. A real deployment fetches these

@@ -1,10 +1,18 @@
-import { createCannedResponder } from '../../lib/engine/chatEngine'
-import { createWsResponder } from '../../lib/engine/wsResponder'
+import {
+  createCannedResponder,
+  createWsResponder,
+  type SidePanel,
+  type WidgetContent,
+  type WidgetPosition,
+  mountWidget,
+  type MountOptions,
+  type WidgetHandle,
+  type ThemeMode,
+} from '@chat/chat-ui'
 import { SparkleIcon } from '@chat/ui'
-import type { SidePanel } from '../../lib/types'
-import type { WidgetContent, WidgetPosition } from '../../lib/widget/ChatWidget'
-import { mountWidget, type MountOptions, type WidgetHandle } from '../../lib/widget/mount'
-import type { ThemeMode } from '../../lib/widget/useHostTheme'
+// Not @chat/chat-ui's own widget.css: the side panels below render inside the
+// shadow root, so this sheet also scans this folder. See widget.css.
+import cssText from './widget.css?inline'
 import { aristotleBranding } from '../config'
 import { cannedTurns } from '../mocks/cannedTurns'
 import { todaysSuggestions, typeaheadPool } from '../mocks/suggestions'
@@ -61,12 +69,12 @@ function buildContent(): WidgetContent {
   }
 }
 
-export type AristotleChatOptions = MountOptions
+export type AristotleChatOptions = Omit<MountOptions, 'cssText'>
 export type AristotleChatHandle = WidgetHandle
 
 /** Mount the Aristotle chat widget. Returns a handle to control or remove it. */
 export function init(options: AristotleChatOptions = {}): AristotleChatHandle {
-  return mountWidget(buildContent(), options)
+  return mountWidget(buildContent(), { ...options, cssText })
 }
 
 // Auto-init when loaded via a classic script tag carrying data-auto-init:

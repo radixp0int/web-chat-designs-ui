@@ -1,5 +1,5 @@
 // Demo data behind the widget's side-rail tabs — UI only for now.
-import type { PromptTemplate, RecentChat } from '../../lib/types'
+import type { PromptTemplate, RecentChat } from '@chat/chat-ui'
 import { recentChats } from './recentChats'
 
 // The widget's filter fixtures used to live here. They are gone: the Filters

@@ -1,8 +1,6 @@
 // Canned assistant turns for the design mockup — cycled in order.
 // Inline [n] markers in content refer to the turn's `sources` by id.
-import type { CannedTurn } from '../../lib/engine/chatEngine'
-import type { Source } from '../../lib/types'
-import { sourceHighlights } from '../../lib/highlights'
+import { type CannedTurn, type Source, sourceHighlights } from '@chat/chat-ui'
 
 // Stress-test corpus: many small generated docs to exercise the reference
 // rail at scale (x-scroll, auto-scroll-into-view, prev/next across 50).

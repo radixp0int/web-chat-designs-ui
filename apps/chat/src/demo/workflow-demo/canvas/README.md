@@ -66,7 +66,7 @@ const nodeTypes = { step: StepNode, stage: StageNode }
 
 ## Colours
 
-Everything else is a semantic token from `lib/brand.css` (`--panel-solid`,
+Everything else is a semantic token from `brand.css` in @chat/tokens (`--panel-solid`,
 `--ink-strong`, `--notify`), so the kit themes light and dark with the host and
 carries no palette of its own. Orange means one thing only: a person is being
 waited on.

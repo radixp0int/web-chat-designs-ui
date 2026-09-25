@@ -4,8 +4,10 @@ import cssText from '../../app.css?inline'
 
 /**
  * Renders children inside a real shadow root, set up the same way
- * `src/lib/widget/mount.tsx` does: app.css injected as a <style>, and a
- * `chat-theme-*` class on the inner root.
+ * `mountWidget` in @chat/chat-ui does: a stylesheet injected as a <style>, and
+ * a `chat-theme-*` class on the inner root. The sheet is this app's whole
+ * app.css rather than the widget's, because what renders in here is app
+ * markup, and a shadow root sees no styles but its own.
  *
  * This is the widget-compatibility verdict. Anything a renderer puts into
  * `document.head` — mermaid injects a stylesheet there — cannot cross this

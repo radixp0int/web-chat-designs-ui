@@ -1,18 +1,21 @@
 import { useMemo, useRef } from 'react'
 import { DISCLAIMER } from '../config'
-import type {
-  ChainControls,
-  ComposerFeatures,
-  Message,
-  QueueMove,
-  QueuedMessage,
-  Suggestion,
-} from '../../lib/types'
-import { ChatMessage } from '../../lib/components/chat-message'
-import type { AskedOverChip, AskedOverScope } from '../../lib/types'
-import { Composer } from '../../lib/components/composer'
-import { QueueDock, QueueDraft, type QueueDockHandle } from '../../lib/components/queue-dock'
-import { SuggestedQuestions } from '../../lib/components/suggestions'
+import {
+  type ChainControls,
+  type ComposerFeatures,
+  type Message,
+  type QueueMove,
+  type QueuedMessage,
+  type Suggestion,
+  ChatMessage,
+  type AskedOverChip,
+  type AskedOverScope,
+  Composer,
+  QueueDock,
+  QueueDraft,
+  type QueueDockHandle,
+  SuggestedQuestions,
+} from '@chat/chat-ui'
 import { ScrollToBottomButton, useStickToBottom } from '@chat/ui'
 import { Hero } from './Hero'
 

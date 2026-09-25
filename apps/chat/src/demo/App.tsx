@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
-import { BrandingProvider } from '../lib/branding'
-import { createCannedResponder } from '../lib/engine/chatEngine'
-import type { Highlight, Source } from '../lib/types'
-import { createWsResponder } from '../lib/engine/wsResponder'
-import { CitationsProvider } from '../lib/citations'
-import { applyFeatureGate } from '../lib/settings'
-import { ReferencePanel } from '../lib/components/reference-panel'
+import {
+  BrandingProvider,
+  createCannedResponder,
+  type Highlight,
+  type Source,
+  createWsResponder,
+  CitationsProvider,
+  applyFeatureGate,
+  ReferencePanel,
+  useChat,
+} from '@chat/chat-ui'
 import { ResizableColumn, AmbientGlow } from '@chat/ui'
-import { useChat } from '../lib/hooks/useChat'
 import { useDemoScope } from './useDemoFacets'
 import { ConversationView } from './components/ConversationView'
 import { FeatureTogglesModal } from './components/FeatureTogglesModal'

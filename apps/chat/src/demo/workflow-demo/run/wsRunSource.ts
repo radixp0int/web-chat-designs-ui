@@ -1,6 +1,6 @@
 // A run driven by the workflow server.
 //
-// Same posture as lib/engine/wsResponder.ts — it never throws, and a socket it
+// Same posture as wsResponder.ts in @chat/chat-ui — it never throws, and a socket it
 // cannot reach becomes an ordinary error event rather than an exception. Two
 // things differ, both because this channel is bi-directional:
 //

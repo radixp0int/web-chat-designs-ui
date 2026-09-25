@@ -1,4 +1,4 @@
-import type { Persona } from '../lib/types'
+import type { Persona } from '@chat/chat-ui'
 
 // Placeholder names — the hints still describe what each one does, so the menu
 // stays readable until the real personas are named.

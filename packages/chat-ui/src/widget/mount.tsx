@@ -1,8 +1,5 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-// The app's whole sheet for now; the widget gets its own, scanning only the
-// library, once lib/ becomes a package.
-import cssText from '../../app.css?inline'
 import {
   ChatWidget,
   type WidgetContent,
@@ -12,12 +9,21 @@ import {
 import type { ThemeMode } from './useHostTheme'
 
 export type MountOptions = {
+  /**
+   * The whole stylesheet for the widget's shadow root, as text. A host that
+   * renders no markup of its own inside the widget passes the library's:
+   * `import cssText from '@chat/chat-ui/widget.css?inline'`. One that does —
+   * side panels, say — compiles its own sheet that also covers that markup
+   * (see widget.css). The host supplies it because only the host knows what
+   * ends up inside the shadow root, and nothing outside it can style it.
+   */
+  cssText: string
   /** Element the widget host node is appended to. Defaults to document.body. */
   target?: HTMLElement
   /** 'auto' (default) follows the host page's `dark` class / OS preference. */
   theme?: ThemeMode
   /**
-   * Brand palette, as a `chat-theme-*` class from brand.css (e.g.
+   * Brand palette, as a `chat-theme-*` class from @chat/tokens' brand.css (e.g.
    * 'chat-theme-aristotle2'). Applied to the widget's own root inside the shadow
    * tree, so the host page's own theme class can't reach it and this is the
    * only way to re-skin the widget. Omit for the default palette.
@@ -60,8 +66,9 @@ function injectFonts() {
  * host-specific pieces (responder, branding, suggestions, starters, side panels,
  * profile); `options` covers placement and theme. Returns a control handle.
  */
-export function mountWidget(content: WidgetContent, options: MountOptions = {}): WidgetHandle {
+export function mountWidget(content: WidgetContent, options: MountOptions): WidgetHandle {
   const {
+    cssText,
     target = document.body,
     theme = 'auto',
     themeClass,

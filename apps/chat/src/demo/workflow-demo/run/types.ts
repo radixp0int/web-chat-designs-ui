@@ -1,6 +1,6 @@
 // The seam between "what a run is" and "where a run comes from".
 //
-// This mirrors `Responder` in lib/engine/chatEngine.ts: the page knows only
+// This mirrors `Responder` in @chat/chat-ui (engine/chatEngine.ts): the page knows only
 // `RunSource`, and the two implementations — a hard-coded run and a WebSocket
 // server — are interchangeable behind it. Nothing in here imports React.
 import type {

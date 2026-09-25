@@ -1,0 +1,12 @@
+/* The Aristotle widget's shadow-root stylesheet. It is @chat/chat-ui's
+   widget.css plus one line: the side panels in this folder render inside the
+   shadow root, so their classes have to be in here too. Anything else this
+   app renders never reaches the shadow root, and `source(none)` keeps it out.
+
+   Rule that buys: markup this app renders inside the widget lives in this
+   folder, or the @source below grows to cover it. */
+@import 'tailwindcss' source(none);
+@import '@chat/tokens/tokens.css';
+@import '@chat/ui/ui.css';
+@import '@chat/chat-ui/chat-ui.css';
+@source './**/*.{ts,tsx}';

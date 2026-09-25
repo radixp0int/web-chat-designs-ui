@@ -14,7 +14,7 @@ import {
   type FacetSelection,
   type FacetValue,
 } from '@chat/ui'
-import type { AskedOverChip } from '../../lib/types'
+import type { AskedOverChip } from '@chat/chat-ui'
 
 export const LOAN_COUNT = 20412
 

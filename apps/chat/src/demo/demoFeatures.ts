@@ -8,11 +8,11 @@ import {
   type FeatureCatalogue,
   type FeatureFlagsValue,
 } from '@chat/ui'
-import type { ComposerFeatures } from '../lib'
+import type { ComposerFeatures } from '@chat/chat-ui'
 
 /**
  * The demo's settings surface, built on the library's generic machinery
- * (`src/lib/settings`) rather than its own.
+ * (`settings` in @chat/ui) rather than its own.
  *
  * It is written the way a real tenant configuration would be: the catalogue is data, the
  * optional sections are booleans, and every string is content. Swapping in a

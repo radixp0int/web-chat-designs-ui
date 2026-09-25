@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { CountBadge, FacetFilters, FunnelIcon } from '@chat/ui'
-import { PersonaPanel } from '../../lib/components/persona-panel'
-import { RecentChatsPanel } from '../../lib/components/recent-chats-panel'
+import { PersonaPanel, RecentChatsPanel } from '@chat/chat-ui'
 import { describeFacetType, FACET_TYPES } from '../mocks/facets'
 import { demoPromptTemplates, demoRecentChats } from '../mocks/sideTabData'
 import { personas } from '../personas'
