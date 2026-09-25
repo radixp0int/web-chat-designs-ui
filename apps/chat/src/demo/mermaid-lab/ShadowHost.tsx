@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import cssText from '../../lib/styles.css?inline'
+import cssText from '@chat/tokens/tokens.css?inline'
 
 /**
  * Renders children inside a real shadow root, set up the same way

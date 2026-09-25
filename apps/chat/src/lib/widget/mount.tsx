@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import cssText from '../styles.css?inline'
+import cssText from '@chat/tokens/tokens.css?inline'
 import {
   ChatWidget,
   type WidgetContent,
