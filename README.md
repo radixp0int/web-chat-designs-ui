@@ -170,42 +170,31 @@ npm run dev
 | `/`              | Landing page linking to the demos                                                                                                                                                                                                     |
 | `/chat`          | Full-page assistant — sidebar, streaming, inline citations + reference reader                                                                                                                                                         |
 | `/widget-demo`   | A host page ("Alder & Finch") with the chat embedded as a floating widget                                                                                                                                                             |
-| `/workflow-demo` | A multi-step agentic run with a human approval step — React Flow canvas, normal/compact views, zoom levels of detail. See [its README](src/demo/workflow-demo/README.md)                                                              |
+| `/workflow-demo` | A multi-step agentic run with a human approval step — React Flow canvas, normal/compact views, zoom levels of detail. See [its README](apps/chat/src/demo/workflow-demo/README.md)                                                    |
 | `/workflow-live` | The same canvas driven by `../workflow-ws-server`: three workflow variants stream in, the run log fills as work happens, and approvals go back over the socket. Falls back to the hard-coded run when `VITE_WORKFLOW_WS_URL` is unset |
-| `/mermaid-lab`   | **Temporary.** Two mermaid renderers side by side against one diagram corpus. Deleted, along with the losing dependency, once a renderer is picked.                                                                                   |
 
 ### Project structure
 
 ```
-src/
-  lib/                     the extractable library — no imports from demo/
-    index.ts               public API (barrel)
-    engine/                Responder contract, canned + WS responders, wire types
-    hooks/                 useChat, useSpeechRecognition, useAutoGrowTextarea, …
-    components/            one folder per component
-    widget/                ChatWidget, WidgetPanel, mount (shadow root), useHostTheme
-    branding.ts            Branding context
-    citations.ts           cite-handler context
-    uiSize.ts              density context
-    types.ts               shared domain shapes
-    brand.css / styles.css themes and Tailwind wiring
-  demo/                    the Aristotle app that consumes lib/
+apps/chat/src/
+  demo/                    the Aristotle app that consumes the packages
     App.tsx                full-page chat
     config.ts              Aristotle branding
-    personas.ts            persona list
-    components/            app chrome — Sidebar, TopBar, Hero, AmbientGlow, …
-    mocks/                 client-side fallback data — cannedTurns, sideTabData
-    widget/                Aristotle widget bootstrap (font inject, auto-init, side panels)
-    pages/                 LandingPage, WidgetDemoPage
+    components/            app chrome — Sidebar, TopBar, conversation shell, …
+    mocks/                 client-side fallback data — canned turns and suggestions
+    widget/                Aristotle widget bootstrap
+    pages/                 landing, widget host and primitive workbenches
     workflow-demo/         agentic run canvas (React Flow) — see its README
-      README.md            what the demo does — start here
-      DESIGN.md            why it is built this way
       canvas/              the portable kit — nodes, edges, zoom tiers
       run/                 the RunSource seam — wire types, layout, reducer, sources
       panels/              host chrome — sidebar, top bar, inspector, lanes, run log
       example/             the hard-coded loan run
-    mermaid-lab/           temporary renderer bake-off
-  main.tsx                 router entry
+  main.tsx                 router entry; every demo is served by this app
+
+packages/
+  chat-ui/                 chat components, engine, hooks and widget shell
+  ui/                      product-agnostic primitives and shell components
+  tokens/                  themes, tokens, fonts and shared utilities
 ```
 
 ---
@@ -213,24 +202,24 @@ src/
 ## Response modes
 
 Two responders behind one `Responder` interface, selected by one environment
-variable ([App.tsx](src/demo/App.tsx), [aristotleWidget.tsx](src/demo/widget/aristotleWidget.tsx)):
+variable ([App.tsx](apps/chat/src/demo/App.tsx), [aristotleWidget.tsx](apps/chat/src/demo/widget/aristotleWidget.tsx)):
 
-| `VITE_WS_URL`             | Responder               | Turns come from                      |
-| ------------------------- | ----------------------- | ------------------------------------ |
-| set (the shipped default) | `createWsResponder`     | `../chat-ws-server/src/scenarios.ts` |
-| unset / commented out     | `createCannedResponder` | `src/demo/mocks/cannedTurns.ts`      |
+| `VITE_WS_URL`             | Responder               | Turns come from                           |
+| ------------------------- | ----------------------- | ----------------------------------------- |
+| set (the shipped default) | `createWsResponder`     | `../chat-ws-server/src/scenarios.ts`      |
+| unset / commented out     | `createCannedResponder` | `apps/chat/src/demo/mocks/cannedTurns.ts` |
 
 `VITE_WS_URL` is read **only at Vite startup**. Editing `.env.development` needs
 a dev-server restart; an HMR reload won't pick it up.
 
 The workflow canvas has the same seam, one level up: `RunSource` instead of
 `Responder`, chosen by its own variable
-([LiveWorkflow.tsx](src/demo/workflow-demo/LiveWorkflow.tsx)).
+([LiveWorkflow.tsx](apps/chat/src/demo/workflow-demo/LiveWorkflow.tsx)).
 
-| `VITE_WORKFLOW_WS_URL`    | Source                  | Runs come from                              |
-| ------------------------- | ----------------------- | ------------------------------------------- |
-| set (the shipped default) | `wsRunSource`           | `../workflow-ws-server/src/variants/`       |
-| unset / commented out     | `createStaticRunSource` | `src/demo/workflow-demo/example/loanRun.ts` |
+| `VITE_WORKFLOW_WS_URL`    | Source                  | Runs come from                                        |
+| ------------------------- | ----------------------- | ----------------------------------------------------- |
+| set (the shipped default) | `wsRunSource`           | `../workflow-ws-server/src/variants/`                 |
+| unset / commented out     | `createStaticRunSource` | `apps/chat/src/demo/workflow-demo/example/loanRun.ts` |
 
 `/workflow-demo` always uses the static source, so it works with no server at
 all. Only `/workflow-live` looks at the variable. Both ports are separate:
@@ -268,7 +257,7 @@ Why each of the last four falls where it does:
 
 Everything outside the response stream is UI-only in both modes: the theme
 toggle, sidebar, account menu and its two settings dialogs, persona menu,
-resizable reference pane, the embedded widget, side tabs, and the mermaid lab.
+resizable reference pane, the embedded widget, and side tabs.
 
 Two composer affordances are deliberately façades, so nobody goes hunting for a
 backend: the **mic** drives the browser Web Speech API and hides itself where
@@ -955,7 +944,7 @@ The widget can be built as a single self-contained IIFE that any page loads with
 one script tag:
 
 ```sh
-npm run build:widget       # → dist-widget/aristotle-widget.js (exposes window.AristotleChat)
+npm run build:widget       # → apps/chat/dist-widget/aristotle-widget.js (exposes window.AristotleChat)
 npm run preview:widget
 ```
 
@@ -985,13 +974,13 @@ returns an `open` / `close` / `setTheme` / `destroy` handle.
 
 ## Scripts
 
-| Script                   | Does                                           |
-| ------------------------ | ---------------------------------------------- |
-| `npm run dev`            | Dev server                                     |
-| `npm run build`          | Type-check + production build of the demo app  |
-| `npm run preview`        | Serve the built demo app                       |
-| `npm run build:widget`   | Build the embeddable widget bundle             |
-| `npm run preview:widget` | Serve the built widget + its embed test page   |
-| `npm run typecheck`      | `tsc -b`                                       |
-| `npm run lint`           | oxlint                                         |
-| `npm run format`         | Prettier write (`format:check` to verify only) |
+| Script                   | Does                                          |
+| ------------------------ | --------------------------------------------- |
+| `npm run dev`            | Dev server                                    |
+| `npm run build`          | Type-check + production build of the demo app |
+| `npm run preview`        | Serve the built demo app                      |
+| `npm run build:widget`   | Build the embeddable widget bundle            |
+| `npm run preview:widget` | Serve the built widget + its embed test page  |
+| `npm run typecheck`      | `tsc -b` in every workspace                   |
+| `npm run lint`           | oxlint                                        |
+| `npm run format`         | Oxfmt write (`format:check` to verify only)   |

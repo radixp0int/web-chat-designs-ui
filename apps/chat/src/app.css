@@ -1,0 +1,7 @@
+/* This app's whole stylesheet, and the one place its import order is decided.
+   Package sheets never import one another — Tailwind's import inliner does not
+   dedupe, so a shared import would emit its rules twice. */
+@import 'tailwindcss';
+@import '@chat/tokens/tokens.css';
+@import '@chat/ui/ui.css';
+@import '@chat/chat-ui/chat-ui.css';

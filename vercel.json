@@ -1,4 +1,7 @@
 {
+  "installCommand": "npm install --include=dev",
+  "buildCommand": "npm run build --workspace=@chat/chat-app",
+  "outputDirectory": "apps/chat/dist",
   "rewrites": [
     {
       "source": "/(.*)",

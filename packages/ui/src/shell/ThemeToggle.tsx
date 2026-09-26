@@ -1,0 +1,33 @@
+import { useEffect, useState } from 'react'
+import { MoonIcon, SunIcon } from '../components/icons'
+
+/**
+ * Where the light/dark choice is kept. Every app's index.html reads the same
+ * key before first paint (@chat/tokens' head.html), so the two must agree.
+ */
+export const THEME_MODE_KEY = 'aristotle-theme'
+
+export function ThemeToggle() {
+  const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'))
+
+  useEffect(() => {
+    // Keep an explicit light/dark class pair on <html>: the embedded widget's
+    // 'auto' theme reads them, and a bare element would fall back to the OS
+    // preference instead of this toggle.
+    document.documentElement.classList.toggle('dark', dark)
+    document.documentElement.classList.toggle('light', !dark)
+    localStorage.setItem(THEME_MODE_KEY, dark ? 'dark' : 'light')
+  }, [dark])
+
+  return (
+    <button
+      type="button"
+      onClick={() => setDark((d) => !d)}
+      aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={dark ? 'Light mode' : 'Dark mode'}
+      className="glass flex size-9 items-center justify-center rounded-full text-ink-soft transition hover:text-accent"
+    >
+      {dark ? <SunIcon width={16} height={16} /> : <MoonIcon width={16} height={16} />}
+    </button>
+  )
+}
