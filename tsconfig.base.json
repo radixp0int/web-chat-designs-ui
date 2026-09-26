@@ -7,7 +7,7 @@
     "lib": ["ES2023", "DOM"],
     "module": "esnext",
     // Here rather than per app: `?inline` CSS imports (the widget's shadow
-    // sheet, the mermaid lab's ShadowHost) only typecheck with Vite's types.
+    // sheet) only typecheck with Vite's types.
     "types": ["vite/client"],
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,

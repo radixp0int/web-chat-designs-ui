@@ -1,10 +1,9 @@
 // The shell every demo route sits inside. Its whole job is the bookmark: a
 // rounded tab parked off the left edge that slides out on hover and goes home.
 //
-// One copy, because the pages had three different answers to the same
-// question — a footer link in the workflow sidebar, a nav item on the widget's
-// host site, a sentence fragment in the Mermaid lab — and /chat had none at
-// all. Mount it once around the routes (a layout route passing `<Outlet />` as
+// One copy, because the pages had two different answers to the same question —
+// a footer link in the workflow sidebar, a nav item on the widget's host site —
+// and /chat had none at all. Mount it once around the routes (a layout route passing `<Outlet />` as
 // children) so a new demo route inherits the way home by being listed, not by
 // remembering to wrap it. The styling lives in `.demo-marker` (ui.css); see
 // there for why it is not utilities.

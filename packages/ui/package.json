@@ -1,9 +1,9 @@
 {
   "name": "@chat/ui",
-  "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "private": true,
   "description": "The generic UI layer: core primitives, icons, overlays, settings plumbing and the demo shell. Source-only; each app's Vite compiles it.",
+  "type": "module",
   "sideEffects": [
     "*.css"
   ],

@@ -20,7 +20,14 @@ import type { ComposerFeatures } from '@chat/chat-ui'
  * see the "User-toggleable features" recipe in the README.
  */
 export type DemoFeatureId =
-  'suggestions' | 'queue' | 'thinking' | 'tools' | 'sources' | 'followups' | 'actions' | 'trace'
+  | 'suggestions'
+  | 'queue'
+  | 'thinking'
+  | 'tools'
+  | 'sources'
+  | 'followups'
+  | 'actions'
+  | 'trace'
 
 /**
  * What this viewer may switch, grouped by where the feature lands in a

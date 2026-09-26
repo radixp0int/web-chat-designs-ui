@@ -19,7 +19,14 @@
 export type WireStepKind = 'trigger' | 'agent' | 'tool' | 'human' | 'decision'
 
 export type WireStepStatus =
-  'done' | 'running' | 'waiting' | 'queued' | 'skipped' | 'failed' | 'approved' | 'changes'
+  | 'done'
+  | 'running'
+  | 'waiting'
+  | 'queued'
+  | 'skipped'
+  | 'failed'
+  | 'approved'
+  | 'changes'
 
 export type WireStageStatus = 'done' | 'current' | 'upcoming'
 

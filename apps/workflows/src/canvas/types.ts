@@ -6,7 +6,14 @@ import type { Node } from '@xyflow/react'
 export type StepKind = 'trigger' | 'agent' | 'tool' | 'human' | 'decision'
 
 export type StepStatus =
-  'done' | 'running' | 'waiting' | 'queued' | 'skipped' | 'failed' | 'approved' | 'changes'
+  | 'done'
+  | 'running'
+  | 'waiting'
+  | 'queued'
+  | 'skipped'
+  | 'failed'
+  | 'approved'
+  | 'changes'
 
 export type EdgeState = 'done' | 'active' | 'pending' | 'skipped'
 

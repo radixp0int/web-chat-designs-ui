@@ -1,7 +1,7 @@
 {
   "name": "@chat/tokens",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
   "description": "The brand as CSS: palettes, the Tailwind theme bridge, base styles, shared utilities, and the inline <head> snippet. No JavaScript.",
   "exports": {
     "./tokens.css": "./src/tokens.css",

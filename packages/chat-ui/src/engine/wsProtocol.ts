@@ -151,7 +151,12 @@ export interface ErrorEvent extends WSEventBase, WSTurnError {
 
 /** Any event that can come across the socket. */
 export type WSEvent =
-  TokenEvent | ThinkingEvent | ThoughtEvent | SummaryEvent | ToolEvent | ErrorEvent
+  | TokenEvent
+  | ThinkingEvent
+  | ThoughtEvent
+  | SummaryEvent
+  | ToolEvent
+  | ErrorEvent
 
 /** Maps each type tag to its event shape. Useful for a typed on(type, handler) API. */
 export interface WSEventMap {

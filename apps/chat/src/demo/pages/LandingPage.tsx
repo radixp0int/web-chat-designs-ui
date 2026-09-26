@@ -93,28 +93,6 @@ export function LandingPage() {
             )
           })}
         </div>
-
-        {/* Temporary — remove with src/demo/mermaid-lab/ once a renderer is chosen. */}
-        <Link
-          to="/mermaid-lab"
-          className="glass mt-4 flex w-full items-center gap-3 rounded-2xl px-5 py-3.5 text-left transition hover:border-accent/40"
-        >
-          <PlanIcon width={18} height={18} className="shrink-0 text-accent" />
-          <span className="min-w-0 flex-1">
-            <span className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-ink-strong">
-                Mermaid renderer bake-off
-              </span>
-              <span className="rounded-full bg-chip px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-chip-fg uppercase">
-                Lab
-              </span>
-            </span>
-            <span className="block text-xs text-ink-soft">
-              Two diagram libraries side by side. Temporary — delete after we pick one.
-            </span>
-          </span>
-          <ChevronRightIcon width={16} height={16} className="shrink-0 text-ink-soft" />
-        </Link>
       </main>
     </div>
   )

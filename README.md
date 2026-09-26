@@ -172,7 +172,6 @@ npm run dev
 | `/widget-demo`   | A host page ("Alder & Finch") with the chat embedded as a floating widget                                                                                                                                                             |
 | `/workflow-demo` | A multi-step agentic run with a human approval step — React Flow canvas, normal/compact views, zoom levels of detail. See [its README](src/demo/workflow-demo/README.md)                                                              |
 | `/workflow-live` | The same canvas driven by `../workflow-ws-server`: three workflow variants stream in, the run log fills as work happens, and approvals go back over the socket. Falls back to the hard-coded run when `VITE_WORKFLOW_WS_URL` is unset |
-| `/mermaid-lab`   | **Temporary.** Two mermaid renderers side by side against one diagram corpus. Deleted, along with the losing dependency, once a renderer is picked.                                                                                   |
 
 ### Project structure
 
@@ -204,7 +203,6 @@ src/
       run/                 the RunSource seam — wire types, layout, reducer, sources
       panels/              host chrome — sidebar, top bar, inspector, lanes, run log
       example/             the hard-coded loan run
-    mermaid-lab/           temporary renderer bake-off
   main.tsx                 router entry
 ```
 
@@ -268,7 +266,7 @@ Why each of the last four falls where it does:
 
 Everything outside the response stream is UI-only in both modes: the theme
 toggle, sidebar, account menu and its two settings dialogs, persona menu,
-resizable reference pane, the embedded widget, side tabs, and the mermaid lab.
+resizable reference pane, the embedded widget, and side tabs.
 
 Two composer affordances are deliberately façades, so nobody goes hunting for a
 backend: the **mic** drives the browser Web Speech API and hides itself where
@@ -985,13 +983,13 @@ returns an `open` / `close` / `setTheme` / `destroy` handle.
 
 ## Scripts
 
-| Script                   | Does                                           |
-| ------------------------ | ---------------------------------------------- |
-| `npm run dev`            | Dev server                                     |
-| `npm run build`          | Type-check + production build of the demo app  |
-| `npm run preview`        | Serve the built demo app                       |
-| `npm run build:widget`   | Build the embeddable widget bundle             |
-| `npm run preview:widget` | Serve the built widget + its embed test page   |
-| `npm run typecheck`      | `tsc -b` in every workspace                    |
-| `npm run lint`           | oxlint                                         |
-| `npm run format`         | Prettier write (`format:check` to verify only) |
+| Script                   | Does                                          |
+| ------------------------ | --------------------------------------------- |
+| `npm run dev`            | Dev server                                    |
+| `npm run build`          | Type-check + production build of the demo app |
+| `npm run preview`        | Serve the built demo app                      |
+| `npm run build:widget`   | Build the embeddable widget bundle            |
+| `npm run preview:widget` | Serve the built widget + its embed test page  |
+| `npm run typecheck`      | `tsc -b` in every workspace                   |
+| `npm run lint`           | oxlint                                        |
+| `npm run format`         | Oxfmt write (`format:check` to verify only)   |

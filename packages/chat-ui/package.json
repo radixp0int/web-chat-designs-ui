@@ -1,9 +1,9 @@
 {
   "name": "@chat/chat-ui",
-  "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "private": true,
   "description": "The chat experience: engine, hooks, chat components and the embeddable widget. Source-only; each app's Vite compiles it.",
+  "type": "module",
   "sideEffects": [
     "*.css"
   ],

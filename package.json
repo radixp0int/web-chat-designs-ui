@@ -1,38 +1,38 @@
 {
   "name": "chat-interfaces",
-  "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "private": true,
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
+  "type": "module",
   "scripts": {
     "dev": "npm run dev -w apps/chat",
     "dev:workflows": "npm run dev -w apps/workflows",
     "build": "npm run build --workspaces --if-present",
     "build:widget": "npm run build:widget -w apps/chat",
     "lint": "oxlint",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
     "preview": "npm run preview -w apps/chat",
     "preview:workflows": "npm run preview -w apps/workflows",
     "preview:widget": "npm run preview:widget -w apps/chat",
-    "prepare": "husky",
+    "prepare": "node .husky/install.mjs",
     "typecheck": "npm run typecheck --workspaces --if-present"
   },
   "devDependencies": {
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
+    "oxfmt": "0.70.0",
     "oxlint": "^1.71.0",
-    "prettier": "^3.9.5",
     "typescript": "~6.0.2"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "prettier --write",
+      "oxfmt --no-error-on-unmatched-pattern",
       "oxlint --fix --max-warnings=0"
     ],
-    "*.{json,css,md}": "prettier --write"
+    "*.{json,css,md}": "oxfmt --no-error-on-unmatched-pattern"
   }
 }
