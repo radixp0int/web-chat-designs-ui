@@ -23,58 +23,55 @@ const boxes: Record<TextInputSize, string> = {
  */
 export function TextInput({
   inputSize = 'md',
-  label,
-  showLabel = false,
   icon,
   onClear,
+  clearLabel,
   prefix,
   suffix,
   className = '',
-  id,
   ref,
   ...rest
 }: TextInputProps) {
-  const inputId = id ?? `in-${label.replace(/\s+/g, '-').toLowerCase()}`
   const hasValue = rest.value != null && String(rest.value).length > 0
+  const invalid = rest['aria-invalid'] === true || rest['aria-invalid'] === 'true'
 
   return (
-    <span className={['inline-flex min-w-0 flex-col gap-1', className].filter(Boolean).join(' ')}>
-      <label
-        htmlFor={inputId}
-        className={showLabel ? 'text-[12.5px] font-bold text-ink-soft' : 'sr-only'}
-      >
-        {label}
-      </label>
-      <span
-        className={[
-          'inline-flex min-w-0 items-center rounded-lg border border-line bg-panel-solid transition',
-          'focus-within:border-accent focus-within:ring-3 focus-within:ring-accent/20',
-          boxes[inputSize],
-        ].join(' ')}
-      >
-        {icon && (
-          <span className="inline-grid shrink-0 place-items-center text-ink-soft">{icon}</span>
-        )}
-        {prefix}
-        <input
-          id={inputId}
-          ref={ref}
-          className="min-w-0 grow bg-transparent text-ink outline-none placeholder:text-ink-soft"
-          {...rest}
-        />
-        {onClear && hasValue && (
-          <IconButton
-            size="sm"
-            shape="rounded"
-            onClick={onClear}
-            aria-label={`Clear ${label}`}
-            title="Clear"
-          >
-            <XIcon width={11} height={11} />
-          </IconButton>
-        )}
-        {suffix}
-      </span>
+    <span
+      className={[
+        'inline-flex min-w-0 items-center rounded-lg border bg-panel-solid transition',
+        invalid
+          ? 'border-danger focus-within:ring-3 focus-within:ring-danger/15'
+          : 'border-line hover:border-ink-soft/40 focus-within:border-accent focus-within:ring-3 focus-within:ring-accent/20',
+        rest.disabled ? 'pointer-events-none opacity-40' : '',
+        rest.readOnly ? 'bg-tint/5' : '',
+        boxes[inputSize],
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      {icon && (
+        <span className="inline-grid shrink-0 place-items-center text-ink-soft">{icon}</span>
+      )}
+      {prefix}
+      <input
+        ref={ref}
+        className="min-w-0 grow bg-transparent text-ink outline-none placeholder:text-ink-soft"
+        {...rest}
+      />
+      {onClear && hasValue && (
+        <IconButton
+          size="sm"
+          shape="rounded"
+          onClick={onClear}
+          disabled={rest.disabled || rest.readOnly}
+          aria-label={clearLabel}
+          title={clearLabel}
+        >
+          <XIcon width={11} height={11} />
+        </IconButton>
+      )}
+      {suffix}
     </span>
   )
 }

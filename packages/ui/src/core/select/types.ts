@@ -13,8 +13,5 @@ export type SelectProps = Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size' |
   /** Rendered as `<option>`s. Pass `children` instead for groups. */
   options?: SelectOption[]
   children?: ReactNode
-  /** Visually hidden unless `showLabel` — a select still needs an accessible name. */
-  label: string
-  showLabel?: boolean
   ref?: Ref<HTMLSelectElement>
 }

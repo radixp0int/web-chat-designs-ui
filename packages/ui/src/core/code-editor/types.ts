@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactNode, Ref } from 'react'
 
 export type CodeLanguage = 'json' | 'yaml' | 'text'
 
@@ -22,6 +22,12 @@ export type CodeDiagnostic = {
   message: string
 }
 
+export type CodeEditorHandle = {
+  /** Validate the latest controlled value and focus the editor when it is invalid. */
+  checkValid: () => boolean
+  focus: () => void
+}
+
 export type CodeEditorProps = {
   value: string
   /** Omit for a read-only viewer. */
@@ -38,6 +44,8 @@ export type CodeEditorProps = {
   validate?: boolean | ((value: string) => CodeDiagnostic | null)
   /** Called whenever the diagnostic changes, so a form can block a save. */
   onDiagnosticChange?: (diagnostic: CodeDiagnostic | null) => void
+  /** Called only when an explicit `ref.checkValid()` attempt fails. */
+  onInvalid?: (diagnostic: CodeDiagnostic) => void
   /** Spaces per indent step — what Tab inserts and what the guides are spaced by. */
   tabSize?: number
   /** Header content on the left — usually a file name. No header without it or `actions`. */
@@ -49,4 +57,5 @@ export type CodeEditorProps = {
   /** On the outer box. Give it a height; the code scrolls inside it. */
   className?: string
   id?: string
+  ref?: Ref<CodeEditorHandle>
 }

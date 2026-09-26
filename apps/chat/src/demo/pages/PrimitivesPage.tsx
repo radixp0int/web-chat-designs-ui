@@ -4,8 +4,14 @@
 //
 // Wired into main.tsx under DemoFrame, so the back-to-demos bookmark still
 // works even though nothing links here.
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Breadcrumbs,
   Button,
   Checkbox,
   CodeEditor,
@@ -15,7 +21,18 @@ import {
   lintCode,
   Pagination,
   Select,
+  Slider,
   Pill,
+  RadioGroup,
+  RadioGroupItem,
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+  Textarea,
   TextInput,
   djangoPageAdapter,
   formatSort,
@@ -25,7 +42,7 @@ import {
   TrashIcon,
   ThemeToggle,
 } from '@chat/ui'
-import type { CodeLanguage, DiffEditable } from '@chat/ui'
+import type { CodeEditorHandle, CodeLanguage, DiffEditable } from '@chat/ui'
 import { codeSamples, diffSample } from '../mocks/codeSamples'
 
 /** One titled block. `note` is the design rule the block is evidence for. */
@@ -74,6 +91,8 @@ export function PrimitivesPage() {
   const some = picked.length > 0 && !allOn
 
   const [query, setQuery] = useState('crestview')
+  const [budget, setBudget] = useState(45)
+  const [plan, setPlan] = useState('team')
 
   // CodeEditor — one document per language, so switching and back keeps edits.
   const [lang, setLang] = useState<CodeLanguage>('json')
@@ -91,6 +110,11 @@ export function PrimitivesPage() {
   const [diffModified, setDiffModified] = useState(diffSample.modified)
   const diffEdited = diffOriginal !== diffSample.original || diffModified !== diffSample.modified
   const [diffCopied, setDiffCopied] = useState<string | null>(null)
+
+  const wizardEditor = useRef<CodeEditorHandle>(null)
+  const [wizardCode, setWizardCode] = useState('{\n  "enabled": true,\n}')
+  const [wizardStep, setWizardStep] = useState(1)
+  const [wizardError, setWizardError] = useState<string | null>(null)
 
   // Pagination — live, and the envelope below is rebuilt from this state, so
   // the adapter readout is proof rather than illustration.
@@ -232,18 +256,20 @@ export function PrimitivesPage() {
 
         <Section
           title="Select"
-          note="A real <select> with the platform arrow replaced. The popup stays the one the OS already made keyboard-, touch- and screen-reader-correct. `label` is required — a bare select in a footer reads as “10” with no hint of what it sizes."
+          note="A label-agnostic native <select> with the platform arrow replaced. Pair it with FieldLabel in forms or provide an accessible name in compact toolbars."
         >
           <Row label="Sizes">
+            <Field>
+              <FieldLabel htmlFor="primitive-page-size">Rows per page</FieldLabel>
+              <Select
+                id="primitive-page-size"
+                selectSize="sm"
+                defaultValue={25}
+                options={[10, 25, 50, 100].map((n) => ({ value: n, label: String(n) }))}
+              />
+            </Field>
             <Select
-              label="Rows per page"
-              showLabel
-              selectSize="sm"
-              defaultValue={25}
-              options={[10, 25, 50, 100].map((n) => ({ value: n, label: String(n) }))}
-            />
-            <Select
-              label="Status filter"
+              aria-label="Status filter"
               selectSize="md"
               defaultValue="active"
               options={[
@@ -254,7 +280,7 @@ export function PrimitivesPage() {
             />
           </Row>
           <Row label="Disabled">
-            <Select label="Region" disabled options={[{ value: 'ne', label: 'Northeast' }]} />
+            <Select aria-label="Region" disabled options={[{ value: 'ne', label: 'Northeast' }]} />
           </Row>
         </Section>
 
@@ -263,28 +289,31 @@ export function PrimitivesPage() {
           note="The shell carries the border and the focus ring; the input is transparent. That is what lets prefix chips, the clear button and a ⌘K hint sit inside one outline — the omnibox needs it, so it belongs in the primitive."
         >
           <Row label="Basic">
-            <TextInput
-              label="Tenant name"
-              showLabel
-              placeholder="Any name"
-              className="w-56"
-              defaultValue=""
-            />
+            <Field>
+              <FieldLabel htmlFor="primitive-tenant">Tenant name</FieldLabel>
+              <TextInput
+                id="primitive-tenant"
+                placeholder="Any name"
+                className="w-56"
+                defaultValue=""
+              />
+            </Field>
           </Row>
           <Row label="Search">
             <TextInput
-              label="Search tenants"
+              aria-label="Search tenants"
               placeholder="Search all fields…"
               icon={<SearchIcon width={15} height={15} />}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onClear={() => setQuery('')}
+              clearLabel="Clear tenant search"
               className="w-72"
             />
           </Row>
           <Row label="Omnibox">
             <TextInput
-              label="Search and filter"
+              aria-label="Search and filter"
               inputSize="lg"
               placeholder="Search, or type a field name…"
               icon={<SearchIcon width={16} height={16} />}
@@ -302,6 +331,190 @@ export function PrimitivesPage() {
               }
             />
           </Row>
+        </Section>
+
+        <Section
+          title="Form composition"
+          note="Controls stay atomic. Field owns the visible label, description and error relationship; every colour and state comes from the active brand tokens."
+        >
+          <form
+            className="max-w-xl"
+            onSubmit={(event) => {
+              event.preventDefault()
+            }}
+          >
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="form-project">Project name</FieldLabel>
+                <TextInput
+                  id="form-project"
+                  name="project"
+                  placeholder="Claims assistant"
+                  aria-describedby="form-project-help"
+                />
+                <FieldDescription id="form-project-help">
+                  Used in the workspace navigation and audit log.
+                </FieldDescription>
+              </Field>
+
+              <Field data-invalid>
+                <FieldLabel htmlFor="form-key">API key</FieldLabel>
+                <TextInput
+                  id="form-key"
+                  name="apiKey"
+                  defaultValue="invalid-key"
+                  aria-invalid="true"
+                  aria-describedby="form-key-error"
+                />
+                <FieldError id="form-key-error">Use a key beginning with sk-.</FieldError>
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="form-description">Instructions</FieldLabel>
+                <Textarea
+                  id="form-description"
+                  name="description"
+                  placeholder="Describe how this assistant should respond…"
+                  aria-describedby="form-description-help"
+                />
+                <FieldDescription id="form-description-help">
+                  Plain text, up to 500 characters.
+                </FieldDescription>
+              </Field>
+
+              <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
+                <Field>
+                  <FieldLabel htmlFor="form-region">Region</FieldLabel>
+                  <Select
+                    id="form-region"
+                    name="region"
+                    defaultValue="us-east"
+                    options={[
+                      { value: 'us-east', label: 'US East' },
+                      { value: 'us-west', label: 'US West' },
+                      { value: 'eu-west', label: 'EU West' },
+                    ]}
+                  />
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="form-budget">Monthly budget</FieldLabel>
+                  <Slider
+                    id="form-budget"
+                    name="budget"
+                    min={10}
+                    max={100}
+                    step={5}
+                    value={budget}
+                    onValueChange={setBudget}
+                    formatValue={(value) => `$${value}`}
+                  />
+                </Field>
+              </div>
+
+              <FieldSet>
+                <FieldLegend>Plan</FieldLegend>
+                <FieldDescription id="form-plan-help">
+                  Choose the collaboration level for this workspace.
+                </FieldDescription>
+                <RadioGroup
+                  name="plan"
+                  value={plan}
+                  onValueChange={setPlan}
+                  aria-describedby="form-plan-help"
+                >
+                  {[
+                    ['starter', 'Starter'],
+                    ['team', 'Team'],
+                    ['enterprise', 'Enterprise'],
+                  ].map(([value, label]) => (
+                    <div key={value} className="flex items-center gap-2.5">
+                      <RadioGroupItem id={`form-plan-${value}`} value={value} />
+                      <FieldLabel htmlFor={`form-plan-${value}`}>{label}</FieldLabel>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </FieldSet>
+
+              <Row label="States">
+                <Textarea aria-label="Read-only notes" readOnly defaultValue="Read-only notes" />
+                <Textarea aria-label="Disabled notes" disabled defaultValue="Disabled notes" />
+                <Slider
+                  aria-label="Disabled threshold"
+                  disabled
+                  defaultValue={30}
+                  className="w-48"
+                />
+              </Row>
+
+              <Row label="Invalid">
+                <Textarea
+                  aria-label="Invalid instructions"
+                  aria-invalid="true"
+                  rows={2}
+                  defaultValue="Invalid instructions"
+                  className="w-52"
+                />
+                <Select
+                  aria-label="Invalid region"
+                  aria-invalid="true"
+                  defaultValue="unknown"
+                  options={[{ value: 'unknown', label: 'Unknown region' }]}
+                />
+                <Slider
+                  aria-label="Invalid threshold"
+                  aria-invalid="true"
+                  defaultValue={65}
+                  className="w-48"
+                />
+                <RadioGroup name="invalid-choice" defaultValue="a" aria-label="Invalid choice">
+                  <RadioGroupItem value="a" aria-label="Invalid option" aria-invalid="true" />
+                </RadioGroup>
+              </Row>
+
+              <Button type="submit" variant="primary" className="self-start">
+                Save settings
+              </Button>
+            </FieldGroup>
+          </form>
+        </Section>
+
+        <Section
+          title="Breadcrumbs"
+          note="The location trail stays semantic and compact. Page actions are composed beside it rather than becoming part of the breadcrumb component."
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <Breadcrumbs>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink
+                    href="#"
+                    className="font-bold text-brand-fg"
+                    onClick={(event) => event.preventDefault()}
+                  >
+                    Dashboard
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="#" onClick={(event) => event.preventDefault()}>
+                    Tenants
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="#" onClick={(event) => event.preventDefault()}>
+                    Northeast portfolio
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Crestview Health</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumbs>
+            <Button variant="primary">Add new tenant</Button>
+          </div>
         </Section>
 
         <Section
@@ -470,7 +683,7 @@ export function PrimitivesPage() {
             actions={
               <>
                 <Select
-                  label="Language"
+                  aria-label="Language"
                   selectSize="sm"
                   value={lang}
                   onChange={(e) => setLang(e.target.value as CodeLanguage)}
@@ -501,8 +714,68 @@ export function PrimitivesPage() {
             label="persona.json, read only"
             language="json"
             value={codeSamples.json.text.split('\n').slice(0, 7).join('\n')}
+            validate={false}
             statusBar={false}
           />
+          <span className="pt-2 text-[11px] font-extrabold tracking-[0.07em] text-ink-soft uppercase">
+            Controlled wizard gate
+          </span>
+          <div className="rounded-xl border border-line bg-canvas p-4">
+            {wizardStep === 1 ? (
+              <div className="flex flex-col gap-3">
+                <div>
+                  <div className="text-[13px] font-extrabold text-ink-strong">
+                    Step 1 of 2 · Configuration
+                  </div>
+                  <div className="text-[12px] text-ink-soft">
+                    Correct the trailing comma, then try Next again.
+                  </div>
+                </div>
+                <CodeEditor
+                  ref={wizardEditor}
+                  label="Wizard configuration"
+                  language="json"
+                  value={wizardCode}
+                  onChange={(next) => {
+                    setWizardCode(next)
+                    setWizardError(null)
+                  }}
+                  onInvalid={(problem) => {
+                    setWizardError(`Next blocked: ${problem.message}`)
+                  }}
+                  className="h-64"
+                  title="workflow.json"
+                />
+                {wizardError && <FieldError className="self-start">{wizardError}</FieldError>}
+                <div className="flex justify-end gap-2">
+                  <Button disabled>Back</Button>
+                  <Button
+                    variant="primary"
+                    onClick={() => {
+                      if (wizardEditor.current?.checkValid()) {
+                        setWizardError(null)
+                        setWizardStep(2)
+                      }
+                    }}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                <div className="text-[13px] font-extrabold text-ink-strong">
+                  Step 2 of 2 · Review
+                </div>
+                <pre className="overflow-auto rounded-lg bg-code-block p-3 text-[12px] text-ink">
+                  {wizardCode}
+                </pre>
+                <Button className="self-start" onClick={() => setWizardStep(1)}>
+                  Back
+                </Button>
+              </div>
+            )}
+          </div>
         </Section>
 
         <Section
@@ -511,7 +784,7 @@ export function PrimitivesPage() {
         >
           <Row label="Editable">
             <Select
-              label="Editable sides"
+              aria-label="Editable sides"
               selectSize="sm"
               value={diffEditable}
               onChange={(e) => setDiffEditable(e.target.value as DiffEditable)}
