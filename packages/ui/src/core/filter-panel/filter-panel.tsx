@@ -18,11 +18,12 @@ function OptionsField({ field }: { field: OptionsFilterField }) {
   if (!multiple || options.length > selectThreshold) {
     return (
       <Select
-        label={field.label}
+        id={`${field.id}-control`}
+        aria-labelledby={`${field.id}-label`}
         selectSize="sm"
         value={value[0] ?? ''}
         onChange={(e) => onChange(e.target.value ? [e.target.value] : [])}
-        className="w-full [&>span:last-child]:w-full"
+        className="w-full"
       >
         <option value="">Any</option>
         {options.map((o) => (
@@ -57,13 +58,15 @@ function Field({ field }: { field: FilterField }) {
     case 'string':
       return (
         <TextInput
-          label={field.label}
+          id={`${field.id}-control`}
+          aria-labelledby={`${field.id}-label`}
           inputSize="sm"
           placeholder={field.placeholder ?? 'Any'}
           icon={<SearchIcon width={13} height={13} />}
           value={field.value}
           onChange={(e) => field.onChange(e.target.value)}
           onClear={() => field.onChange('')}
+          clearLabel={`Clear ${field.label}`}
           className="w-full"
         />
       )
@@ -76,6 +79,7 @@ function Field({ field }: { field: FilterField }) {
     case 'date':
       return (
         <DateField
+          id={`${field.id}-control`}
           label={field.label}
           value={field.value}
           min={field.min}
@@ -176,9 +180,25 @@ export function FilterPanel({
         {fields.map((field) => (
           <div key={field.id} className="flex flex-col gap-1.5">
             <div className="flex items-baseline justify-between gap-2">
-              <span className="text-[12.5px] font-extrabold text-ink-strong">{field.label}</span>
+              {field.type === 'string' || field.type === 'options' ? (
+                <label
+                  id={`${field.id}-label`}
+                  htmlFor={`${field.id}-control`}
+                  className="text-[12.5px] font-extrabold text-ink-strong"
+                >
+                  {field.label}
+                </label>
+              ) : (
+                <span
+                  id={`${field.id}-label`}
+                  className="text-[12.5px] font-extrabold text-ink-strong"
+                >
+                  {field.label}
+                </span>
+              )}
               {field.type === 'boolean' && (
                 <Switch
+                  id={`${field.id}-control`}
                   label={field.label}
                   hideLabel
                   checked={field.value}

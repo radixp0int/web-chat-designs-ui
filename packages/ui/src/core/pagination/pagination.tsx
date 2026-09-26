@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from '../../components/icons'
 import { Button } from '../button'
 import { Select } from '../select'
@@ -51,6 +52,7 @@ export function Pagination({
   ...rest
 }: PaginationProps) {
   const t = { ...DEFAULT_LABELS, ...labels }
+  const sizeId = useId()
 
   const from = offset ?? (page - 1) * size + 1
   const onThisPage = elements ?? Math.min(size, Math.max(0, totalElements - from + 1))
@@ -73,14 +75,18 @@ export function Pagination({
       {...rest}
     >
       {onSizeChange && (
-        <Select
-          label={t.rows}
-          showLabel
-          selectSize="sm"
-          value={size}
-          onChange={(e) => onSizeChange(Number(e.target.value))}
-          options={sizeOptions.map((n) => ({ value: n, label: String(n) }))}
-        />
+        <span className="inline-flex items-center gap-2">
+          <label htmlFor={sizeId} className="text-[12.5px] whitespace-nowrap text-ink-soft">
+            {t.rows}
+          </label>
+          <Select
+            id={sizeId}
+            selectSize="sm"
+            value={size}
+            onChange={(e) => onSizeChange(Number(e.target.value))}
+            options={sizeOptions.map((n) => ({ value: n, label: String(n) }))}
+          />
+        </span>
       )}
 
       <span className="text-[12.5px] text-ink-soft tabular-nums">

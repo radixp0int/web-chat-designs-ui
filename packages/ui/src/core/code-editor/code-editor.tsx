@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState } from 'react'
+import { useEffect, useId, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent, SyntheticEvent } from 'react'
 import { CheckIcon } from '../../components/icons'
 import { languageLabels, lintCode, tokenClass, tokenizeLine } from './languages'
@@ -56,6 +56,7 @@ export function CodeEditor({
   readOnly = false,
   validate = true,
   onDiagnosticChange,
+  onInvalid,
   tabSize = 2,
   title,
   actions,
@@ -63,6 +64,7 @@ export function CodeEditor({
   statusBar = true,
   className = '',
   id,
+  ref,
 }: CodeEditorProps) {
   const auto = useId()
   const fieldId = id ?? `${auto}-code`
@@ -73,6 +75,8 @@ export function CodeEditor({
   const [caret, setCaret] = useState({ line: 1, column: 1 })
   const [focused, setFocused] = useState(false)
   const [released, setReleased] = useState(false)
+  const [validationAttempt, setValidationAttempt] = useState(0)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const diagnostic = useMemo(() => {
     if (validate === false) return null
@@ -83,6 +87,23 @@ export function CodeEditor({
   useEffect(() => {
     onDiagnosticChange?.(diagnostic)
   }, [diagnostic, onDiagnosticChange])
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      checkValid() {
+        if (!diagnostic) return true
+        textareaRef.current?.focus()
+        setValidationAttempt((attempt) => attempt + 1)
+        onInvalid?.(diagnostic)
+        return false
+      },
+      focus() {
+        textareaRef.current?.focus()
+      },
+    }),
+    [diagnostic, onInvalid],
+  )
 
   const lines = useMemo(
     () => value.split('\n').map((text) => ({ text, tokens: tokenizeLine(language, text) })),
@@ -169,8 +190,10 @@ export function CodeEditor({
   return (
     <div
       className={[
-        'flex min-h-0 flex-col overflow-hidden rounded-xl border border-line bg-panel-solid transition',
-        'has-[textarea:focus-visible]:border-accent has-[textarea:focus-visible]:ring-3 has-[textarea:focus-visible]:ring-accent/20',
+        'flex min-h-0 flex-col overflow-hidden rounded-xl border bg-panel-solid transition',
+        diagnostic
+          ? 'border-danger has-[textarea:focus-visible]:ring-3 has-[textarea:focus-visible]:ring-danger/15'
+          : 'border-line has-[textarea:focus-visible]:border-accent has-[textarea:focus-visible]:ring-3 has-[textarea:focus-visible]:ring-accent/20',
         className,
       ]
         .filter(Boolean)
@@ -277,6 +300,7 @@ export function CodeEditor({
             </div>
 
             <textarea
+              ref={textareaRef}
               id={fieldId}
               value={value}
               onChange={(e) => {
@@ -332,6 +356,18 @@ export function CodeEditor({
           <span className="shrink-0 max-sm:hidden">Spaces: {tabSize}</span>
           <span className="shrink-0 font-bold text-ink">{languageLabels[language]}</span>
         </div>
+      )}
+
+      {!statusBar && diagnostic && (
+        <span id={problemId} className="sr-only">
+          Line {diagnostic.line}, column {diagnostic.column}: {diagnostic.message}
+        </span>
+      )}
+
+      {validationAttempt > 0 && diagnostic && (
+        <span key={validationAttempt} role="alert" className="sr-only">
+          Code is invalid. Line {diagnostic.line}, column {diagnostic.column}: {diagnostic.message}
+        </span>
       )}
 
       <span id={helpId} className="sr-only">

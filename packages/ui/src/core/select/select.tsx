@@ -16,53 +16,47 @@ const boxes: Record<SelectSize, string> = {
  * only when the options need rich content, and then it is a different
  * component, not a prop on this one.
  *
- * `label` is required rather than optional. A bare select in a table footer
- * reads as "10" to a screen reader with no hint of what it sizes, and making
- * the fix opt-in means it never happens.
+ * The primitive is intentionally label-agnostic. A form composes it with
+ * `FieldLabel`; compact toolbars give it an `aria-label` or
+ * `aria-labelledby`. This keeps visible form structure outside the control
+ * without giving up the platform select's accessible popup.
  */
 export function Select({
   selectSize = 'md',
   options,
   children,
-  label,
-  showLabel = false,
   className = '',
-  id,
+  ref,
   ...rest
 }: SelectProps) {
-  const selectId = id ?? `sel-${label.replace(/\s+/g, '-').toLowerCase()}`
+  const invalid = rest['aria-invalid'] === true || rest['aria-invalid'] === 'true'
 
   return (
-    <span className={['inline-flex items-center gap-2', className].filter(Boolean).join(' ')}>
-      <label
-        htmlFor={selectId}
-        className={showLabel ? 'text-[12.5px] whitespace-nowrap text-ink-soft' : 'sr-only'}
+    <span className={['relative inline-flex items-center', className].filter(Boolean).join(' ')}>
+      <select
+        ref={ref}
+        className={[
+          'w-full appearance-none rounded-lg border bg-panel-solid font-bold text-ink outline-none transition',
+          'hover:bg-tint/5 disabled:pointer-events-none disabled:opacity-40',
+          invalid
+            ? 'border-danger ring-3 ring-danger/15'
+            : 'border-line focus-visible:border-accent focus-visible:ring-3 focus-visible:ring-accent/20',
+          boxes[selectSize],
+        ].join(' ')}
+        {...rest}
       >
-        {label}
-      </label>
-      <span className="relative inline-flex items-center">
-        <select
-          id={selectId}
-          className={[
-            'w-full appearance-none rounded-lg border border-line bg-panel-solid font-bold text-ink transition',
-            'hover:bg-tint/5 disabled:pointer-events-none disabled:opacity-40',
-            boxes[selectSize],
-          ].join(' ')}
-          {...rest}
-        >
-          {options?.map((o) => (
-            <option key={o.value} value={o.value} disabled={o.disabled}>
-              {o.label}
-            </option>
-          ))}
-          {children}
-        </select>
-        <ChevronDownIcon
-          width={12}
-          height={12}
-          className="pointer-events-none absolute right-2.5 text-ink-soft"
-        />
-      </span>
+        {options?.map((o) => (
+          <option key={o.value} value={o.value} disabled={o.disabled}>
+            {o.label}
+          </option>
+        ))}
+        {children}
+      </select>
+      <ChevronDownIcon
+        width={12}
+        height={12}
+        className="pointer-events-none absolute right-2.5 text-ink-soft"
+      />
     </span>
   )
 }
