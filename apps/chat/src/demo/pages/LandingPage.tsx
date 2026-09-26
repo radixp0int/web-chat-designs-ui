@@ -8,12 +8,9 @@ import {
   ThemeToggle,
   AmbientGlow,
 } from '@chat/ui'
-import { APP_NAME, WORKFLOWS_URL } from '../config'
+import { APP_NAME } from '../config'
 
-type Demo = { icon: typeof ChatIcon; title: string; body: string } & (
-  | { to: string } // a route in this app
-  | { href: string } // the workflows app — a separate deploy this app's router can't reach
-)
+type Demo = { icon: typeof ChatIcon; title: string; body: string; to: string }
 
 const demos: Demo[] = [
   {
@@ -29,13 +26,13 @@ const demos: Demo[] = [
     body: 'The same chat as a floating widget dropped onto a host page with a single script tag — shadow-DOM isolated and theme-synced.',
   },
   {
-    href: `${WORKFLOWS_URL}/workflow-demo`,
+    to: '/workflow-demo',
     icon: PlanIcon,
     title: 'Agentic workflow',
     body: 'A multi-step run that stops for a human approval — stage columns, a compact view for big runs, and nodes that simplify as you zoom out.',
   },
   {
-    href: `${WORKFLOWS_URL}/workflow-live`,
+    to: '/workflow-live',
     icon: HistoryIcon,
     title: 'Live workflow runs',
     body: 'The same canvas driven by a server: three different workflows stream in, the run log fills as work happens, and your approval goes back over the socket.',
@@ -82,11 +79,7 @@ export function LandingPage() {
                 </span>
               </>
             )
-            return 'href' in demo ? (
-              <a key={demo.href} href={demo.href} className={CARD}>
-                {card}
-              </a>
-            ) : (
+            return (
               <Link key={demo.to} to={demo.to} className={CARD}>
                 {card}
               </Link>

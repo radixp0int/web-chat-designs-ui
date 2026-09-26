@@ -2,7 +2,7 @@
 
 A multi-step agentic run with a human in the loop. The rules below are the ones
 that are easy to break by accident; everything else follows the app's usual
-tokens in [brand.css](../../../packages/tokens/src/brand.css).
+tokens in [brand.css](../../../../../packages/tokens/src/brand.css).
 
 For _what the demo does_ rather than why, see [README.md](./README.md).
 
@@ -139,7 +139,7 @@ own motion (`animate-orb-drift`, `shimmer-text`, `animate-fade-up`).
 
 The page holds no run content. It takes a `RunSource` and draws whatever comes
 out of it — the same shape `Responder` gives the chat demo in
-[chatEngine.ts](../../../packages/chat-ui/src/engine/chatEngine.ts) in `@chat/chat-ui`.
+[chatEngine.ts](../../../../../packages/chat-ui/src/engine/chatEngine.ts) in `@chat/chat-ui`.
 
 | Route            | Source                    | Server                           |
 | ---------------- | ------------------------- | -------------------------------- |
@@ -198,12 +198,12 @@ Four things were duplicated across this section and the pages around it, and eac
 is the kind that drifts silently — one copy ends up semibold, or 10px, or keeps
 an old gradient:
 
-| Now in                                                           | Was                                                                             |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| [AmbientGlow](../../../packages/ui/src/shell/AmbientGlow.tsx)    | Four byte-identical copies across the demo pages                                |
-| [SectionLabel](./panels/SectionLabel.tsx)                        | The small-caps heading, written out five times                                  |
-| [CollapsiblePanel](./panels/CollapsiblePanel.tsx)                | The width-animating wrapper, twice, with the explanation only on one            |
-| `DECISION_BUTTON` in [StepInspector](./panels/StepInspector.tsx) | Three near-identical buttons whose alignment depended on which siblings existed |
+| Now in                                                              | Was                                                                             |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| [AmbientGlow](../../../../../packages/ui/src/shell/AmbientGlow.tsx) | Four byte-identical copies across the demo pages                                |
+| [SectionLabel](./panels/SectionLabel.tsx)                           | The small-caps heading, written out five times                                  |
+| [CollapsiblePanel](./panels/CollapsiblePanel.tsx)                   | The width-animating wrapper, twice, with the explanation only on one            |
+| `DECISION_BUTTON` in [StepInspector](./panels/StepInspector.tsx)    | Three near-identical buttons whose alignment depended on which siblings existed |
 
 That last one is worth a note: a gate offers a _subset_ of the three answers, so
 the buttons now come off a table and a spacer does the alignment. No button has

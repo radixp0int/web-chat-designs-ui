@@ -9,6 +9,16 @@ export const WidgetDemoPage = lazy(() =>
     default: module.WidgetDemoPage,
   })),
 )
+export const WorkflowRoute = lazy(() =>
+  import('./workflow-demo/WorkflowRoute.tsx').then((module) => ({
+    default: module.WorkflowRoute,
+  })),
+)
+export const WorkflowLiveRoute = lazy(() =>
+  import('./workflow-demo/WorkflowLiveRoute.tsx').then((module) => ({
+    default: module.WorkflowLiveRoute,
+  })),
+)
 
 // Unlisted workbench for @chat/ui's core primitives. Deliberately absent from
 // the landing page — reachable only by typing /primitives.

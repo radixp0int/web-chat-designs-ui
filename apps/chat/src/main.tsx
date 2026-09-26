@@ -9,6 +9,8 @@ import {
   PrimitivesPage,
   RoutePending,
   WidgetDemoPage,
+  WorkflowLiveRoute,
+  WorkflowRoute,
 } from './demo/lazyRoutes.tsx'
 // The shell the demo routes share — see the layout route below.
 import { DemoFrame } from '@chat/ui'
@@ -30,6 +32,8 @@ createRoot(document.getElementById('root')!).render(
         >
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/widget-demo" element={<WidgetDemoPage />} />
+          <Route path="/workflow-demo" element={<WorkflowRoute />} />
+          <Route path="/workflow-live" element={<WorkflowLiveRoute />} />
           <Route path="/primitives" element={<PrimitivesPage />} />
           <Route path="/data-table" element={<DataTablePage />} />
         </Route>

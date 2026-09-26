@@ -4,7 +4,7 @@
 // boolean: a run can stop on two approvals at once (the onboarding variant
 // does), and the old single hardcoded card made the second one invisible.
 import { ChevronDownIcon, ChevronLeftIcon, IconButton } from '@chat/ui'
-import { APP_NAME } from '../config'
+import { APP_NAME } from '../../config'
 import { SectionLabel } from './SectionLabel'
 import type { StageSeed } from '../canvas'
 import { StageMarker } from '../canvas'

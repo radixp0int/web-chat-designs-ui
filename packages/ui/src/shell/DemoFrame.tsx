@@ -15,7 +15,7 @@ import type { ReactNode } from 'react'
 import { ChevronLeftIcon } from '../components/icons'
 
 export type DemoFrameProps = {
-  /** Where "Back to Demos" goes — the landing page, which may be another app. */
+  /** Where "Back to Demos" goes. */
   homeHref: string
   children: ReactNode
 }

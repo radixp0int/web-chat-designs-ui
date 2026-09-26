@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import { defineConfig, loadEnv, type Plugin } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
@@ -22,15 +22,6 @@ function tokensHead(): Plugin {
 }
 
 // https://vite.dev/config/
-export default defineConfig(({ command, mode }) => {
-  // The landing page's workflow cards go to the workflows app. Without its URL
-  // they would link nowhere, so a build stops here instead of shipping that.
-  if (command === 'build' && !loadEnv(mode, import.meta.dirname, 'VITE_').VITE_WORKFLOWS_URL) {
-    throw new Error(
-      'Set VITE_WORKFLOWS_URL to the workflows app’s URL — the landing page links to it.',
-    )
-  }
-  return {
-    plugins: [react(), tailwindcss(), tokensHead()],
-  }
+export default defineConfig({
+  plugins: [react(), tailwindcss(), tokensHead()],
 })

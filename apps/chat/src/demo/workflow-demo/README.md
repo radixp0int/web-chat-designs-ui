@@ -6,10 +6,10 @@ Two routes, one page. The page holds no run content of its own — it takes a
 `RunSource` and draws whatever comes out of it, the same shape `Responder` gives
 the chat demo.
 
-| Route            | Runs come from                                                        | Needs a server |
-| ---------------- | --------------------------------------------------------------------- | -------------- |
-| `/workflow-demo` | [example/loanRun.ts](./example/loanRun.ts)                            | No             |
-| `/workflow-live` | [workflow-ws-server](../../../../workflow-ws-server) over a WebSocket | Yes, on 8788   |
+| Route            | Runs come from                             | Needs a server |
+| ---------------- | ------------------------------------------ | -------------- |
+| `/workflow-demo` | [example/loanRun.ts](./example/loanRun.ts) | No             |
+| `/workflow-live` | `../workflow-ws-server` over a WebSocket   | Yes, on 8788   |
 
 `/workflow-live` falls back to the hard-coded run — with a banner saying so —
 when `VITE_WORKFLOW_WS_URL` is unset, so it is never a blank screen.
