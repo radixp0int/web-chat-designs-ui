@@ -209,6 +209,13 @@ export const RefreshIcon = (p: IconProps) => (
   </svg>
 )
 
+export const FormatIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M4 7h10M4 12h7M4 17h10" />
+    <path d="m17 10 1.2 2.3 2.8 1.2-2.8 1.2L17 17l-1.2-2.3-2.8-1.2 2.8-1.2L17 10Z" />
+  </svg>
+)
+
 export const ThumbUpIcon = (p: IconProps) => (
   <svg {...base(p)}>
     <path d="M7 11v9H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3Zm0 0 4-7a2.4 2.4 0 0 1 2.5 2.5L13 10h6a2 2 0 0 1 2 2.3l-1 6A2 2 0 0 1 18 20H7" />

@@ -1,8 +1,14 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { ChevronDownIcon, ChevronUpIcon, ExpandVerticalIcon } from '../../components/icons'
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ExpandVerticalIcon,
+  FormatIcon,
+} from '../../components/icons'
 import { CopyButton } from '../../components/copy-button'
 import { IconButton } from '../../components/icon-button'
-import { tokenizeLine } from '../code-editor/languages'
+import { AdaptiveButton } from '../button'
+import { formatCode, lintCode, tokenizeLine } from '../code-editor/languages'
 import type { CodeLanguage } from '../code-editor'
 import { Pill } from '../pill'
 import { Switch } from '../switch'
@@ -130,6 +136,29 @@ export function DiffViewer({
   const canEditOriginal = (editable === 'original' || editable === 'both') && !!onOriginalChange
   const canEditModified = (editable === 'modified' || editable === 'both') && !!onModifiedChange
   const editing = canEditOriginal || canEditModified
+  const formatEligible = language === 'json' || language === 'csv'
+  const formattedOriginal = useMemo(
+    () => (formatEligible ? formatCode(language, original, tabSize) : original),
+    [formatEligible, language, original, tabSize],
+  )
+  const formattedModified = useMemo(
+    () => (formatEligible ? formatCode(language, modified, tabSize) : modified),
+    [formatEligible, language, modified, tabSize],
+  )
+  const originalCanFormat = formattedOriginal !== original
+  const modifiedCanFormat = formattedModified !== modified
+  const bothSidesValid =
+    formatEligible && lintCode(language, original) === null && lintCode(language, modified) === null
+  const [formattedView, setFormattedView] = useState(false)
+  const showingFormattedView = bothSidesValid && !editing && formattedView
+  const visibleOriginal = showingFormattedView ? formattedOriginal : original
+  const visibleModified = showingFormattedView ? formattedModified : modified
+
+  const formatEditable = () => {
+    if (canEditOriginal && originalCanFormat) onOriginalChange?.(formattedOriginal)
+    if (canEditModified && modifiedCanFormat) onModifiedChange?.(formattedModified)
+  }
+  useEffect(() => setFormattedView(false), [editing, language])
   // Unified view has room for one textarea: the modified side's, unless only
   // the original is editable.
   const unifiedEdits = canEditModified ? 'modified' : 'original'
@@ -139,8 +168,8 @@ export function DiffViewer({
   const [expanded, setExpanded] = useState<ReadonlySet<number>>(() => new Set())
   const [currentRaw, setCurrent] = useState(0)
 
-  const a = useMemo(() => original.split('\n'), [original])
-  const b = useMemo(() => modified.split('\n'), [modified])
+  const a = useMemo(() => visibleOriginal.split('\n'), [visibleOriginal])
+  const b = useMemo(() => visibleModified.split('\n'), [visibleModified])
   const blocks = useMemo(() => diffBlocks(a, b), [a, b])
 
   const { rows, changes, added, removed } = useMemo(() => {
@@ -332,7 +361,7 @@ export function DiffViewer({
         .filter(Boolean)
         .join(' ')}
     >
-      <div className="flex min-h-11 shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-b border-line py-1.5 pr-1.5 pl-4">
+      <div className="@container flex min-h-11 shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-b border-line py-1.5 pr-1.5 pl-4">
         <div className="flex min-w-0 grow items-center gap-2">
           {title && (
             <span className="min-w-0 truncate text-[13px] font-bold text-ink-strong">{title}</span>
@@ -380,6 +409,39 @@ export function DiffViewer({
                 }}
               />
             )}
+            {formatEligible &&
+              (editing ? (
+                <AdaptiveButton
+                  variant="ghost"
+                  size="sm"
+                  collapseAt="sm"
+                  icon={<FormatIcon width={16} height={16} />}
+                  label="Format editable"
+                  tooltip="Format editable content"
+                  disabled={
+                    (!canEditOriginal || !originalCanFormat) &&
+                    (!canEditModified || !modifiedCanFormat)
+                  }
+                  onClick={formatEditable}
+                  className="text-brand-fg"
+                />
+              ) : (
+                <AdaptiveButton
+                  variant="ghost"
+                  size="sm"
+                  collapseAt="sm"
+                  icon={<FormatIcon width={16} height={16} />}
+                  label={showingFormattedView ? 'Raw view' : 'Format view'}
+                  tooltip={showingFormattedView ? 'Show raw comparison' : 'Format comparison view'}
+                  aria-pressed={showingFormattedView}
+                  disabled={
+                    !showingFormattedView &&
+                    (!bothSidesValid || (!originalCanFormat && !modifiedCanFormat))
+                  }
+                  onClick={() => setFormattedView((on) => !on)}
+                  className="text-brand-fg"
+                />
+              ))}
             <div
               role="group"
               aria-label="Layout"

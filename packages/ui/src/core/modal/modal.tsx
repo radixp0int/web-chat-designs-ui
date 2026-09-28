@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { CollapseDiagonalIcon, ExpandDiagonalIcon, XIcon } from '../../components/icons'
 import { IconButton } from '../../components/icon-button'
+import { Tooltip } from '../../components/tooltip'
 import type { ModalIconTone, ModalProps, ModalSize } from './types'
 
 const sizes: Record<ModalSize, string> = {
@@ -128,30 +129,28 @@ export function Modal({
           {(expandable || showCloseButton) && (
             <div className="absolute top-3.5 right-3.5 flex items-center gap-0.5">
               {expandable && (
-                <IconButton
-                  size="md"
-                  active={expanded}
-                  aria-pressed={expanded}
-                  onClick={() => setExpanded((value) => !value)}
-                  aria-label={expanded ? restoreLabel : expandLabel}
-                  title={expanded ? restoreLabel : expandLabel}
-                >
-                  {expanded ? (
-                    <CollapseDiagonalIcon width={15} height={15} />
-                  ) : (
-                    <ExpandDiagonalIcon width={15} height={15} />
-                  )}
-                </IconButton>
+                <Tooltip content={expanded ? restoreLabel : expandLabel}>
+                  <IconButton
+                    size="md"
+                    active={expanded}
+                    aria-pressed={expanded}
+                    onClick={() => setExpanded((value) => !value)}
+                    aria-label={expanded ? restoreLabel : expandLabel}
+                  >
+                    {expanded ? (
+                      <CollapseDiagonalIcon width={15} height={15} />
+                    ) : (
+                      <ExpandDiagonalIcon width={15} height={15} />
+                    )}
+                  </IconButton>
+                </Tooltip>
               )}
               {showCloseButton && (
-                <IconButton
-                  size="md"
-                  onClick={requestClose}
-                  aria-label={closeLabel}
-                  title={closeLabel}
-                >
-                  <XIcon width={15} height={15} />
-                </IconButton>
+                <Tooltip content={closeLabel}>
+                  <IconButton size="md" onClick={requestClose} aria-label={closeLabel}>
+                    <XIcon width={15} height={15} />
+                  </IconButton>
+                </Tooltip>
               )}
             </div>
           )}

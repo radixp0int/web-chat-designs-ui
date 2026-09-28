@@ -29,6 +29,8 @@ export const OVERLAY_ROOT_ATTR = 'data-chat-overlay-root'
 
 /** The layer itself. One per parent, shared by every overlay under it. */
 export const OVERLAY_LAYER_ATTR = 'data-chat-overlay-layer'
+/** A separate, higher layer for short-lived tooltips. */
+export const TOOLTIP_LAYER_ATTR = 'data-chat-tooltip-layer'
 
 /**
  * A container to portal into, for an app that already owns one. Either the
@@ -59,18 +61,23 @@ export function useOverlayContainer(): OverlayContainer {
  * The node an overlay anchored to `anchor` should be appended to. Ordered, and
  * each step earns its place:
  *
- *  1. an injected container wins outright — an app knows its own layout;
- *  2. `closest()` deliberately does not cross shadow boundaries, which is
+ *  1. a native dialog is in the browser's top layer, above every ordinary
+ *     container — even an injected one cannot safely pull its overlay out;
+ *  2. an injected container wins otherwise — an app knows its own layout;
+ *  3. `closest()` deliberately does not cross shadow boundaries, which is
  *     exactly right: a chip inside the widget finds the widget's marked root
  *     and never the host page's;
- *  3. an unmarked shadow root still must keep its CSS, so the layer goes into
+ *  4. an unmarked shadow root still must keep its CSS, so the layer goes into
  *     the shadow root itself;
- *  4. otherwise the document — the plain-app case.
+ *  5. otherwise the document — the plain-app case.
  */
 export function resolveOverlayParent(
   anchor: HTMLElement,
   injected?: OverlayContainer,
 ): HTMLElement | ShadowRoot {
+  const dialog = anchor.closest<HTMLDialogElement>('dialog[open]')
+  if (dialog) return dialog
+
   const custom = typeof injected === 'function' ? injected(anchor) : injected
   if (custom) return custom
 
