@@ -9,8 +9,12 @@ export type DiffEditable = 'none' | 'original' | 'modified' | 'both'
 export type DiffViewerProps = {
   original: string
   modified: string
-  /** Colours both sides with the editor's tokenizer. */
+  /** Controlled language used to colour both sides. */
   language?: CodeLanguage
+  /** Initial language used when `language` is not provided. */
+  defaultLanguage?: CodeLanguage
+  /** Disables editing and all built-in controls while preserving the comparison. */
+  disabled?: boolean
   /** Header content on the left — usually the file name. */
   title?: ReactNode
   originalLabel?: string

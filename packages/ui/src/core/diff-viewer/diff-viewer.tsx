@@ -108,7 +108,9 @@ function SplitSide({ side, divider }: { side: Side; divider?: boolean }) {
 export function DiffViewer({
   original,
   modified,
-  language = 'text',
+  language: languageProp,
+  defaultLanguage = 'text',
+  disabled = false,
   title,
   originalLabel = 'Original',
   modifiedLabel = 'Modified',
@@ -126,6 +128,8 @@ export function DiffViewer({
   tabSize = 2,
   className = '',
 }: DiffViewerProps) {
+  const [initialLanguage] = useState(defaultLanguage)
+  const language = languageProp ?? initialLanguage
   const [viewState, setViewState] = useState<DiffView>(defaultView)
   const view = viewProp ?? viewState
   const setView = (v: DiffView) => {
@@ -353,9 +357,11 @@ export function DiffViewer({
 
   return (
     <div
+      aria-disabled={disabled || undefined}
       className={[
         'flex min-h-0 flex-col overflow-hidden rounded-surface border border-line bg-panel-solid transition',
         'has-[textarea:focus-visible]:border-accent has-[textarea:focus-visible]:ring-3 has-[textarea:focus-visible]:ring-accent/20',
+        disabled ? 'opacity-40' : '',
         className,
       ]
         .filter(Boolean)
@@ -384,7 +390,7 @@ export function DiffViewer({
                 size="sm"
                 shape="rounded"
                 aria-label="Previous change"
-                disabled={!changes}
+                disabled={disabled || !changes}
                 onClick={() => step(-1)}
               >
                 <ChevronUpIcon width={16} height={16} />
@@ -393,7 +399,7 @@ export function DiffViewer({
                 size="sm"
                 shape="rounded"
                 aria-label="Next change"
-                disabled={!changes}
+                disabled={disabled || !changes}
                 onClick={() => step(1)}
               >
                 <ChevronDownIcon width={16} height={16} />
@@ -403,6 +409,7 @@ export function DiffViewer({
               <Switch
                 label="Hide unchanged"
                 checked={hide}
+                disabled={disabled}
                 onChange={(on) => {
                   setHide(on)
                   setExpanded(new Set())
@@ -419,8 +426,9 @@ export function DiffViewer({
                   label="Format editable"
                   tooltip="Format editable content"
                   disabled={
-                    (!canEditOriginal || !originalCanFormat) &&
-                    (!canEditModified || !modifiedCanFormat)
+                    disabled ||
+                    ((!canEditOriginal || !originalCanFormat) &&
+                      (!canEditModified || !modifiedCanFormat))
                   }
                   onClick={formatEditable}
                   className="text-brand-fg"
@@ -435,8 +443,9 @@ export function DiffViewer({
                   tooltip={showingFormattedView ? 'Show raw comparison' : 'Format comparison view'}
                   aria-pressed={showingFormattedView}
                   disabled={
-                    !showingFormattedView &&
-                    (!bothSidesValid || (!originalCanFormat && !modifiedCanFormat))
+                    disabled ||
+                    (!showingFormattedView &&
+                      (!bothSidesValid || (!originalCanFormat && !modifiedCanFormat)))
                   }
                   onClick={() => setFormattedView((on) => !on)}
                   className="text-brand-fg"
@@ -452,6 +461,7 @@ export function DiffViewer({
                   key={v}
                   type="button"
                   aria-pressed={view === v}
+                  disabled={disabled}
                   onClick={() => setView(v)}
                   className={[
                     'h-7 rounded-control px-3 text-[12.5px] font-bold capitalize transition',
@@ -477,7 +487,12 @@ export function DiffViewer({
               <span className="ml-auto flex shrink-0 items-center gap-1 pr-1">
                 {editing && <Access editable={canEditOriginal} />}
                 {onCopyOriginal && (
-                  <CopySide text={original} label={originalLabel} onCopy={onCopyOriginal} />
+                  <CopySide
+                    text={original}
+                    label={originalLabel}
+                    onCopy={onCopyOriginal}
+                    disabled={disabled}
+                  />
                 )}
               </span>
             </div>
@@ -487,7 +502,12 @@ export function DiffViewer({
               <span className="ml-auto flex shrink-0 items-center gap-1 pr-1">
                 {editing && <Access editable={canEditModified} />}
                 {onCopyModified && (
-                  <CopySide text={modified} label={modifiedLabel} onCopy={onCopyModified} />
+                  <CopySide
+                    text={modified}
+                    label={modifiedLabel}
+                    onCopy={onCopyModified}
+                    disabled={disabled}
+                  />
                 )}
               </span>
             </div>
@@ -497,13 +517,23 @@ export function DiffViewer({
             <span className="flex items-center gap-1 font-bold text-danger-fg">
               − {originalLabel} · {a.length} lines
               {onCopyOriginal && (
-                <CopySide text={original} label={originalLabel} onCopy={onCopyOriginal} />
+                <CopySide
+                  text={original}
+                  label={originalLabel}
+                  onCopy={onCopyOriginal}
+                  disabled={disabled}
+                />
               )}
             </span>
             <span className="flex items-center gap-1 font-bold text-accent-fg">
               + {modifiedLabel} · {b.length} lines
               {onCopyModified && (
-                <CopySide text={modified} label={modifiedLabel} onCopy={onCopyModified} />
+                <CopySide
+                  text={modified}
+                  label={modifiedLabel}
+                  onCopy={onCopyModified}
+                  disabled={disabled}
+                />
               )}
             </span>
             {editing && (
@@ -523,6 +553,7 @@ export function DiffViewer({
                 rows={panes.left}
                 lines={a}
                 editable={canEditOriginal}
+                disabled={disabled}
                 onChange={onOriginalChange}
                 language={language}
                 tabSize={tabSize}
@@ -537,6 +568,7 @@ export function DiffViewer({
               rows={panes.right}
               lines={view === 'split' || unifiedEdits === 'modified' ? b : a}
               editable={view === 'split' ? canEditModified : true}
+              disabled={disabled}
               onChange={
                 view === 'split' || unifiedEdits === 'modified'
                   ? onModifiedChange
@@ -565,6 +597,7 @@ export function DiffViewer({
                     <button
                       key={`fold-${row.block}`}
                       type="button"
+                      disabled={disabled}
                       onClick={() => setExpanded((s) => new Set(s).add(row.block))}
                       className="flex h-7 w-full items-center gap-2 border-y border-line bg-code-block pl-5 font-sans text-[12px] font-bold text-brand-fg transition hover:bg-tint/8"
                     >
@@ -641,10 +674,12 @@ function CopySide({
   text,
   label,
   onCopy,
+  disabled,
 }: {
   text: string
   label: string
   onCopy: (value: string) => void
+  disabled?: boolean
 }) {
   return (
     <CopyButton
@@ -653,6 +688,7 @@ function CopySide({
       copiedLabel={`Copied ${label}`}
       size="sm"
       iconSize={14}
+      disabled={disabled}
       onCopied={onCopy}
     />
   )
