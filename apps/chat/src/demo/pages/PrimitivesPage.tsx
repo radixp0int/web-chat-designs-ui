@@ -75,7 +75,7 @@ function Section({
         <h2 className="text-[15px] font-extrabold text-ink-strong">{title}</h2>
         {note && <p className="max-w-[70ch] text-[12.5px] leading-relaxed text-ink-soft">{note}</p>}
       </div>
-      <div className="flex flex-col gap-3 rounded-xl border border-line bg-panel-solid p-5">
+      <div className="flex flex-col gap-3 rounded-surface border border-line bg-panel-solid p-5">
         {children}
       </div>
     </section>
@@ -125,6 +125,7 @@ export function PrimitivesPage() {
   const [docs, setDocs] = useState(() => ({
     json: codeSamples.json.text,
     yaml: codeSamples.yaml.text,
+    csv: codeSamples.csv.text,
     text: codeSamples.text.text,
   }))
   const doc = docs[lang]
@@ -267,7 +268,7 @@ export function PrimitivesPage() {
                 </>
               }
             >
-              <div className="rounded-xl border border-line bg-tint/4 px-3.5 py-3">
+              <div className="rounded-surface border border-line bg-tint/4 px-3.5 py-3">
                 <p className="font-bold text-ink-strong">Crestview Health</p>
                 <p className="mt-0.5 text-xs text-ink-soft">42 members · Enterprise plan</p>
               </div>
@@ -472,16 +473,19 @@ export function PrimitivesPage() {
                 options={[10, 25, 50, 100].map((n) => ({ value: n, label: String(n) }))}
               />
             </Field>
-            <Select
-              aria-label="Status filter"
-              size="md"
-              defaultValue="active"
-              options={[
-                { value: 'active', label: 'Active' },
-                { value: 'pending', label: 'Pending' },
-                { value: 'suspended', label: 'Suspended' },
-              ]}
-            />
+            <Field>
+              <FieldLabel htmlFor="primitive-status-filter">Status</FieldLabel>
+              <Select
+                id="primitive-status-filter"
+                size="md"
+                defaultValue="active"
+                options={[
+                  { value: 'active', label: 'Active' },
+                  { value: 'pending', label: 'Pending' },
+                  { value: 'suspended', label: 'Suspended' },
+                ]}
+              />
+            </Field>
           </Row>
           <Row label="Disabled">
             <Select aria-label="Region" disabled options={[{ value: 'ne', label: 'Northeast' }]} />
@@ -600,7 +604,7 @@ export function PrimitivesPage() {
               }}
               detailsLabel="Show API response"
               details={
-                <pre className="overflow-x-auto rounded-lg border border-line bg-code-block p-3 font-mono text-[11.5px] leading-relaxed text-ink">
+                <pre className="overflow-x-auto rounded-control border border-line bg-code-block p-3 font-mono text-[11.5px] leading-relaxed text-ink">
                   {JSON.stringify(
                     {
                       status: 422,
@@ -987,7 +991,7 @@ export function PrimitivesPage() {
             )}
           </Row>
           <Row label="On a tint">
-            <div className="flex flex-wrap items-center gap-2.5 rounded-lg bg-chip px-3 py-2">
+            <div className="flex flex-wrap items-center gap-2.5 rounded-control bg-chip px-3 py-2">
               <Pill tone="brand">Soft on tint</Pill>
               <Pill variant="outline" tone="brand">
                 Outline on tint
@@ -1027,17 +1031,17 @@ export function PrimitivesPage() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="elements">
-              <div className="rounded-lg border border-line bg-code p-4 text-[13px] text-ink">
+              <div className="rounded-control border border-line bg-code p-4 text-[13px] text-ink">
                 Content for the selected card-elements tab.
               </div>
             </TabsContent>
             <TabsContent value="details">
-              <div className="rounded-lg border border-line bg-code p-4 text-[13px] text-ink">
+              <div className="rounded-control border border-line bg-code p-4 text-[13px] text-ink">
                 Details stay mounted only while this tab is selected.
               </div>
             </TabsContent>
             <TabsContent value="activity">
-              <div className="rounded-lg border border-line bg-code p-4 text-[13px] text-ink">
+              <div className="rounded-control border border-line bg-code p-4 text-[13px] text-ink">
                 Recent activity for this record.
               </div>
             </TabsContent>
@@ -1074,7 +1078,7 @@ export function PrimitivesPage() {
                   controls={false}
                   tabIndex={iconTab == null ? 0 : undefined}
                   aria-label="Account"
-                  className={`grid size-8 place-items-center rounded-lg transition ${
+                  className={`grid size-8 place-items-center rounded-control transition ${
                     iconTab === 'account' ? 'bg-chip text-chip-fg' : 'text-ink-soft hover:bg-tint/8'
                   }`}
                 >
@@ -1084,7 +1088,7 @@ export function PrimitivesPage() {
                   value="search"
                   controls={false}
                   aria-label="Search"
-                  className={`grid size-8 place-items-center rounded-lg transition ${
+                  className={`grid size-8 place-items-center rounded-control transition ${
                     iconTab === 'search' ? 'bg-chip text-chip-fg' : 'text-ink-soft hover:bg-tint/8'
                   }`}
                 >
@@ -1099,7 +1103,7 @@ export function PrimitivesPage() {
           title="Pagination"
           note="Live — page and size below drive the envelope in the next section. The rail's length is stable so Next does not move under the pointer, and a gap is only ever drawn in place of more than one hidden page."
         >
-          <div className="overflow-hidden rounded-lg border border-line">
+          <div className="overflow-hidden rounded-control border border-line">
             <Pagination
               page={page}
               size={size}
@@ -1113,7 +1117,7 @@ export function PrimitivesPage() {
             />
           </div>
           <Row label="Compact">
-            <div className="w-full overflow-hidden rounded-lg border border-line">
+            <div className="w-full overflow-hidden rounded-control border border-line">
               <Pagination
                 compact
                 page={page}
@@ -1125,7 +1129,7 @@ export function PrimitivesPage() {
             </div>
           </Row>
           <Row label="Busy">
-            <div className="w-full overflow-hidden rounded-lg border border-line">
+            <div className="w-full overflow-hidden rounded-control border border-line">
               <Pagination
                 busy
                 page={page}
@@ -1148,7 +1152,7 @@ export function PrimitivesPage() {
               <span className="text-[11px] font-extrabold tracking-[0.07em] text-ink-soft uppercase">
                 Wire — data.page
               </span>
-              <pre className="overflow-x-auto rounded-lg bg-code-block p-3 text-[12px] leading-relaxed text-ink">
+              <pre className="overflow-x-auto rounded-control bg-code-block p-3 text-[12px] leading-relaxed text-ink">
                 {JSON.stringify(envelope.data.page, null, 2)}
               </pre>
             </div>
@@ -1156,7 +1160,7 @@ export function PrimitivesPage() {
               <span className="text-[11px] font-extrabold tracking-[0.07em] text-ink-soft uppercase">
                 Normalized — Page
               </span>
-              <pre className="overflow-x-auto rounded-lg bg-code-block p-3 text-[12px] leading-relaxed text-ink">
+              <pre className="overflow-x-auto rounded-control bg-code-block p-3 text-[12px] leading-relaxed text-ink">
                 {JSON.stringify(
                   {
                     page: normalized.page,
@@ -1194,7 +1198,7 @@ export function PrimitivesPage() {
 
         <Section
           title="CodeEditor"
-          note="A transparent <textarea> over a highlighted copy of the same text — typing, selection, undo and screen readers are the browser's. Tab indents (Shift+Tab outdents, multi-line too), Enter keeps the indent, Escape then Tab leaves the field. JSON is checked with JSON.parse; break a comma to see the diagnostic."
+          note="A transparent <textarea> over a highlighted copy of the same text — typing, selection, undo and screen readers are the browser's. JSON, YAML and CSV have syntax colour and validation; JSON and CSV can be formatted. Escape then Tab leaves the field."
         >
           <CodeEditor
             label="Code"
@@ -1220,15 +1224,16 @@ export function PrimitivesPage() {
                   options={[
                     { value: 'json', label: 'JSON' },
                     { value: 'yaml', label: 'YAML' },
+                    { value: 'csv', label: 'CSV' },
                     { value: 'text', label: 'Plain text' },
                   ]}
                 />
-                {lang === 'json' && (
+                {(lang === 'json' || lang === 'csv') && (
                   <Button
                     variant="ghost"
                     size="sm"
-                    disabled={lintCode('json', doc) !== null}
-                    onClick={() => setDoc(formatCode('json', doc))}
+                    disabled={lintCode(lang, doc) !== null}
+                    onClick={() => setDoc(formatCode(lang, doc))}
                   >
                     Format
                   </Button>
@@ -1250,7 +1255,7 @@ export function PrimitivesPage() {
           <span className="pt-2 text-[11px] font-extrabold tracking-[0.07em] text-ink-soft uppercase">
             Controlled wizard gate
           </span>
-          <div className="rounded-xl border border-line bg-canvas p-4">
+          <div className="rounded-surface border border-line bg-canvas p-4">
             {wizardStep === 1 ? (
               <div className="flex flex-col gap-3">
                 <div>
@@ -1297,7 +1302,7 @@ export function PrimitivesPage() {
                 <div className="text-[13px] font-extrabold text-ink-strong">
                   Step 2 of 2 · Review
                 </div>
-                <pre className="overflow-auto rounded-lg bg-code-block p-3 text-[12px] text-ink">
+                <pre className="overflow-auto rounded-control bg-code-block p-3 text-[12px] text-ink">
                   {wizardCode}
                 </pre>
                 <Button className="self-start" onClick={() => setWizardStep(1)}>
@@ -1344,7 +1349,7 @@ export function PrimitivesPage() {
           </Row>
           <DiffViewer
             title={diffSample.file}
-            language="yaml"
+            language="csv"
             original={diffOriginal}
             modified={diffModified}
             editable={diffEditable}

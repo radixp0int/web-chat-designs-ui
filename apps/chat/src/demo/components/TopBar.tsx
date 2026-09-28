@@ -18,7 +18,7 @@ export function TopBar({ onOpenSidebar }: { onOpenSidebar: () => void }) {
       <Link
         to="/widget-demo"
         title="See the embeddable widget demo"
-        className="glass ml-auto flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink-soft transition hover:text-accent"
+        className="glass ml-auto flex h-9 items-center gap-1.5 rounded-control px-3 text-sm font-medium text-ink-soft transition hover:text-accent"
       >
         <ChatIcon width={16} height={16} />
         <span className="max-sm:hidden">Widget demo</span>

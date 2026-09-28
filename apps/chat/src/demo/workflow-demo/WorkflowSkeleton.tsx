@@ -11,13 +11,13 @@ export function WorkflowSkeleton() {
     <div className="relative flex h-dvh gap-4 overflow-hidden bg-canvas p-4" aria-hidden>
       <AmbientGlow />
 
-      <aside className="glass flex w-72 shrink-0 flex-col rounded-xl">
+      <aside className="glass flex w-72 shrink-0 flex-col rounded-surface">
         <div className="flex items-center gap-3 px-6 pt-6 pb-5">
           <span className="orb block size-[30px] shrink-0 animate-orb-drift rounded-full" />
           <Bar className="h-4 w-24" />
         </div>
         <div className="px-5">
-          <div className="rounded-lg bg-panel-solid p-4 shadow-sm ring-1 ring-line">
+          <div className="rounded-surface bg-panel-solid p-4 shadow-sm ring-1 ring-line">
             <Bar className="h-3.5 w-40" />
             <Bar className="mt-2 h-3 w-32" />
             <Bar className="mt-1.5 h-3 w-28" />
@@ -33,13 +33,13 @@ export function WorkflowSkeleton() {
         </div>
       </aside>
 
-      <main className="glass relative flex min-w-0 flex-1 overflow-hidden rounded-xl">
+      <main className="glass relative flex min-w-0 flex-1 overflow-hidden rounded-surface">
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex h-[72px] shrink-0 items-center gap-3 border-b border-line px-6">
             <Bar className="h-4 w-52" />
             <div className="ml-auto flex items-center gap-2.5">
-              <Bar className="h-8 w-44 rounded-full" />
-              <Bar className="h-8 w-24 rounded-lg" />
+              <Bar className="h-8 w-44 rounded-control" />
+              <Bar className="h-8 w-24 rounded-control" />
             </div>
           </div>
 
@@ -52,7 +52,7 @@ export function WorkflowSkeleton() {
                   {Array.from({ length: count }).map((_, row) => (
                     <div
                       key={row}
-                      className="h-[88px] rounded-lg border border-line bg-panel-solid/60 shadow-sm shadow-(color:--shadow-soft)"
+                      className="h-[88px] rounded-surface border border-line bg-panel-solid/60 shadow-sm shadow-(color:--shadow-soft)"
                       style={{
                         animation: 'var(--animate-fade-up)',
                         animationDelay: `${(col * 3 + row) * 45}ms`,
@@ -60,7 +60,7 @@ export function WorkflowSkeleton() {
                     >
                       <div className="flex items-center gap-1.5 px-3.5 pt-3">
                         <span className="size-5 rounded-full bg-tint/12" />
-                        <Bar className="h-5 w-16 rounded-md" />
+                        <Bar className="h-5 w-16 rounded-control" />
                       </div>
                       <Bar className="mt-2.5 ml-3.5 h-3.5 w-28" />
                       <Bar className="mt-1.5 ml-3.5 h-3 w-20" />
@@ -77,13 +77,13 @@ export function WorkflowSkeleton() {
         </div>
 
         <div className="hidden w-[400px] shrink-0 flex-col gap-5 border-l border-line bg-panel-solid/45 px-6 py-5 lg:flex">
-          <Bar className="h-5 w-32 rounded-md" />
+          <Bar className="h-5 w-32 rounded-control" />
           <Bar className="h-6 w-56" />
           <div className="flex flex-col gap-2">
             <Bar className="h-3 w-full" />
             <Bar className="h-3 w-4/5" />
           </div>
-          <div className="mt-2 h-28 rounded-lg bg-panel-solid ring-1 ring-line" />
+          <div className="mt-2 h-28 rounded-surface bg-panel-solid ring-1 ring-line" />
         </div>
       </main>
     </div>

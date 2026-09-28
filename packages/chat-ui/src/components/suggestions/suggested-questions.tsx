@@ -30,7 +30,7 @@ export function SuggestedQuestions({
             <button
               type="button"
               onClick={() => onPick(s.text)}
-              className="glass flex w-full flex-col items-start gap-0.5 rounded-lg px-3.5 py-2.5 text-left transition hover:border-accent/50"
+              className="glass flex w-full flex-col items-start gap-0.5 rounded-control px-3.5 py-2.5 text-left transition hover:border-accent/50"
             >
               <span
                 className={`font-semibold text-ink-strong ${compact ? 'text-[12.5px]' : 'text-[13px]'}`}

@@ -59,7 +59,7 @@ function StepNodeView({ data, selected }: NodeProps<StepNodeType>) {
 
   return (
     <div
-      className={`relative box-border rounded-lg transition-colors ${shellFor(status, !!selected)} ${
+      className={`relative box-border rounded-surface transition-colors ${shellFor(status, !!selected)} ${
         tier === 'detail' ? 'px-3.5 py-3' : 'px-3.5'
       }`}
       style={tier === 'detail' ? undefined : { height: tier === 'simplified' ? 64 : 48 }}
@@ -71,7 +71,7 @@ function StepNodeView({ data, selected }: NodeProps<StepNodeType>) {
           <div className="flex h-5 items-center gap-1.5">
             <KindIcon kind={kind} initials={initials} size={20} />
             <span
-              className={`inline-flex h-5 items-center rounded-md px-2 text-[11px] font-bold whitespace-nowrap ${KIND_CHIP[kind]}`}
+              className={`inline-flex h-5 items-center rounded-control px-2 text-[11px] font-bold whitespace-nowrap ${KIND_CHIP[kind]}`}
             >
               {KIND_LABEL[kind]}
             </span>
@@ -89,7 +89,7 @@ function StepNodeView({ data, selected }: NodeProps<StepNodeType>) {
           </div>
           {status === 'waiting' && (
             <div className="mt-0.5 flex items-center gap-2">
-              <span className="inline-flex h-[22px] items-center rounded-md bg-notify px-2.5 text-[11px] font-bold whitespace-nowrap text-on-notify">
+              <span className="inline-flex h-[22px] items-center rounded-control bg-notify px-2.5 text-[11px] font-bold whitespace-nowrap text-on-notify">
                 Needs approval
               </span>
               {assignee && (

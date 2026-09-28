@@ -219,7 +219,7 @@ export function WorkflowDemoPage({ source }: { source: RunSource }) {
         />
       </CollapsiblePanel>
 
-      <main className="glass relative flex min-w-0 flex-1 overflow-hidden rounded-xl">
+      <main className="glass relative flex min-w-0 flex-1 overflow-hidden rounded-surface">
         {/* @container: the top bar has to respond to THIS column's width, not the
             viewport's — the sidebar and inspector take ~700px of a 1440 screen,
             so a viewport query never fires and the bar overflows the panel. */}
@@ -312,7 +312,7 @@ function RunUnavailable({ message }: { message: string }) {
   return (
     <div className="relative flex h-dvh items-center justify-center overflow-hidden bg-canvas p-6">
       <AmbientGlow />
-      <div className="glass flex max-w-md flex-col items-center gap-3 rounded-xl px-8 py-10 text-center">
+      <div className="glass flex max-w-md flex-col items-center gap-3 rounded-surface px-8 py-10 text-center">
         <span className="orb block size-10 rounded-full opacity-50" aria-hidden />
         <h1 className="text-base font-bold tracking-tight text-ink-strong">No run to show</h1>
         <p className="text-[13px] leading-[21px] text-pretty text-ink-soft">{message}</p>

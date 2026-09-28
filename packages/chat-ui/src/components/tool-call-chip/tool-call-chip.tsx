@@ -21,7 +21,7 @@ export function ToolCallChip({ tool }: ToolCallChipProps) {
         type="button"
         onClick={() => expandable && setOpen((o) => !o)}
         aria-expanded={expandable ? open : undefined}
-        className={`flex items-center gap-1.5 rounded-lg border font-medium transition ${
+        className={`flex items-center gap-1.5 rounded-control border font-medium transition ${
           compact ? 'px-2 py-1 text-xs' : 'px-2.5 py-1 text-[13px]'
         } ${
           failed ? 'border-danger/30 bg-danger/8 text-danger-fg-soft' : 'border-line text-ink-soft'

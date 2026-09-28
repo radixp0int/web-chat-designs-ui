@@ -40,7 +40,7 @@ function LegendLine({ state }: { state: EdgeState }) {
 export function CanvasLegend() {
   return (
     <Panel position="bottom-left">
-      <div className="glass grid grid-cols-2 gap-x-7 gap-y-2.5 rounded-xl px-4 py-3.5">
+      <div className="glass grid grid-cols-2 gap-x-7 gap-y-2.5 rounded-surface px-4 py-3.5">
         {KINDS.map(([kind, label], i) => (
           <div key={kind} className="contents">
             <div className="flex items-center gap-2.5 text-xs whitespace-nowrap text-ink">
@@ -64,11 +64,11 @@ export function ZoomCluster() {
   const tier = useZoomTier()
 
   const btn =
-    'grid size-[34px] place-items-center rounded-lg text-ink-soft transition hover:bg-tint/8 hover:text-ink-strong'
+    'grid size-[34px] place-items-center rounded-control text-ink-soft transition hover:bg-tint/8 hover:text-ink-strong'
 
   return (
     <Panel position="bottom-right">
-      <div className="glass flex flex-col items-center gap-0.5 rounded-xl p-1.5">
+      <div className="glass flex flex-col items-center gap-0.5 rounded-surface p-1.5">
         <div className="flex flex-col items-center px-0.5 pt-1 pb-0.5">
           <span className="text-xs leading-[15px] font-bold text-ink-strong tabular-nums">
             {pct}%

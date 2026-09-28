@@ -35,7 +35,7 @@ export function CitationChip({ n, onClick, preview }: CitationChipProps) {
         // explicit aria-label means it can't leak into the accessible name.
         aria-describedby={data ? descId : undefined}
         {...hover.anchorProps}
-        className="mx-0.5 inline-flex min-w-4 -translate-y-[0.35em] items-center justify-center rounded-md bg-chip px-1 text-[10px] leading-4 font-semibold text-chip-fg transition hover:bg-chip-hover"
+        className="mx-0.5 inline-flex min-w-4 -translate-y-[0.35em] items-center justify-center rounded-control bg-chip px-1 text-[10px] leading-4 font-semibold text-chip-fg transition hover:bg-chip-hover"
       >
         {n}
         {data && (

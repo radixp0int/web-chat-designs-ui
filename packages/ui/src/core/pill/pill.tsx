@@ -115,7 +115,7 @@ export function Pill({
   const metrics = sizes[size]
   const childLabel = plainText(children)
   const cls = [
-    'inline-flex max-w-full shrink-0 items-center rounded-full border font-bold whitespace-nowrap',
+    'inline-flex max-w-full shrink-0 items-center rounded-control border font-bold whitespace-nowrap',
     metrics.root,
     variants[variant][tone],
     onClick ? 'cursor-pointer transition hover:brightness-95 active:brightness-90' : '',

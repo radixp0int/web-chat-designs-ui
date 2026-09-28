@@ -21,7 +21,7 @@ export function ScrollToBottomButton({
       onClick={onClick}
       aria-hidden={!visible}
       tabIndex={visible ? 0 : -1}
-      className={`absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-line bg-panel-solid px-3.5 py-2 text-xs font-medium text-ink shadow-md shadow-(color:--shadow-bubble) transition duration-200 hover:border-brand-fg/40 hover:text-ink-strong ${
+      className={`absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5 rounded-control border border-line bg-panel-solid px-3.5 py-2 text-xs font-medium text-ink shadow-md shadow-(color:--shadow-bubble) transition duration-200 hover:border-brand-fg/40 hover:text-ink-strong ${
         visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0'
       } ${className}`}
     >

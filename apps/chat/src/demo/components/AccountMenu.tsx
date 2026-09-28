@@ -97,7 +97,7 @@ export function AccountMenu({
         // Nothing to show until the first measurement lands.
         visibility: pos ? 'visible' : 'hidden',
       }}
-      className="overflow-hidden rounded-lg border border-line bg-panel-solid p-1.5 shadow-xl shadow-(color:--shadow-menu)"
+      className="overflow-hidden rounded-control border border-line bg-panel-solid p-1.5 shadow-xl shadow-(color:--shadow-menu)"
     >
       <MenuItem
         icon={<UserIcon width={16} height={16} />}
@@ -124,7 +124,7 @@ export function AccountMenu({
         aria-expanded={open}
         aria-label={`Account: ${DEMO_USER.name}`}
         title={DEMO_USER.name}
-        className={`flex w-full items-center gap-3 rounded-lg p-1 text-left transition hover:bg-panel ${
+        className={`flex w-full items-center gap-3 rounded-control p-1 text-left transition hover:bg-panel ${
           collapsed ? 'lg:justify-center' : ''
         }`}
       >
@@ -168,7 +168,7 @@ function MenuItem({
         type="button"
         role="menuitem"
         onClick={onClick}
-        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left transition hover:bg-tint/8"
+        className="flex w-full items-center gap-2.5 rounded-control px-3 py-2 text-left transition hover:bg-tint/8"
       >
         <span className="shrink-0 text-ink-soft">{icon}</span>
         <span className="min-w-0 flex-1">

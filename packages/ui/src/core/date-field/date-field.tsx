@@ -2,7 +2,7 @@ import { useId } from 'react'
 import type { DateFieldProps, DateRangeFieldProps } from './types'
 
 const box =
-  'h-9 w-full rounded-lg border border-line bg-panel-solid px-2.5 text-[13px] text-ink transition ' +
+  'h-9 w-full rounded-control border border-line bg-panel-solid px-2.5 text-[13px] text-ink transition ' +
   'accent-[var(--brand-solid)] hover:border-ink-soft/40 focus-visible:border-accent focus-visible:ring-3 ' +
   'focus-visible:ring-accent/20 disabled:pointer-events-none disabled:opacity-40'
 

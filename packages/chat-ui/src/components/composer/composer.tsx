@@ -150,7 +150,7 @@ export function Composer({
       // squeezes the chat column — rather than the app-wide density.
       // Relative + z-10 so the suggestion panels open over what follows it.
       className={`glass @container/composer relative z-10 w-full shadow-lg shadow-(color:--shadow-soft) transition-shadow duration-300 focus-within:shadow-xl focus-within:shadow-(color:--shadow-raised) ${
-        compact ? 'rounded-lg' : 'rounded-xl'
+        compact ? 'rounded-control' : 'rounded-surface'
       } ${docked ? '' : 'shadow-xl'}`}
     >
       {attachments.length > 0 && (
@@ -233,7 +233,7 @@ export function Composer({
             aria-pressed={expanded}
             aria-label={expanded ? 'Collapse input' : 'Expand input'}
             title={expanded ? 'Collapse' : 'Expand'}
-            className={`absolute rounded-lg p-1.5 text-ink-soft transition hover:bg-tint/8 hover:text-ink-strong ${
+            className={`absolute rounded-control p-1.5 text-ink-soft transition hover:bg-tint/8 hover:text-ink-strong ${
               compact ? 'top-1.5 right-2' : 'top-2.5 right-3'
             }`}
           >
@@ -530,7 +530,7 @@ function SendControl({
           <div
             role="menu"
             aria-label="Send options"
-            className="w-52 overflow-hidden rounded-lg border border-line bg-panel-solid p-1.5 shadow-xl shadow-(color:--shadow-menu)"
+            className="w-52 overflow-hidden rounded-control border border-line bg-panel-solid p-1.5 shadow-xl shadow-(color:--shadow-menu)"
           >
             <button
               type="button"
@@ -539,7 +539,7 @@ function SendControl({
                 setOpen(false)
                 onQueue()
               }}
-              className="flex w-full items-center gap-2.5 rounded-md bg-chip/60 px-2.5 py-2 text-left transition hover:bg-chip"
+              className="flex w-full items-center gap-2.5 rounded-control bg-chip/60 px-2.5 py-2 text-left transition hover:bg-chip"
             >
               <CheckIcon width={14} height={14} className="shrink-0 text-accent" />
               <span className="flex-1 text-[13px] font-bold text-ink-strong">Queue</span>
@@ -552,7 +552,7 @@ function SendControl({
                 setOpen(false)
                 onSendNow()
               }}
-              className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left transition hover:bg-tint/8"
+              className="flex w-full items-center gap-2.5 rounded-control px-2.5 py-2 text-left transition hover:bg-tint/8"
             >
               <SendIcon width={14} height={14} className="shrink-0 text-ink-soft" />
               <span className="flex-1 text-[13px] text-ink-strong">Send now</span>

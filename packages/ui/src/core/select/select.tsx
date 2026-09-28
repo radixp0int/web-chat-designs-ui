@@ -36,7 +36,7 @@ export function Select({
       <select
         ref={ref}
         className={[
-          'w-full appearance-none rounded-lg border bg-panel-solid text-ink outline-none transition',
+          'w-full appearance-none rounded-control border bg-panel-solid text-ink outline-none transition',
           'hover:bg-tint/5 disabled:pointer-events-none disabled:opacity-40',
           invalid
             ? 'border-danger focus-visible:ring-3 focus-visible:ring-danger/15'

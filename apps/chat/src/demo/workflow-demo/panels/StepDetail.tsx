@@ -65,7 +65,7 @@ export function StepDetail({
         <button
           type="button"
           onClick={onClose}
-          className="flex items-center gap-1 rounded-lg px-2 py-1 text-[13px] font-semibold text-ink-soft transition hover:bg-tint/6 hover:text-ink-strong"
+          className="flex items-center gap-1 rounded-control px-2 py-1 text-[13px] font-semibold text-ink-soft transition hover:bg-tint/6 hover:text-ink-strong"
         >
           <ChevronLeftIcon width={16} height={16} />
           {runTitle}

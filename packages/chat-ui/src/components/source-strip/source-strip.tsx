@@ -23,7 +23,7 @@ export function SourceStrip({ sources, onCite }: SourceStripProps) {
       {visible.map((source) => (
         <div
           key={source.id}
-          className="flex items-stretch overflow-hidden rounded-lg border border-line"
+          className="flex items-stretch overflow-hidden rounded-control border border-line"
         >
           <button
             type="button"
@@ -56,7 +56,7 @@ export function SourceStrip({ sources, onCite }: SourceStripProps) {
         <button
           type="button"
           onClick={() => setShowAll((s) => !s)}
-          className={`rounded-lg border border-dashed border-line font-medium text-ink-soft transition hover:bg-tint/6 hover:text-ink-strong ${
+          className={`rounded-control border border-dashed border-line font-medium text-ink-soft transition hover:bg-tint/6 hover:text-ink-strong ${
             compact ? 'px-2 py-1 text-xs' : 'px-2.5 py-1 text-[13px]'
           }`}
         >

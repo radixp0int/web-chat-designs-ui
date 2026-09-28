@@ -80,7 +80,7 @@ export function KindIcon({
   const Glyph = kind === 'tool' ? PlugIcon : kind === 'decision' ? DiamondIcon : InboxIcon
   return (
     <span
-      className="grid shrink-0 place-items-center rounded-md bg-chip text-chip-fg"
+      className="grid shrink-0 place-items-center rounded-control bg-chip text-chip-fg"
       style={{ width: size, height: size }}
       aria-hidden
     >

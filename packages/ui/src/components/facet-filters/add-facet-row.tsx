@@ -49,7 +49,7 @@ export function AddFacetRow({
         type="button"
         onClick={() => setOpen(true)}
         aria-expanded={false}
-        className="flex w-full items-center gap-2 rounded-xl border border-dashed border-line bg-panel px-2.5 py-1.5 text-left transition hover:bg-tint/8"
+        className="flex w-full items-center gap-2 rounded-surface border border-dashed border-line bg-panel px-2.5 py-1.5 text-left transition hover:bg-tint/8"
       >
         <PlusIcon width={13} height={13} className="shrink-0 text-accent" />
         <span className="flex-1 text-[11.5px] font-semibold text-ink">{title}</span>
@@ -58,7 +58,7 @@ export function AddFacetRow({
   }
 
   return (
-    <div className="rounded-xl border border-line bg-panel p-2.5">
+    <div className="rounded-surface border border-line bg-panel p-2.5">
       <p className="mb-2 text-[10px] font-semibold tracking-[0.12em] text-ink-soft uppercase">
         {title}
       </p>
@@ -70,7 +70,7 @@ export function AddFacetRow({
           id="facet-type"
           value={type}
           onChange={(event) => setType(event.target.value)}
-          className="w-24 shrink-0 rounded-lg border border-line bg-panel-solid px-1.5 py-1.5 text-[12px] font-medium text-ink"
+          className="w-24 shrink-0 rounded-control border border-line bg-panel-solid px-1.5 py-1.5 text-[12px] font-medium text-ink"
         >
           {types.map((option) => (
             <option key={option} value={option}>
@@ -95,7 +95,7 @@ export function AddFacetRow({
             if (event.key === 'Escape') setValue('')
           }}
           placeholder={meta.placeholder}
-          className="min-w-0 flex-1 rounded-lg border border-line bg-panel-solid px-2 py-1.5 text-[12px] text-ink placeholder:text-ink-soft/70"
+          className="min-w-0 flex-1 rounded-control border border-line bg-panel-solid px-2 py-1.5 text-[12px] text-ink placeholder:text-ink-soft/70"
         />
 
         <button
@@ -104,7 +104,7 @@ export function AddFacetRow({
           disabled={!ready}
           aria-label={addLabel}
           title={addLabel}
-          className="grid w-[30px] shrink-0 place-items-center rounded-lg bg-brand-solid text-on-brand-solid transition disabled:cursor-default disabled:opacity-40"
+          className="grid w-[30px] shrink-0 place-items-center rounded-control bg-brand-solid text-on-brand-solid transition disabled:cursor-default disabled:opacity-40"
         >
           <PlusIcon width={15} height={15} />
         </button>

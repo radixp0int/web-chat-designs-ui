@@ -83,7 +83,7 @@ export function RunTopBar({
       {/* Sheds words, then disappears — the sidebar's "Needs you" count carries
           the same fact, so this is the first thing that can go. */}
       {waitingCount > 0 && (
-        <span className="ml-2 inline-flex h-7 shrink-0 items-center gap-2 rounded-full bg-notify/12 px-3 text-xs font-bold whitespace-nowrap text-ink-strong @max-[620px]:hidden">
+        <span className="ml-2 inline-flex h-7 shrink-0 items-center gap-2 rounded-control bg-notify/12 px-3 text-xs font-bold whitespace-nowrap text-ink-strong @max-[620px]:hidden">
           <span className="size-2 rounded-full bg-notify" aria-hidden />
           <span className="@max-[760px]:hidden">
             Waiting on {waitingCount} approval{waitingCount === 1 ? '' : 's'}
@@ -98,7 +98,7 @@ export function RunTopBar({
         <div
           role="group"
           aria-label="Canvas density"
-          className="flex shrink-0 rounded-full border border-line bg-tint/5 p-[3px]"
+          className="flex shrink-0 rounded-control border border-line bg-tint/5 p-[3px]"
         >
           {(['normal', 'compact'] as const).map((v) => (
             <button
@@ -106,7 +106,7 @@ export function RunTopBar({
               type="button"
               onClick={() => onView(v)}
               aria-pressed={view === v}
-              className={`h-[30px] rounded-full px-4 text-[13px] transition ${
+              className={`h-[30px] rounded-control px-4 text-[13px] transition ${
                 view === v
                   ? 'bg-panel-solid font-bold text-accent-fg shadow-sm'
                   : 'font-semibold text-ink-soft hover:text-ink-strong'

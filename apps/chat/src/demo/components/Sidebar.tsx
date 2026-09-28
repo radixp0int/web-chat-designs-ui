@@ -62,7 +62,7 @@ export function Sidebar({
       />
 
       <aside
-        className={`glass fixed inset-y-0 left-0 z-40 flex w-72 flex-col rounded-r-xl transition-[transform,width] duration-300 lg:static lg:z-auto lg:translate-x-0 lg:rounded-xl ${
+        className={`glass fixed inset-y-0 left-0 z-40 flex w-72 flex-col rounded-r-surface transition-[transform,width] duration-300 lg:static lg:z-auto lg:translate-x-0 lg:rounded-surface ${
           collapsed ? 'lg:w-16' : 'lg:w-72'
         } ${open ? 'translate-x-0' : '-translate-x-full'}`}
       >
@@ -92,7 +92,7 @@ export function Sidebar({
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             aria-expanded={!collapsed}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            className={`hidden rounded-lg p-1.5 text-ink-soft transition hover:bg-panel hover:text-ink-strong lg:block ${
+            className={`hidden rounded-control p-1.5 text-ink-soft transition hover:bg-panel hover:text-ink-strong lg:block ${
               collapsed ? '' : 'ml-auto'
             }`}
           >
@@ -115,7 +115,7 @@ export function Sidebar({
             type="button"
             onClick={onNewChat}
             title="New chat"
-            className={`flex w-full items-center gap-2.5 rounded-lg bg-panel-solid px-4 py-3 text-sm font-semibold text-ink-strong shadow-sm ring-1 ring-line transition hover:shadow-md hover:ring-accent/40 ${
+            className={`flex w-full items-center gap-2.5 rounded-control bg-panel-solid px-4 py-3 text-sm font-semibold text-ink-strong shadow-sm ring-1 ring-line transition hover:shadow-md hover:ring-accent/40 ${
               collapsed ? 'lg:justify-center lg:px-0' : ''
             }`}
           >
@@ -171,7 +171,7 @@ export function Sidebar({
               type="button"
               onClick={() => setRecentOpen((v) => !v)}
               aria-expanded={recentOpen}
-              className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition hover:bg-panel"
+              className="flex w-full items-center gap-2 rounded-control px-2 py-2 text-left transition hover:bg-panel"
             >
               {recentOpen ? (
                 <ChevronDownIcon width={13} height={13} className="shrink-0 text-ink-soft" />
@@ -190,7 +190,7 @@ export function Sidebar({
                   <button
                     type="button"
                     title={title}
-                    className="group flex w-full items-baseline gap-2 rounded-lg px-2 py-1.5 text-left transition hover:bg-panel"
+                    className="group flex w-full items-baseline gap-2 rounded-control px-2 py-1.5 text-left transition hover:bg-panel"
                   >
                     <span className="min-w-0 flex-1 truncate text-[13px] text-ink-soft transition group-hover:text-ink">
                       {title}
@@ -231,7 +231,7 @@ function SidebarLink({
     <button
       type="button"
       title={label}
-      className={`flex w-full items-center gap-2.5 rounded-xl px-2 py-2 text-sm font-medium text-ink transition hover:bg-panel ${
+      className={`flex w-full items-center gap-2.5 rounded-control px-2 py-2 text-sm font-medium text-ink transition hover:bg-panel ${
         collapsed ? 'lg:justify-center' : ''
       }`}
     >

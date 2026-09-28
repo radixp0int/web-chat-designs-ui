@@ -193,7 +193,7 @@ export function FacetGroupSection({
           type="button"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={isOpen}
-          className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-1 py-1.5 text-left transition hover:bg-tint/8"
+          className="flex min-w-0 flex-1 items-center gap-2 rounded-control px-1 py-1.5 text-left transition hover:bg-tint/8"
         >
           {isOpen ? (
             <ChevronDownIcon width={13} height={13} className="shrink-0 text-ink-soft" />
@@ -246,13 +246,13 @@ export function FacetGroupSection({
                     ? `Search ${total.toLocaleString()} values`
                     : `Filter ${total} options`
                 }
-                className="w-full rounded-lg border border-line bg-panel py-1.5 pr-2 pl-7 text-[11.5px] text-ink placeholder:text-ink-soft/70"
+                className="w-full rounded-control border border-line bg-panel py-1.5 pr-2 pl-7 text-[11.5px] text-ink placeholder:text-ink-soft/70"
               />
             </div>
           )}
 
           {tooMany && (
-            <div className="mb-1.5 rounded-lg border border-caution-line bg-caution-surface px-2.5 py-2">
+            <div className="mb-1.5 rounded-control border border-caution-line bg-caution-surface px-2.5 py-2">
               <p className="text-[11px] leading-relaxed text-ink-soft">
                 <strong className="font-semibold text-ink-strong tabular-nums">
                   {matchCount.toLocaleString()} matches
@@ -271,7 +271,7 @@ export function FacetGroupSection({
                   // keep offering the thing that just happened.
                   setQuery('')
                 }}
-                className="mt-1.5 rounded-full bg-brand-solid px-2.5 py-1 text-[11px] font-semibold text-on-brand-solid"
+                className="mt-1.5 rounded-control bg-brand-solid px-2.5 py-1 text-[11px] font-semibold text-on-brand-solid"
               >
                 Filter by this search instead
               </button>
@@ -306,7 +306,7 @@ export function FacetGroupSection({
               ref={virtualWindow.scrollRef}
               onScroll={virtualWindow.onScroll}
               style={{ height: viewHeight }}
-              className="overflow-y-auto rounded-lg border border-line"
+              className="overflow-y-auto rounded-control border border-line"
             >
               <div style={{ height: virtualWindow.padTop }} />
               <ul role="list" className="m-0 list-none p-0">

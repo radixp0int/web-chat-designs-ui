@@ -67,8 +67,8 @@ export function ChatMessage({
         <div
           className={`${
             compact
-              ? 'max-w-[85%] rounded-lg rounded-br-xs bg-bubble px-3.5 py-2 text-sm leading-relaxed text-on-bubble shadow-md shadow-(color:--shadow-bubble)'
-              : 'max-w-[78%] rounded-xl rounded-br-sm bg-bubble px-5 py-3 text-[15px] leading-relaxed text-on-bubble shadow-md shadow-(color:--shadow-bubble)'
+              ? 'max-w-[85%] rounded-control rounded-br-xs bg-bubble px-3.5 py-2 text-sm leading-relaxed text-on-bubble shadow-md shadow-(color:--shadow-bubble)'
+              : 'max-w-[78%] rounded-surface rounded-br-sm bg-bubble px-5 py-3 text-[15px] leading-relaxed text-on-bubble shadow-md shadow-(color:--shadow-bubble)'
           }`}
         >
           {message.content}

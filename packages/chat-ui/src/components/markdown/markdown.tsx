@@ -74,7 +74,7 @@ function Pre({ node, children }: ComponentProps<'pre'> & ExtraProps) {
 
   return (
     <pre
-      className={`my-3 overflow-x-auto rounded-xl border border-line bg-code-block p-3.5 font-mono leading-relaxed [&>code]:bg-transparent [&>code]:p-0 ${compact ? 'text-xs' : 'text-[13px]'}`}
+      className={`my-3 overflow-x-auto rounded-surface border border-line bg-code-block p-3.5 font-mono leading-relaxed [&>code]:bg-transparent [&>code]:p-0 ${compact ? 'text-xs' : 'text-[13px]'}`}
     >
       {children}
     </pre>
@@ -158,7 +158,7 @@ export function Markdown({
     ),
     pre: Pre,
     table: ({ children }) => (
-      <div className="my-3 overflow-x-auto rounded-xl border border-line">
+      <div className="my-3 overflow-x-auto rounded-surface border border-line">
         <table className={`w-full border-collapse ${compact ? 'text-[13px]' : 'text-sm'}`}>
           {children}
         </table>

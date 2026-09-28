@@ -31,12 +31,7 @@ const SIZING = {
     spine: 'before:h-full last:before:h-[17px]',
     // 17px half-height − 3.5px half-node; −3px centres a 7px dot on the 1px spine
     node: 'after:top-[13.5px] after:-left-[3px] after:size-[7px]',
-    // Fixed rather than rounded-full: a pill's radius is half its own height, so
-    // once a long suggestion wraps to two lines the curve balloons and eats into
-    // the text. 17px matches what rounded-full already renders at on a single
-    // line (33.5px tall), so one-line chips are pixel-identical — wrapped ones
-    // just stop growing past that.
-    chip: 'px-3.5 py-1.5 text-[13px] rounded-[17px]',
+    chip: 'px-3.5 py-1.5 text-[13px] rounded-control',
     moreWrap: 'mt-1.5 -ml-7 pl-7',
     more: 'px-3 py-1 text-xs',
   },
@@ -46,9 +41,7 @@ const SIZING = {
     row: 'pb-1 pl-[22px]',
     spine: 'before:h-full last:before:h-[13px]',
     node: 'after:top-[10px] after:-left-[2.5px] after:size-[6px]',
-    // Same fix at compact scale: 13px matches rounded-full's single-line render
-    // (26px tall row), so it only changes anything once a chip wraps.
-    chip: 'px-3 py-1 text-xs rounded-[13px]',
+    chip: 'px-3 py-1 text-xs rounded-control',
     moreWrap: 'mt-1 -ml-[22px] pl-[22px]',
     more: 'px-2.5 py-0.5 text-[11px]',
   },
@@ -101,7 +94,7 @@ export function FollowupChips({ items, onPick, disabled }: FollowupChipsProps) {
           <button
             type="button"
             onClick={() => setShowAll((v) => !v)}
-            className={`rounded-full border border-dashed border-line font-medium text-ink-soft transition hover:border-brand-fg/40 hover:text-ink-strong ${s.more}`}
+            className={`rounded-control border border-dashed border-line font-medium text-ink-soft transition hover:border-brand-fg/40 hover:text-ink-strong ${s.more}`}
           >
             {showAll ? 'Show fewer' : `+${overflow} more`}
           </button>

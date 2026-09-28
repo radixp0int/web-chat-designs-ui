@@ -18,7 +18,7 @@ export function MermaidFrame({
   return (
     <figure
       aria-busy={busy || undefined}
-      className="my-3 overflow-hidden rounded-xl border border-line bg-code-block"
+      className="my-3 overflow-hidden rounded-surface border border-line bg-code-block"
     >
       <figcaption className="flex h-9 items-center gap-1 border-b border-line pr-1 pl-3.5 text-[11px] font-semibold tracking-wide text-ink-soft uppercase">
         <span className="flex-1 truncate">{label}</span>

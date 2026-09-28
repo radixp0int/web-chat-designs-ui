@@ -41,7 +41,7 @@ export function Checkbox({
       <span
         aria-hidden
         className={[
-          'pointer-events-none size-[18px] rounded-[5px] border-2 border-ink-soft/60 bg-panel-solid transition',
+          'pointer-events-none size-[18px] rounded-check border-2 border-ink-soft/60 bg-panel-solid transition',
           'peer-hover:border-brand-fg/70',
           'peer-checked:border-brand-solid peer-checked:bg-brand-solid',
           'peer-[:indeterminate]:border-brand-solid peer-[:indeterminate]:bg-brand-solid',

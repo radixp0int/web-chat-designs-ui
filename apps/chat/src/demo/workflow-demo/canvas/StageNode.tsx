@@ -29,7 +29,7 @@ function StageNodeView({ data }: NodeProps<StageNodeType>) {
 
   return (
     <div
-      className={`relative box-border flex flex-col rounded-2xl border transition-shadow ${
+      className={`relative box-border flex flex-col rounded-surface border transition-shadow ${
         current
           ? 'bg-panel-solid/90 shadow-lg shadow-(color:--shadow-raised)'
           : 'bg-panel shadow-sm shadow-(color:--shadow-soft)'
@@ -55,7 +55,7 @@ function StageNodeView({ data }: NodeProps<StageNodeType>) {
           selectStage(stageId)
         }}
         aria-pressed={selected}
-        className="nodrag flex h-14 w-full items-center gap-2.5 rounded-t-2xl border-b border-line pr-4 pl-[18px] text-left transition hover:bg-tint/6"
+        className="nodrag flex h-14 w-full items-center gap-2.5 rounded-t-surface border-b border-line pr-4 pl-[18px] text-left transition hover:bg-tint/6"
       >
         <StageMarker status={status} />
         <div className="flex min-w-0 flex-col">
@@ -92,7 +92,7 @@ function StageNodeView({ data }: NodeProps<StageNodeType>) {
                 selectStep(step.id)
               }}
               aria-current={selected ? 'true' : undefined}
-              className={`nodrag -mx-2 flex w-[calc(100%+1rem)] items-center gap-2.5 rounded-lg px-2 text-left transition hover:bg-tint/8 ${
+              className={`nodrag -mx-2 flex w-[calc(100%+1rem)] items-center gap-2.5 rounded-control px-2 text-left transition hover:bg-tint/8 ${
                 expanded ? 'min-h-11 py-1.5' : 'h-[38px]'
               } ${selected ? 'bg-chip' : ''}`}
             >
@@ -120,7 +120,7 @@ function StageNodeView({ data }: NodeProps<StageNodeType>) {
             }}
             className="nodrag mt-2 flex w-full items-center gap-2 border-t border-line pt-3 text-left"
           >
-            <span className="inline-flex h-[22px] items-center rounded-md bg-notify px-2.5 text-[11px] font-bold text-on-notify">
+            <span className="inline-flex h-[22px] items-center rounded-control bg-notify px-2.5 text-[11px] font-bold text-on-notify">
               Needs approval
             </span>
             <span className="text-[11.5px] font-semibold text-accent-fg">Review and decide</span>

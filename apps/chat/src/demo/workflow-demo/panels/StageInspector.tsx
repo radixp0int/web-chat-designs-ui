@@ -67,7 +67,7 @@ export function StageInspector({
       <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 py-5">
         <div className="flex flex-col gap-2.5">
           <div className="flex items-center gap-2.5">
-            <span className="inline-flex h-5 items-center gap-1.5 rounded-md bg-chip px-2 text-[11px] font-bold text-chip-fg">
+            <span className="inline-flex h-5 items-center gap-1.5 rounded-control bg-chip px-2 text-[11px] font-bold text-chip-fg">
               <StageMarker status={stage.status} />
               Stage
             </span>
@@ -100,7 +100,7 @@ export function StageInspector({
                   type="button"
                   onClick={() => onSelectStep(step.id)}
                   aria-current={selected ? 'true' : undefined}
-                  className={`-mx-2 flex min-h-11 items-center gap-2.5 rounded-lg px-2 text-left transition hover:bg-tint/8 ${
+                  className={`-mx-2 flex min-h-11 items-center gap-2.5 rounded-control px-2 text-left transition hover:bg-tint/8 ${
                     selected ? 'bg-chip' : ''
                   }`}
                 >

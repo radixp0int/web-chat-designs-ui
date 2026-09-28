@@ -126,7 +126,7 @@ export function RunLog({
                       <button
                         type="button"
                         onClick={() => onSelectStep(entry.stepId!)}
-                        className="flex w-full items-baseline gap-3 rounded-md px-2 py-1 text-left transition hover:bg-tint/6"
+                        className="flex w-full items-baseline gap-3 rounded-control px-2 py-1 text-left transition hover:bg-tint/6"
                       >
                         {body}
                       </button>

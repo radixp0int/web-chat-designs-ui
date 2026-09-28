@@ -92,7 +92,7 @@ export function Modal({
       <div
         data-expanded={expanded || undefined}
         className={[
-          'relative mx-auto flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden rounded-2xl',
+          'relative mx-auto flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden rounded-dialog',
           'border border-line bg-panel-solid shadow-2xl shadow-(color:--shadow-deep)',
           'transition-[width,height,max-width,max-height] duration-200 motion-reduce:transition-none',
           'data-[expanded=true]:h-[80dvh] data-[expanded=true]:max-h-[80dvh] data-[expanded=true]:w-[80vw] data-[expanded=true]:max-w-[80vw]',
@@ -106,7 +106,7 @@ export function Modal({
           {icon && (
             <span
               aria-hidden="true"
-              className={`inline-grid size-9 shrink-0 place-items-center rounded-xl ring-1 ${iconTones[iconTone]} [&>svg]:size-[18px]`}
+              className={`inline-grid size-9 shrink-0 place-items-center rounded-control ring-1 ${iconTones[iconTone]} [&>svg]:size-[18px]`}
             >
               {icon}
             </span>

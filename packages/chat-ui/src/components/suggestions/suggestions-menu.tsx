@@ -87,7 +87,7 @@ export function SuggestionsMenu({
           id={panelId}
           role="dialog"
           aria-label="Suggested questions for today"
-          className={`absolute left-0 z-30 overflow-hidden ${placement === 'up' ? 'bottom-full mb-2' : 'top-full mt-2'} rounded-lg border border-line bg-panel-solid p-1.5 shadow-xl shadow-(color:--shadow-menu) ${
+          className={`absolute left-0 z-30 overflow-hidden ${placement === 'up' ? 'bottom-full mb-2' : 'top-full mt-2'} rounded-control border border-line bg-panel-solid p-1.5 shadow-xl shadow-(color:--shadow-menu) ${
             compact ? 'w-72' : 'w-96'
           }`}
         >
@@ -113,9 +113,9 @@ export function SuggestionsMenu({
                       onPick(s.text)
                       setOpen(false)
                     }}
-                    className="flex min-w-0 flex-1 items-center gap-2.5 rounded-md px-2.5 py-2 text-left transition hover:bg-tint/8"
+                    className="flex min-w-0 flex-1 items-center gap-2.5 rounded-control px-2.5 py-2 text-left transition hover:bg-tint/8"
                   >
-                    <span className="grid size-5 shrink-0 place-items-center rounded-md bg-chip text-[10.5px] font-bold text-chip-fg">
+                    <span className="grid size-5 shrink-0 place-items-center rounded-control bg-chip text-[10.5px] font-bold text-chip-fg">
                       {i + 1}
                     </span>
                     <span className="min-w-0 flex-1">

@@ -24,7 +24,7 @@ export function BulkBar({
   children?: ReactNode
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-2.5 rounded-lg bg-brand-solid px-3.5 py-2">
+    <div className="flex flex-wrap items-center gap-2.5 rounded-control bg-brand-solid px-3.5 py-2">
       <span aria-live="polite" className="text-[13px] font-extrabold text-on-brand-solid">
         {countLabel}
       </span>

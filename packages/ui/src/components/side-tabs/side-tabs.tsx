@@ -35,7 +35,7 @@ export function SideTabRail({ tabs, activeId, onSelect }: SideTabRailProps) {
               // The count is drawn, so it has to be said too.
               aria-label={tab.badge ? `${tab.label}, ${tab.badge}` : tab.label}
               title={tab.label}
-              className={`relative grid size-8 place-items-center rounded-lg transition ${
+              className={`relative grid size-8 place-items-center rounded-control transition ${
                 active
                   ? 'bg-chip text-chip-fg'
                   : 'text-ink-soft hover:bg-tint/8 hover:text-ink-strong'

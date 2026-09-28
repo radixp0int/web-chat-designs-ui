@@ -120,7 +120,7 @@ export function ReferencePanel({
           <p className="flex min-w-0 items-center gap-1.5 font-semibold text-ink-strong">
             <span
               aria-hidden
-              className="grid size-[18px] shrink-0 place-items-center rounded-md bg-brand-solid text-[10px] font-bold text-on-brand-solid"
+              className="grid size-[18px] shrink-0 place-items-center rounded-control bg-brand-solid text-[10px] font-bold text-on-brand-solid"
             >
               {active.id}
             </span>
@@ -135,7 +135,7 @@ export function ReferencePanel({
             href={active.url}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-brand-fg/25 bg-brand-fg/7 px-2.5 py-1.5 text-xs font-semibold whitespace-nowrap text-brand-fg transition hover:bg-brand-fg/12"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-control border border-brand-fg/25 bg-brand-fg/7 px-2.5 py-1.5 text-xs font-semibold whitespace-nowrap text-brand-fg transition hover:bg-brand-fg/12"
           >
             <ExternalLinkIcon width={12} height={12} />
             Open original
@@ -189,7 +189,7 @@ export function ReferencePanel({
                     controls={false}
                     data-active={isActive || undefined}
                     title={source.title}
-                    className={`grid size-7 place-items-center rounded-full text-xs font-semibold transition ${
+                    className={`grid size-7 place-items-center rounded-control text-xs font-semibold transition ${
                       isActive
                         ? 'bg-brand-solid text-on-brand-solid'
                         : 'border border-line text-ink-soft hover:bg-tint/8 hover:text-ink-strong'
@@ -204,7 +204,7 @@ export function ReferencePanel({
           {showJump && (
             <>
               <span aria-hidden className="h-[18px] w-px shrink-0 bg-line" />
-              <div className="flex shrink-0 items-center gap-1 rounded-lg border border-line px-1.5 py-1 text-xs text-ink-soft">
+              <div className="flex shrink-0 items-center gap-1 rounded-control border border-line px-1.5 py-1 text-xs text-ink-soft">
                 <input
                   aria-label="Jump to reference number"
                   title="Jump to reference"

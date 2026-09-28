@@ -123,7 +123,7 @@ export function Pagination({
                 aria-current={slot === page ? 'page' : undefined}
                 onClick={() => onPageChange(slot)}
                 className={[
-                  'h-8 min-w-8 rounded-lg px-2 text-[13px] transition tabular-nums',
+                  'h-8 min-w-8 rounded-control px-2 text-[13px] transition tabular-nums',
                   slot === page
                     ? 'bg-brand-solid font-extrabold text-on-brand-solid'
                     : 'font-bold text-ink hover:bg-tint/8',

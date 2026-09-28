@@ -67,7 +67,7 @@ export function Button({
   ...rest
 }: ButtonProps) {
   const cls = [
-    'inline-flex shrink-0 items-center justify-center rounded-lg font-bold whitespace-nowrap transition',
+    'inline-flex shrink-0 items-center justify-center rounded-control font-bold whitespace-nowrap transition',
     'disabled:pointer-events-none disabled:opacity-40',
     sizes[size],
     variants[variant],

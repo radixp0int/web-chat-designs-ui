@@ -1,6 +1,6 @@
 import type { ReactNode, Ref } from 'react'
 
-export type CodeLanguage = 'json' | 'yaml' | 'text'
+export type CodeLanguage = 'json' | 'yaml' | 'csv' | 'text'
 
 export type CodeTokenKind =
   | 'key'
@@ -38,7 +38,8 @@ export type CodeEditorProps = {
   readOnly?: boolean
   /**
    * `true` (the default) runs the built-in check for the language: JSON.parse
-   * for JSON, tabs and unclosed quotes for YAML, nothing for plain text.
+   * for JSON, tabs and unclosed quotes for YAML, CSV quoting rules, and nothing
+   * for plain text.
    * Pass a function to replace it, `false` to turn it off.
    */
   validate?: boolean | ((value: string) => CodeDiagnostic | null)

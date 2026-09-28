@@ -57,7 +57,7 @@ export function TurnTraceHandle({ trace, open, onToggle }: TurnTraceHandleProps)
       type="button"
       onClick={onToggle}
       aria-expanded={open}
-      className={`flex items-center gap-1 rounded-lg px-1.5 py-1 tabular-nums text-ink-soft transition hover:bg-tint/6 ${
+      className={`flex items-center gap-1 rounded-control px-1.5 py-1 tabular-nums text-ink-soft transition hover:bg-tint/6 ${
         compact ? 'text-[11px]' : 'text-xs'
       }`}
     >
@@ -149,7 +149,7 @@ export function TurnTraceFailure({ reason, trace, onRetry, busy }: TurnTraceFail
           type="button"
           onClick={onRetry}
           disabled={busy}
-          className={`mt-2.5 rounded-lg border border-line font-medium text-ink-soft transition hover:bg-tint/6 disabled:cursor-not-allowed disabled:opacity-50 ${
+          className={`mt-2.5 rounded-control border border-line font-medium text-ink-soft transition hover:bg-tint/6 disabled:cursor-not-allowed disabled:opacity-50 ${
             compact ? 'px-2 py-1 text-xs' : 'px-2.5 py-1 text-[13px]'
           }`}
         >

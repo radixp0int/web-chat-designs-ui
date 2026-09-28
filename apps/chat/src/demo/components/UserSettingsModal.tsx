@@ -43,7 +43,7 @@ export function UserSettingsModal({ open, onClose }: { open: boolean; onClose: (
       onClick={(e) => e.target === ref.current && onClose()}
       className="fixed top-1/2 right-4 left-auto m-0 max-w-none -translate-y-1/2 border-0 bg-transparent p-0 backdrop:bg-scrim/25"
     >
-      <div className="glass flex max-h-[calc(100dvh-2rem)] w-[min(26rem,calc(100vw-2rem))] flex-col rounded-xl">
+      <div className="glass flex max-h-[calc(100dvh-2rem)] w-[min(26rem,calc(100vw-2rem))] flex-col rounded-dialog">
         <header className="flex items-start gap-3 px-5 pt-5 pb-4">
           <div className="min-w-0 flex-1">
             <h2 id="user-settings-title" className="text-base font-semibold text-ink-strong">
@@ -61,7 +61,7 @@ export function UserSettingsModal({ open, onClose }: { open: boolean; onClose: (
         <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-3">
           {/* Read-only: this demo has no account backend, and a form that
               silently discarded an edit would be a worse lie than plain text. */}
-          <div className="flex items-center gap-3 rounded-xl bg-panel-solid px-4 py-3 ring-1 ring-line">
+          <div className="flex items-center gap-3 rounded-surface bg-panel-solid px-4 py-3 ring-1 ring-line">
             <Avatar variant="text" text={DEMO_USER.initials} size={40} tone="brand" aria-hidden />
             {/* The plan sits under the name rather than beside it: on the
                 narrow card an email and a pill fighting for one row left the
@@ -104,7 +104,7 @@ export function UserSettingsModal({ open, onClose }: { open: boolean; onClose: (
           <button
             type="button"
             onClick={resetAppearance}
-            className="rounded-lg px-2 py-1 text-[13px] font-medium text-ink-soft transition hover:text-ink-strong"
+            className="rounded-control px-2 py-1 text-[13px] font-medium text-ink-soft transition hover:text-ink-strong"
           >
             Reset appearance
           </button>

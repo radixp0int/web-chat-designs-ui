@@ -43,12 +43,12 @@ export function StepBadges({
 }) {
   return (
     <div className="flex items-center gap-2.5">
-      <span className="inline-flex h-5 items-center gap-1.5 rounded-md bg-chip px-2 text-[11px] font-bold text-chip-fg">
+      <span className="inline-flex h-5 items-center gap-1.5 rounded-control bg-chip px-2 text-[11px] font-bold text-chip-fg">
         <KindIcon kind={step.kind} initials={step.initials} size={14} />
         {KIND_LABEL[step.kind]}
       </span>
       {status === 'waiting' ? (
-        <span className="ml-auto inline-flex h-5 items-center rounded-full bg-notify px-2 text-[11px] font-bold text-on-notify">
+        <span className="ml-auto inline-flex h-5 items-center rounded-control bg-notify px-2 text-[11px] font-bold text-on-notify">
           Needs approval
         </span>
       ) : (
@@ -80,7 +80,7 @@ export function StepDetails({ step }: { step: StepSeed<RunDetail> }) {
   return (
     <div className="flex flex-col gap-2.5">
       <SectionLabel>Details</SectionLabel>
-      <div className="rounded-lg border border-line p-3.5">
+      <div className="rounded-surface border border-line p-3.5">
         {who && (
           <div className="flex items-center gap-2.5 border-b border-line pb-3">
             {step.initials && (
@@ -121,7 +121,7 @@ export function Recommendation({ rec }: { rec: NonNullable<RunDetail['recommenda
           panel-solid, so the card was white on white there and read flat. This
           value is distinct from that page AND from the panel's translucent
           shell, so one card works in both and neither view needs a variant. */}
-      <div className="rounded-lg bg-canvas p-4 ring-1 ring-line">
+      <div className="rounded-surface bg-canvas p-4 ring-1 ring-line">
         <div className="flex items-center gap-2.5">
           <KindIcon kind="agent" size={16} />
           <span className="text-xs text-ink-soft">{rec.from}</span>
@@ -150,7 +150,7 @@ export function PolicyException({ exc }: { exc: NonNullable<RunDetail['exception
   return (
     <div className="flex flex-col gap-2.5">
       <SectionLabel tone="caution">{exc.label ?? 'Policy exception'}</SectionLabel>
-      <div className="flex gap-3 rounded-lg bg-caution-surface p-3.5 ring-1 ring-caution-line">
+      <div className="flex gap-3 rounded-surface bg-caution-surface p-3.5 ring-1 ring-caution-line">
         <FlagIcon width={17} height={17} className="mt-px shrink-0 text-caution" />
         <div className="flex flex-col gap-0.5">
           <span className="text-[13.5px] leading-5 font-semibold text-ink-strong">{exc.text}</span>
@@ -189,7 +189,7 @@ export function NextIfApproved({ steps }: { steps: StepSeed<RunDetail>[] }) {
   return (
     <div className="flex flex-col gap-2.5">
       <SectionLabel>Next if approved</SectionLabel>
-      <div className="flex flex-col gap-2.5 rounded-lg border border-dashed border-line p-3.5">
+      <div className="flex flex-col gap-2.5 rounded-surface border border-dashed border-line p-3.5">
         {steps.map((s) => (
           <div key={s.id} className="flex items-center gap-2.5">
             <span className="size-[7px] shrink-0 rounded-full bg-ink-soft/40" aria-hidden />
@@ -207,7 +207,7 @@ export function NextIfApproved({ steps }: { steps: StepSeed<RunDetail>[] }) {
    declared once here rather than written out three times at the call site.
    Weight lives per-decision: two Tailwind font utilities on one element resolve
    by stylesheet order, not by the order they appear in the string. */
-const BUTTON_BASE = 'h-9 rounded-lg text-[13px] transition disabled:opacity-50'
+const BUTTON_BASE = 'h-9 rounded-control text-[13px] transition disabled:opacity-50'
 
 const DECISION_BUTTON: Record<Decision, { label: string; className: string }> = {
   declined: { label: 'Decline', className: 'px-2.5 font-semibold text-danger-fg hover:bg-tint/8' },
@@ -260,7 +260,7 @@ export function DecisionForm({
         onChange={(e) => setNote(e.target.value)}
         disabled={busy}
         placeholder="Add a note for the audit trail (optional)"
-        className="w-full resize-none rounded-lg border border-line bg-panel-solid px-3 py-2.5 text-[13px] text-ink-strong outline-none placeholder:text-ink-soft focus-visible:border-accent disabled:opacity-60"
+        className="w-full resize-none rounded-control border border-line bg-panel-solid px-3 py-2.5 text-[13px] text-ink-strong outline-none placeholder:text-ink-soft focus-visible:border-accent disabled:opacity-60"
       />
       <div className="flex items-center gap-2.5">
         {/* Decline sits left, the affirmative answers right, with a spacer

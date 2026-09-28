@@ -93,8 +93,8 @@ export function TabsList({ variant = 'line', className = '', children, ...rest }
       : 'flex shrink-0 flex-col border-r border-line'
   const contained =
     orientation === 'horizontal'
-      ? 'inline-flex items-center gap-1 rounded-lg bg-code p-1'
-      : 'inline-flex shrink-0 flex-col gap-1 rounded-lg bg-code p-1'
+      ? 'inline-flex items-center gap-1 rounded-control bg-code p-1'
+      : 'inline-flex shrink-0 flex-col gap-1 rounded-control bg-code p-1'
   const skin = variant === 'line' ? line : variant === 'contained' ? contained : ''
 
   return (
@@ -157,7 +157,7 @@ export function TabsTrigger({
     tabs.orientation === 'horizontal'
       ? '-mb-px h-10 border-b-2 px-1'
       : '-mr-px min-h-9 justify-start border-r-2 px-3'
-  const contained = 'min-h-8 rounded-md px-3'
+  const contained = 'min-h-8 rounded-control px-3'
   const unstyled = 'shrink-0 disabled:pointer-events-none disabled:opacity-35'
   const active =
     variant === 'line'

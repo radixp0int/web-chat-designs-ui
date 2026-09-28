@@ -96,7 +96,7 @@ export function ActiveFacetChips({
           type="button"
           onClick={() => setExpandedGroups((keys) => [...keys, group.key])}
           aria-expanded={false}
-          className="flex items-center gap-1 rounded-full bg-chip py-1 pr-2 pl-2.5 text-[11.5px] font-semibold text-chip-fg transition hover:bg-chip-hover"
+          className="flex items-center gap-1 rounded-control bg-chip py-1 pr-2 pl-2.5 text-[11.5px] font-semibold text-chip-fg transition hover:bg-chip-hover"
         >
           {group.label} · {values.length} of {group.cardinality ?? group.values.length}
           <ChevronDownIcon width={11} height={11} />
@@ -171,7 +171,7 @@ export function ActiveFacetChips({
           <button
             type="button"
             onClick={() => setShowAll(true)}
-            className="rounded-full bg-panel px-2 py-1 text-[11px] font-semibold text-brand-fg transition hover:text-brand-fg-hover"
+            className="rounded-control bg-panel px-2 py-1 text-[11px] font-semibold text-brand-fg transition hover:text-brand-fg-hover"
           >
             +{chips.length - maxChips} more
           </button>
@@ -186,7 +186,7 @@ export function ActiveFacetChips({
                 setExpandedGroups((keys) => keys.filter((key) => key !== group.key))
                 onClearGroup(group.key)
               }}
-              className="rounded-full px-2 py-1 text-[11px] font-semibold text-brand-fg transition hover:text-brand-fg-hover"
+              className="rounded-control px-2 py-1 text-[11px] font-semibold text-brand-fg transition hover:text-brand-fg-hover"
             >
               Clear {group.label}
             </button>

@@ -53,7 +53,7 @@ export function AskedOverStrip({
         onClick={() => setOpen(true)}
         aria-expanded={false}
         aria-label={`Filters used: ${items}${changed ? ', changed since' : ''}`}
-        className={`flex max-w-[82%] items-center gap-1.5 rounded-full border px-2.5 py-0.5 transition ${
+        className={`flex max-w-[82%] items-center gap-1.5 rounded-control border px-2.5 py-0.5 transition ${
           changed
             ? 'border-caution-line bg-caution-surface hover:bg-caution-surface/70'
             : 'border-line bg-panel hover:bg-tint/8'
@@ -82,7 +82,7 @@ export function AskedOverStrip({
       // tuned per swatch), so the panel came out warm against a rail full of
       // brand blue. This is the same tint the filter chips themselves use,
       // which is the point — it is the same filters, recorded.
-      className={`max-w-[82%] rounded-xl border border-accent/20 bg-chip px-3 py-2 ${className}`}
+      className={`max-w-[82%] rounded-surface border border-accent/20 bg-chip px-3 py-2 ${className}`}
     >
       <div className="mb-2 flex items-center gap-1.5">
         <FunnelIcon width={12} height={12} className="shrink-0 text-accent-fg" />
@@ -90,7 +90,7 @@ export function AskedOverStrip({
           Searched over <span className="tabular-nums">{items}</span>
         </span>
         {changed && (
-          <span className="rounded-full border border-caution-line bg-caution-surface px-1.5 py-px text-[9.5px] font-bold tracking-wide text-caution uppercase">
+          <span className="rounded-control border border-caution-line bg-caution-surface px-1.5 py-px text-[9.5px] font-bold tracking-wide text-caution uppercase">
             changed since
           </span>
         )}
@@ -121,7 +121,7 @@ export function AskedOverStrip({
         <button
           type="button"
           onClick={onRestore}
-          className="rounded-full bg-brand-solid px-2.5 py-1 text-[11px] font-semibold text-on-brand-solid"
+          className="rounded-control bg-brand-solid px-2.5 py-1 text-[11px] font-semibold text-on-brand-solid"
         >
           Use these filters again
         </button>

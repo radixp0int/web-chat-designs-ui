@@ -109,13 +109,13 @@ export function Omnibox({
         {label}
       </label>
 
-      <div className="flex min-w-0 items-center gap-2 rounded-xl border border-line bg-panel-solid px-3 py-2 transition focus-within:border-accent focus-within:ring-3 focus-within:ring-accent/20">
+      <div className="flex min-w-0 items-center gap-2 rounded-surface border border-line bg-panel-solid px-3 py-2 transition focus-within:border-accent focus-within:ring-3 focus-within:ring-accent/20">
         <SearchIcon width={16} height={16} className="shrink-0 text-ink-soft" />
 
         {chips.map((chip) => (
           <span
             key={chip.id}
-            className="inline-flex shrink-0 items-center gap-1 rounded-md bg-chip py-0.5 pr-1 pl-2 text-[12.5px] font-bold text-chip-fg"
+            className="inline-flex shrink-0 items-center gap-1 rounded-control bg-chip py-0.5 pr-1 pl-2 text-[12.5px] font-bold text-chip-fg"
           >
             {chip.prefix && <span className="font-semibold opacity-65">{chip.prefix}</span>}
             {chip.label}
@@ -160,7 +160,7 @@ export function Omnibox({
           id={`${baseId}-list`}
           role="listbox"
           aria-label={label}
-          className="absolute top-[calc(100%+6px)] left-0 z-30 w-full max-w-[34rem] overflow-hidden rounded-xl border border-line bg-panel-solid p-2 shadow-[0_12px_32px_var(--shadow-raised)]"
+          className="absolute top-[calc(100%+6px)] left-0 z-30 w-full max-w-[34rem] overflow-hidden rounded-surface border border-line bg-panel-solid p-2 shadow-[0_12px_32px_var(--shadow-raised)]"
         >
           {groups.map((g) => (
             <div key={g.id} className="flex flex-col">
@@ -181,14 +181,14 @@ export function Omnibox({
                     onPointerEnter={() => setActive(i)}
                     onClick={() => choose(item)}
                     className={[
-                      'flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition',
+                      'flex w-full items-center gap-2.5 rounded-control px-2.5 py-2 text-left transition',
                       i === active ? 'bg-chip' : '',
                     ]
                       .filter(Boolean)
                       .join(' ')}
                   >
                     {item.icon && (
-                      <span className="inline-grid size-[22px] shrink-0 place-items-center rounded-md bg-chip text-[10px] font-extrabold text-chip-fg">
+                      <span className="inline-grid size-[22px] shrink-0 place-items-center rounded-control bg-chip text-[10px] font-extrabold text-chip-fg">
                         {item.icon}
                       </span>
                     )}

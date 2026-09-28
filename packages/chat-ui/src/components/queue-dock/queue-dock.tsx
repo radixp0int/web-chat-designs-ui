@@ -123,12 +123,12 @@ export function QueueDock({
 
   return (
     <div
-      className={`mb-1.5 rounded-lg border bg-panel-solid transition-colors ${
+      className={`mb-1.5 rounded-surface border bg-panel-solid transition-colors ${
         caution ? 'border-caution-line bg-caution-surface' : 'border-line'
       }`}
     >
       <div
-        className={`flex items-center gap-1.5 rounded-t-lg border-b px-2 py-1 ${
+        className={`flex items-center gap-1.5 rounded-t-surface border-b px-2 py-1 ${
           caution ? 'border-caution-line' : 'border-line bg-tint/4'
         }`}
       >
@@ -144,7 +144,7 @@ export function QueueDock({
               <span className="text-[11.5px] font-bold text-ink-strong">
                 {compact ? 'Building' : 'Building a queue'}
               </span>
-              <span className="rounded-full bg-chip px-1.5 text-[10.5px] font-bold text-chip-fg">
+              <span className="rounded-control bg-chip px-1.5 text-[10.5px] font-bold text-chip-fg">
                 {items.length}
               </span>
               <span className={`truncate text-[11px] text-ink-soft ${compact ? 'sr-only' : ''}`}>
@@ -186,7 +186,7 @@ export function QueueDock({
                 </>
               ) : (
                 <span
-                  className={`rounded-full px-1.5 text-[10.5px] font-bold ${
+                  className={`rounded-control px-1.5 text-[10.5px] font-bold ${
                     caution ? 'bg-caution/15 text-caution' : 'bg-chip text-chip-fg'
                   }`}
                 >
@@ -270,7 +270,7 @@ export function QueueDock({
               disabled={items.length === 0}
               aria-label={compact ? 'Run the queue' : undefined}
               title="Run every question in order"
-              className={`ml-0.5 flex items-center gap-1 rounded-md bg-brand-solid font-bold text-on-brand-solid transition hover:brightness-110 disabled:bg-tint/15 disabled:text-ink-soft ${
+              className={`ml-0.5 flex items-center gap-1 rounded-control bg-brand-solid font-bold text-on-brand-solid transition hover:brightness-110 disabled:bg-tint/15 disabled:text-ink-soft ${
                 compact ? 'p-1.5' : 'px-2 py-1 text-[11.5px]'
               }`}
             >
@@ -336,7 +336,7 @@ export function QueueDock({
       {ghost && (
         <p
           aria-hidden
-          className="mx-1.5 mb-1.5 flex items-center gap-2 rounded-lg border border-dashed border-line bg-tint/4 py-1.5 pr-2 pl-3"
+          className="mx-1.5 mb-1.5 flex items-center gap-2 rounded-control border border-dashed border-line bg-tint/4 py-1.5 pr-2 pl-3"
         >
           <span className="min-w-0 flex-1 truncate text-[13px] text-ink-soft">{ghost}</span>
           <span className="shrink-0 text-[10px] font-bold tracking-wider text-marker uppercase">
@@ -386,7 +386,7 @@ function HeaderButton({
       type="button"
       onClick={onClick}
       title={title ?? label}
-      className={`flex items-center gap-1 rounded-md px-1.5 py-1 text-[11.5px] font-semibold transition ${
+      className={`flex items-center gap-1 rounded-control px-1.5 py-1 text-[11.5px] font-semibold transition ${
         filled
           ? 'bg-brand-solid text-on-brand-solid hover:brightness-110'
           : 'text-ink-soft hover:bg-tint/8 hover:text-ink-strong'
