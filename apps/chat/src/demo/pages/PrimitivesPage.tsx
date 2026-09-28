@@ -472,16 +472,19 @@ export function PrimitivesPage() {
                 options={[10, 25, 50, 100].map((n) => ({ value: n, label: String(n) }))}
               />
             </Field>
-            <Select
-              aria-label="Status filter"
-              size="md"
-              defaultValue="active"
-              options={[
-                { value: 'active', label: 'Active' },
-                { value: 'pending', label: 'Pending' },
-                { value: 'suspended', label: 'Suspended' },
-              ]}
-            />
+            <Field>
+              <FieldLabel htmlFor="primitive-status-filter">Status</FieldLabel>
+              <Select
+                id="primitive-status-filter"
+                size="md"
+                defaultValue="active"
+                options={[
+                  { value: 'active', label: 'Active' },
+                  { value: 'pending', label: 'Pending' },
+                  { value: 'suspended', label: 'Suspended' },
+                ]}
+              />
+            </Field>
           </Row>
           <Row label="Disabled">
             <Select aria-label="Region" disabled options={[{ value: 'ne', label: 'Northeast' }]} />
