@@ -55,6 +55,7 @@ export function EditPane({
   rows,
   lines,
   editable,
+  disabled,
   onChange,
   language,
   tabSize,
@@ -68,6 +69,7 @@ export function EditPane({
   rows: PaneRow[]
   lines: string[]
   editable: boolean
+  disabled?: boolean
   onChange?: (value: string) => void
   language: CodeLanguage
   tabSize: number
@@ -339,6 +341,7 @@ export function EditPane({
               onKeyDown={onKeyDown}
               onSelect={onSelect}
               onBlur={() => setReleased(false)}
+              disabled={disabled}
               aria-label={label}
               aria-describedby={helpId}
               spellCheck={false}
@@ -354,7 +357,9 @@ export function EditPane({
       </div>
       {editable && (
         <span id={helpId} className="sr-only">
-          {`${languageLabels[language]}. Tab indents. Press Escape, then Tab, to leave the editor.`}
+          {disabled
+            ? `${languageLabels[language]}, disabled.`
+            : `${languageLabels[language]}. Tab indents. Press Escape, then Tab, to leave the editor.`}
         </span>
       )}
     </div>

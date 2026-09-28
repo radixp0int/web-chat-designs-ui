@@ -49,10 +49,13 @@ function insertText(ta: HTMLTextAreaElement, text: string) {
  * windowing, which this does not do yet.
  */
 export function CodeEditor({
-  value,
+  value: valueProp,
+  defaultValue = '',
   onChange,
-  language = 'text',
+  language: languageProp,
+  defaultLanguage = 'text',
   label,
+  disabled = false,
   readOnly = false,
   validate = true,
   onDiagnosticChange,
@@ -70,7 +73,14 @@ export function CodeEditor({
   const fieldId = id ?? `${auto}-code`
   const helpId = `${fieldId}-help`
   const problemId = `${fieldId}-problem`
-  const locked = readOnly || !onChange
+  const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue)
+  const [initialLanguage] = useState(defaultLanguage)
+  const controlled = valueProp !== undefined
+  const value = valueProp ?? uncontrolledValue
+  const language = languageProp ?? initialLanguage
+  // A controlled value without an update handler remains a convenient
+  // read-only viewer. An uncontrolled editor owns its updates itself.
+  const locked = disabled || readOnly || (controlled && !onChange)
 
   const [caret, setCaret] = useState({ line: 1, column: 1 })
   const [focused, setFocused] = useState(false)
@@ -189,11 +199,13 @@ export function CodeEditor({
 
   return (
     <div
+      aria-disabled={disabled || undefined}
       className={[
         'flex min-h-0 flex-col overflow-hidden rounded-surface border bg-panel-solid transition',
         diagnostic
           ? 'border-danger has-[textarea:focus-visible]:ring-3 has-[textarea:focus-visible]:ring-danger/15'
           : 'border-line has-[textarea:focus-visible]:border-accent has-[textarea:focus-visible]:ring-3 has-[textarea:focus-visible]:ring-accent/20',
+        disabled ? 'bg-tint/5' : '',
         className,
       ]
         .filter(Boolean)
@@ -304,7 +316,9 @@ export function CodeEditor({
               id={fieldId}
               value={value}
               onChange={(e) => {
-                onChange?.(e.target.value)
+                const next = e.target.value
+                if (!controlled) setUncontrolledValue(next)
+                onChange?.(next)
                 trackCaret(e)
               }}
               onKeyDown={onKeyDown}
@@ -315,6 +329,7 @@ export function CodeEditor({
                 setReleased(false)
               }}
               readOnly={locked}
+              disabled={disabled}
               aria-label={label}
               aria-describedby={diagnostic ? `${helpId} ${problemId}` : helpId}
               aria-invalid={diagnostic ? true : undefined}
@@ -371,9 +386,11 @@ export function CodeEditor({
       )}
 
       <span id={helpId} className="sr-only">
-        {locked
-          ? `${languageLabels[language]}, read only.`
-          : `${languageLabels[language]}. Tab indents. Press Escape, then Tab, to leave the editor.`}
+        {disabled
+          ? `${languageLabels[language]}, disabled.`
+          : locked
+            ? `${languageLabels[language]}, read only.`
+            : `${languageLabels[language]}. Tab indents. Press Escape, then Tab, to leave the editor.`}
       </span>
       {/* No live region for the diagnostic: half-typed JSON is invalid after
           nearly every keystroke, and announcing each one would drown the

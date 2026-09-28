@@ -29,12 +29,20 @@ export type CodeEditorHandle = {
 }
 
 export type CodeEditorProps = {
-  value: string
-  /** Omit for a read-only viewer. */
+  /** Controlled text, matching Monaco's editor contract. */
+  value?: string
+  /** Initial text for an uncontrolled editor. Ignored when `value` is provided. */
+  defaultValue?: string
+  /** Called after an edit in either controlled or uncontrolled mode. */
   onChange?: (value: string) => void
+  /** Controlled language. */
   language?: CodeLanguage
+  /** Initial language used when `language` is not provided. */
+  defaultLanguage?: CodeLanguage
   /** The textarea's accessible name. Required — see `Select`. */
   label: string
+  /** Prevents focus and editing while preserving the rendered code. */
+  disabled?: boolean
   readOnly?: boolean
   /**
    * `true` (the default) runs the built-in check for the language: JSON.parse
