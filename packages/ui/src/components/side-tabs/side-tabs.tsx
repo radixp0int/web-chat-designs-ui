@@ -1,6 +1,7 @@
 import { CountBadge } from '../count-badge'
 import { XIcon } from '../icons'
 import { IconButton } from '../icon-button'
+import { Tabs, TabsList, TabsTrigger } from '../../core/tabs'
 import type { SideTabRailProps, SideTabPanelProps } from './types'
 
 /**
@@ -11,35 +12,42 @@ import type { SideTabRailProps, SideTabPanelProps } from './types'
  */
 export function SideTabRail({ tabs, activeId, onSelect }: SideTabRailProps) {
   return (
-    <div
-      role="tablist"
-      aria-orientation="vertical"
-      className="flex w-10 shrink-0 flex-col items-center gap-1 border-r border-line py-2"
+    <Tabs
+      value={activeId}
+      onValueChange={onSelect}
+      allowDeselect
+      orientation="vertical"
+      activationMode="manual"
+      className="w-10 shrink-0"
     >
-      {tabs.map((tab) => {
-        const active = tab.id === activeId
-        return (
-          <button
-            key={tab.id}
-            type="button"
-            role="tab"
-            aria-selected={active}
-            // The count is drawn, so it has to be said too.
-            aria-label={tab.badge ? `${tab.label}, ${tab.badge}` : tab.label}
-            title={tab.label}
-            onClick={() => onSelect(active ? null : tab.id)}
-            className={`relative grid size-8 place-items-center rounded-lg transition ${
-              active
-                ? 'bg-chip text-chip-fg'
-                : 'text-ink-soft hover:bg-tint/8 hover:text-ink-strong'
-            }`}
-          >
-            {tab.icon}
-            <CountBadge count={tab.badge ?? 0} placement="corner" />
-          </button>
-        )
-      })}
-    </div>
+      <TabsList
+        variant="unstyled"
+        className="flex w-10 flex-col items-center gap-1 border-r border-line py-2"
+      >
+        {tabs.map((tab, index) => {
+          const active = tab.id === activeId
+          return (
+            <TabsTrigger
+              key={tab.id}
+              value={tab.id}
+              controls={false}
+              tabIndex={activeId == null && index === 0 ? 0 : undefined}
+              // The count is drawn, so it has to be said too.
+              aria-label={tab.badge ? `${tab.label}, ${tab.badge}` : tab.label}
+              title={tab.label}
+              className={`relative grid size-8 place-items-center rounded-lg transition ${
+                active
+                  ? 'bg-chip text-chip-fg'
+                  : 'text-ink-soft hover:bg-tint/8 hover:text-ink-strong'
+              }`}
+            >
+              {tab.icon}
+              <CountBadge count={tab.badge ?? 0} placement="corner" />
+            </TabsTrigger>
+          )
+        })}
+      </TabsList>
+    </Tabs>
   )
 }
 

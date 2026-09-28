@@ -1,4 +1,4 @@
-import { QueueIcon } from '@chat/ui'
+import { Pill, QueueIcon } from '@chat/ui'
 import type { QueueToggleProps } from './types'
 
 /**
@@ -15,22 +15,18 @@ export function QueueToggle({ compact, pressed, onClick }: QueueToggleProps) {
   const title = pressed
     ? 'Stop building — questions you added stay queued and paused'
     : 'Queue a question — it runs after this reply. Send interrupts instead.'
-  const tone = pressed
-    ? 'border-transparent bg-chip text-chip-fg hover:bg-chip-hover'
-    : 'border-line text-ink-soft hover:bg-tint/8 hover:text-ink-strong'
   return (
-    <button
-      type="button"
+    <Pill
+      size={compact ? 'md' : 'lg'}
+      tone={pressed ? 'brand' : 'neutral'}
+      variant={pressed ? 'soft' : 'outline'}
+      leadingIcon={<QueueIcon />}
       onClick={onClick}
       aria-pressed={pressed}
       aria-label={label}
       title={title}
-      className={`flex items-center justify-center gap-1.5 rounded-full border font-semibold transition ${tone} ${
-        compact ? 'h-8 px-2 text-[12px]' : 'h-9 px-2.5 text-[13px] @sm/composer:px-3'
-      }`}
     >
-      <QueueIcon width={compact ? 15 : 16} height={compact ? 15 : 16} />
-      <span>{pressed ? 'Queueing' : 'Queue'}</span>
-    </button>
+      {pressed ? 'Queueing' : 'Queue'}
+    </Pill>
   )
 }

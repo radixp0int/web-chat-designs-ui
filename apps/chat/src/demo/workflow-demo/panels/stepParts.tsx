@@ -7,6 +7,7 @@
 // arrangement, not these blocks: the panel stacks them in one narrow column,
 // the page lays them out in two.
 import { useState } from 'react'
+import { Avatar } from '@chat/ui'
 import { KindIcon } from '../canvas'
 import { FlagIcon } from '../canvas/icons'
 import type { StepSeed, StepStatus } from '../canvas'
@@ -83,9 +84,7 @@ export function StepDetails({ step }: { step: StepSeed<RunDetail> }) {
         {who && (
           <div className="flex items-center gap-2.5 border-b border-line pb-3">
             {step.initials && (
-              <span className="grid size-[30px] shrink-0 place-items-center rounded-full bg-brand-solid text-[11px] font-extrabold text-on-brand-solid">
-                {step.initials}
-              </span>
+              <Avatar variant="text" text={step.initials} size={30} tone="brand" aria-hidden />
             )}
             <span className="flex min-w-0 flex-col">
               <span className="truncate text-[13px] leading-[18px] font-bold text-ink-strong">

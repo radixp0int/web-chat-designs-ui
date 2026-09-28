@@ -9,7 +9,7 @@ export type SelectOption = {
 }
 
 export type SelectProps = Omit<SelectHTMLAttributes<HTMLSelectElement>, 'size' | 'children'> & {
-  selectSize?: SelectSize
+  size?: SelectSize
   /** Rendered as `<option>`s. Pass `children` instead for groups. */
   options?: SelectOption[]
   children?: ReactNode

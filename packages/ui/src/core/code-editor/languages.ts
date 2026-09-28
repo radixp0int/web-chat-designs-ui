@@ -187,8 +187,9 @@ export const languageLabels: Record<CodeLanguage, string> = {
  * Token colours, from the brand's own names so a `chat-theme-*` switch and
  * dark mode carry through. brand.css runs one hue plus the ember ramp, so the
  * palette is built from lightness as much as hue: keys are the brand blue,
- * strings the contrast-checked warm (`--caution`, ember 600 / 300), numbers
- * and literals a deeper step of the blue, structure recedes to --ink-soft.
+ * strings use the contrast-checked warm `--syntax-string`, numbers and
+ * literals a deeper step of the blue, structure recedes to --ink-soft. Syntax
+ * deliberately does not borrow semantic status tokens such as `--caution`.
  *
  * Nothing here changes weight: the highlight layer has to keep the textarea's
  * glyph advances exactly, and a bold run in some monospace fallbacks does not.
@@ -196,7 +197,7 @@ export const languageLabels: Record<CodeLanguage, string> = {
  */
 export const tokenClass: Record<CodeTokenKind, string> = {
   key: 'text-brand-fg',
-  string: 'text-caution',
+  string: 'text-syntax-string',
   number: 'text-brand-700 dark:text-brand-200',
   literal: 'text-brand-700 italic dark:text-brand-200',
   punctuation: 'text-ink-soft',

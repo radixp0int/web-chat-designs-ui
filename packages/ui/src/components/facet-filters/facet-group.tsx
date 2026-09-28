@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDownIcon, ChevronRightIcon, SearchIcon, XIcon } from '../icons'
 import { IconButton } from '../icon-button'
+import { Checkbox } from '../../core/checkbox'
 import { FacetRow } from './facet-row'
 import { LoadControls } from './load-controls'
 import { useDebounced } from './useDebounced'
@@ -179,14 +180,13 @@ export function FacetGroupSection({
     <div className="border-t border-line pt-1">
       <div className="flex items-center gap-1.5">
         {mode === 'list' && (
-          <input
+          <Checkbox
             ref={boxRef}
-            type="checkbox"
             checked={state === 'all'}
             onChange={takeAll}
             aria-label={selectAllLabel}
             title={selectAllLabel}
-            className="ml-1 size-[14px] shrink-0 cursor-pointer accent-accent"
+            className="ml-1"
           />
         )}
         <button

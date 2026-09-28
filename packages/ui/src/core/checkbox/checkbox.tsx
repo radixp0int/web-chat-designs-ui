@@ -1,12 +1,12 @@
+import { CheckIcon, MinusIcon } from '../../components/icons'
 import type { CheckboxProps } from './types'
 
 /**
- * A native checkbox, tinted with `accent-color`.
+ * A native checkbox with a branded visual shell.
  *
- * Native on purpose. A div-based box has to re-implement focus, the space key,
- * form participation and `indeterminate`, and the only thing it buys is a
- * custom tick — which `accent-color` already gets us for the cost of one
- * declaration.
+ * The transparent input still owns focus, the space key, form participation
+ * and screen-reader state. Its sibling is only the drawing: a heavier rounded
+ * outline at rest and the active theme's brand fill when selected.
  *
  * `indeterminate` is the one thing HTML will not let us set declaratively, so
  * the callback ref below is load-bearing rather than a workaround: React never
@@ -21,24 +21,50 @@ export function Checkbox({
   ...rest
 }: CheckboxProps) {
   const box = (
-    <input
-      type="checkbox"
-      ref={(node) => {
-        if (node) node.indeterminate = indeterminate
-        if (typeof ref === 'function') ref(node)
-        else if (ref) ref.current = node
-      }}
-      aria-checked={indeterminate ? 'mixed' : undefined}
-      checked={indeterminate ? false : rest.checked}
-      className={[
-        'size-[15px] shrink-0 cursor-pointer accent-[var(--brand-solid)]',
-        'disabled:cursor-not-allowed disabled:opacity-40',
-        label ? '' : className,
-      ]
+    <span
+      className={['relative inline-grid size-6 shrink-0 place-items-center', label ? '' : className]
         .filter(Boolean)
         .join(' ')}
-      {...rest}
-    />
+    >
+      <input
+        {...rest}
+        type="checkbox"
+        ref={(node) => {
+          if (node) node.indeterminate = indeterminate
+          if (typeof ref === 'function') ref(node)
+          else if (ref) ref.current = node
+        }}
+        aria-checked={indeterminate ? 'mixed' : undefined}
+        checked={indeterminate ? false : rest.checked}
+        className="peer absolute inset-0 z-10 size-full cursor-pointer appearance-none opacity-0 disabled:cursor-not-allowed"
+      />
+      <span
+        aria-hidden
+        className={[
+          'pointer-events-none size-[18px] rounded-[5px] border-2 border-ink-soft/60 bg-panel-solid transition',
+          'peer-hover:border-brand-fg/70',
+          'peer-checked:border-brand-solid peer-checked:bg-brand-solid',
+          'peer-[:indeterminate]:border-brand-solid peer-[:indeterminate]:bg-brand-solid',
+          'peer-aria-invalid:border-danger',
+          'peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--focus-ring)]',
+          'peer-disabled:opacity-40',
+        ].join(' ')}
+      />
+      <CheckIcon
+        aria-hidden
+        width={13}
+        height={13}
+        strokeWidth={2.5}
+        className="pointer-events-none absolute text-on-brand-solid opacity-0 transition-opacity peer-checked:opacity-100 peer-[:indeterminate]:opacity-0 peer-disabled:opacity-40"
+      />
+      <MinusIcon
+        aria-hidden
+        width={12}
+        height={12}
+        strokeWidth={2.5}
+        className="pointer-events-none absolute text-on-brand-solid opacity-0 transition-opacity peer-[:indeterminate]:opacity-100 peer-disabled:opacity-40"
+      />
+    </span>
   )
 
   if (!label) return box

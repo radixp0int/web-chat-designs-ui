@@ -63,9 +63,30 @@
   --color-caution: var(--caution);
   --color-caution-surface: var(--caution-surface);
   --color-caution-line: var(--caution-line);
+  --color-syntax-string: var(--syntax-string);
+  --color-success: var(--success);
+  --color-success-fg: var(--success-fg);
+  --color-success-surface: var(--success-surface);
+  --color-success-line: var(--success-line);
+  --color-on-success: var(--on-success);
   --color-danger: var(--danger);
   --color-danger-fg: var(--danger-fg);
   --color-danger-fg-soft: var(--danger-fg-soft);
+  --color-danger-solid: var(--danger-solid);
+  --color-danger-solid-hover: var(--danger-solid-hover);
+  --color-on-danger-solid: var(--on-danger-solid);
+  --color-pill-green-fg: var(--pill-green-fg);
+  --color-pill-green-surface: var(--pill-green-surface);
+  --color-pill-green-line: var(--pill-green-line);
+  --color-pill-orange-fg: var(--pill-orange-fg);
+  --color-pill-orange-surface: var(--pill-orange-surface);
+  --color-pill-orange-line: var(--pill-orange-line);
+  --color-pill-yellow-fg: var(--pill-yellow-fg);
+  --color-pill-yellow-surface: var(--pill-yellow-surface);
+  --color-pill-yellow-line: var(--pill-yellow-line);
+  --color-pill-red-fg: var(--pill-red-fg);
+  --color-pill-red-surface: var(--pill-red-surface);
+  --color-pill-red-line: var(--pill-red-line);
 
   /* raw ramps — escape hatch; components should prefer the names above */
   --color-brand-50: var(--brand-50);

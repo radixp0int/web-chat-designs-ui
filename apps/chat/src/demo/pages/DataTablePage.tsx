@@ -9,6 +9,7 @@
 // nor its props change when it does.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
+  Avatar,
   Button,
   DataTable,
   FilterPanel,
@@ -252,7 +253,7 @@ const TENANTS: Tenant[] = [
   },
 ]
 
-const STATUS_TONE = { active: 'brand', pending: 'caution', suspended: 'danger' } as const
+const STATUS_TONE = { active: 'brand', pending: 'warning', suspended: 'danger' } as const
 const STATUS_LABEL = { active: 'Active', pending: 'Pending', suspended: 'Suspended' } as const
 
 const fmtDate = (iso: string) =>
@@ -463,9 +464,7 @@ export function DataTablePage() {
       width: '24%',
       cell: (t) => (
         <span className="flex items-center gap-2.5">
-          <span className="inline-grid size-7 shrink-0 place-items-center rounded-full bg-chip text-[10.5px] font-extrabold text-chip-fg">
-            {t.initials}
-          </span>
+          <Avatar variant="text" text={t.initials} size={28} tone="soft" aria-hidden />
           <span className="truncate font-bold text-ink-strong">{t.name}</span>
         </span>
       ),
