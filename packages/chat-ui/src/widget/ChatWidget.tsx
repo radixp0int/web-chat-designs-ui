@@ -261,7 +261,7 @@ export function ChatWidget({
             aria-label={`${branding.appName} chat`}
             inert={!open}
             style={{ zIndex }}
-            className={`fixed bottom-24 flex max-h-[calc(100dvh-7rem)] flex-col overflow-hidden rounded-xl border border-line bg-panel-solid shadow-2xl shadow-(color:--shadow-deep) transition-all duration-300 ease-out max-sm:top-0 max-sm:right-0 max-sm:bottom-0 max-sm:left-0 max-sm:h-auto max-sm:max-h-none max-sm:w-auto max-sm:rounded-none ${
+            className={`fixed bottom-24 flex max-h-[calc(100dvh-7rem)] flex-col overflow-hidden rounded-surface border border-line bg-panel-solid shadow-2xl shadow-(color:--shadow-deep) transition-all duration-300 ease-out max-sm:top-0 max-sm:right-0 max-sm:bottom-0 max-sm:left-0 max-sm:h-auto max-sm:max-h-none max-sm:w-auto max-sm:rounded-none ${
               // 440 rather than the old 380: the side rail takes a fixed 40px,
               // so the panel column lands on exactly 400 and its content on
               // 368. That is what stops facet labels truncating — "Operating

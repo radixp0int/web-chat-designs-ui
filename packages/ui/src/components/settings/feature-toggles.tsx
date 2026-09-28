@@ -92,7 +92,7 @@ function FeatureRow<Id extends string>({
       // provokes, and a tooltip does not answer it for a screen reader.
       aria-describedby={locked && lockedReason ? reasonId : undefined}
       onClick={() => onChange(id, !on)}
-      className="flex w-full items-start gap-4 rounded-xl px-2 py-2 text-left transition hover:bg-tint/6 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent"
+      className="flex w-full items-start gap-4 rounded-control px-2 py-2 text-left transition hover:bg-tint/6 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent"
     >
       <span className="min-w-0 flex-1">
         <span className="block text-[13.5px] font-medium text-ink-strong">{label}</span>

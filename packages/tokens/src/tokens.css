@@ -110,6 +110,14 @@
 @theme {
   --font-sans: 'Nunito Sans', ui-sans-serif, system-ui, sans-serif;
 
+  /* Architectural radius family. Component chrome uses these semantic steps;
+     `rounded-full` is reserved for geometry that must remain circular (avatars,
+     radios, switches, dots and circular icon actions). */
+  --radius-check: 4px;
+  --radius-control: 7px;
+  --radius-surface: 10px;
+  --radius-dialog: 14px;
+
   --animate-orb-drift: orb-drift 9s ease-in-out infinite;
   --animate-fade-up: fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-shimmer: shimmer 1.6s linear infinite;

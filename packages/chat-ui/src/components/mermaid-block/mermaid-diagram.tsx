@@ -147,7 +147,7 @@ export default function MermaidDiagram({ code, streaming }: MermaidBlockProps) {
             type="button"
             onClick={() => setShowSource((s) => !s)}
             aria-label={showSource ? 'Show diagram' : 'Show diagram source'}
-            className="rounded-md px-2 py-1 text-[11px] font-semibold tracking-wide text-ink-soft uppercase transition hover:bg-tint/8 hover:text-ink-strong"
+            className="rounded-control px-2 py-1 text-[11px] font-semibold tracking-wide text-ink-soft uppercase transition hover:bg-tint/8 hover:text-ink-strong"
           >
             {showSource ? 'Diagram' : 'Source'}
           </button>

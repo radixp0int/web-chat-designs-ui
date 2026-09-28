@@ -33,7 +33,7 @@ function insertText(ta: HTMLTextAreaElement, text: string) {
 }
 
 /**
- * A code editor for JSON, YAML and plain text — no editor library.
+ * A code editor for JSON, YAML, CSV and plain text — no editor library.
  *
  * A real `<textarea>` with transparent text lies exactly over a highlighted
  * copy of the same text. Typing, selection, the caret, IME, spellcheck-off,
@@ -184,13 +184,13 @@ export function CodeEditor({
     }
   }
 
-  const guidesOn = language !== 'text'
+  const guidesOn = language === 'json' || language === 'yaml'
   const hasHeader = title != null || actions != null
 
   return (
     <div
       className={[
-        'flex min-h-0 flex-col overflow-hidden rounded-xl border bg-panel-solid transition',
+        'flex min-h-0 flex-col overflow-hidden rounded-surface border bg-panel-solid transition',
         diagnostic
           ? 'border-danger has-[textarea:focus-visible]:ring-3 has-[textarea:focus-visible]:ring-danger/15'
           : 'border-line has-[textarea:focus-visible]:border-accent has-[textarea:focus-visible]:ring-3 has-[textarea:focus-visible]:ring-accent/20',

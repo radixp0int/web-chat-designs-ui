@@ -31,7 +31,7 @@ export function FilterChip({
 
   return (
     <span
-      className={`flex items-center gap-1 rounded-full py-0.5 pl-2.5 text-[11.5px] font-semibold ${
+      className={`flex items-center gap-1 rounded-control py-0.5 pl-2.5 text-[11.5px] font-semibold ${
         onRemove ? 'pr-0.5' : 'pr-2.5'
       } ${skin} ${className}`}
     >

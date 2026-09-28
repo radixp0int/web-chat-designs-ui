@@ -12,7 +12,7 @@ export function RecentChatsPanel({ chats, activeId, onSelect }: RecentChatsPanel
             type="button"
             onClick={() => onSelect(chat.id)}
             aria-current={active || undefined}
-            className={`rounded-xl border px-3 py-2 text-left transition ${
+            className={`rounded-control border px-3 py-2 text-left transition ${
               active ? 'border-accent bg-tint/6' : 'border-transparent hover:bg-tint/6'
             }`}
           >

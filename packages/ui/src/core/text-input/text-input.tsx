@@ -48,7 +48,7 @@ export function TextInput({
   return (
     <span
       className={[
-        'inline-flex min-w-0 items-center rounded-lg border bg-panel-solid transition',
+        'inline-flex min-w-0 items-center rounded-control border bg-panel-solid transition',
         invalid
           ? 'border-danger focus-within:ring-3 focus-within:ring-danger/15'
           : valid

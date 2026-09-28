@@ -34,7 +34,7 @@ function TemplateLayer({ template }: { template: PromptTemplate }) {
         readOnly
         rows={1}
         spellCheck={false}
-        className="w-full resize-none rounded-lg border border-line bg-code px-3 py-2 text-xs leading-relaxed text-ink-strong"
+        className="w-full resize-none rounded-control border border-line bg-code px-3 py-2 text-xs leading-relaxed text-ink-strong"
       />
     </li>
   )
@@ -81,7 +81,7 @@ export function PersonaPanel({
             id={selectId}
             value={active?.id ?? ''}
             onChange={(e) => onPersonaChange(e.target.value)}
-            className="w-full appearance-none rounded-lg border border-line bg-tint/5 py-2 pr-8 pl-3 text-[13px] font-semibold text-ink-strong transition hover:bg-tint/8"
+            className="w-full appearance-none rounded-control border border-line bg-tint/5 py-2 pr-8 pl-3 text-[13px] font-semibold text-ink-strong transition hover:bg-tint/8"
           >
             {personas.map((p) => (
               <option key={p.id} value={p.id}>

@@ -325,7 +325,7 @@ export function DiffViewer({
   return (
     <div
       className={[
-        'flex min-h-0 flex-col overflow-hidden rounded-xl border border-line bg-panel-solid transition',
+        'flex min-h-0 flex-col overflow-hidden rounded-surface border border-line bg-panel-solid transition',
         'has-[textarea:focus-visible]:border-accent has-[textarea:focus-visible]:ring-3 has-[textarea:focus-visible]:ring-accent/20',
         className,
       ]
@@ -383,7 +383,7 @@ export function DiffViewer({
             <div
               role="group"
               aria-label="Layout"
-              className="flex gap-0.5 rounded-lg bg-tint/6 p-0.5"
+              className="flex gap-0.5 rounded-control bg-tint/6 p-0.5"
             >
               {(['split', 'unified'] as const).map((v) => (
                 <button
@@ -392,7 +392,7 @@ export function DiffViewer({
                   aria-pressed={view === v}
                   onClick={() => setView(v)}
                   className={[
-                    'h-7 rounded-md px-3 text-[12.5px] font-bold capitalize transition',
+                    'h-7 rounded-control px-3 text-[12.5px] font-bold capitalize transition',
                     view === v
                       ? 'bg-panel-solid text-ink-strong shadow-sm ring-1 ring-line'
                       : 'text-ink-soft hover:text-ink-strong',

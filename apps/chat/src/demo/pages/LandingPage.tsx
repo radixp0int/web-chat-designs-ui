@@ -40,7 +40,7 @@ const demos: Demo[] = [
 ]
 
 const CARD =
-  'glass group flex flex-col rounded-xl p-6 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg hover:shadow-(color:--shadow-raised)'
+  'glass group flex flex-col rounded-surface p-6 text-left transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg hover:shadow-(color:--shadow-raised)'
 
 /** Simple entry page linking to each demo route. */
 export function LandingPage() {
@@ -64,7 +64,7 @@ export function LandingPage() {
             const { icon: Icon, title, body } = demo
             const card = (
               <>
-                <span className="flex size-11 items-center justify-center rounded-2xl bg-chip text-chip-fg">
+                <span className="flex size-11 items-center justify-center rounded-control bg-chip text-chip-fg">
                   <Icon width={20} height={20} className="text-accent" />
                 </span>
                 <h2 className="mt-4 text-lg font-semibold text-ink-strong">{title}</h2>

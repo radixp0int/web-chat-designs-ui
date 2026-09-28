@@ -33,7 +33,7 @@ export function SuggestionList({
 }: SuggestionListProps) {
   return (
     <div
-      className={`absolute inset-x-0 z-20 rounded-lg ${placement === 'up' ? 'bottom-full mb-2' : 'top-full mt-2'} border border-line bg-panel-solid p-1.5 shadow-xl shadow-(color:--shadow-menu)`}
+      className={`absolute inset-x-0 z-20 rounded-control ${placement === 'up' ? 'bottom-full mb-2' : 'top-full mt-2'} border border-line bg-panel-solid p-1.5 shadow-xl shadow-(color:--shadow-menu)`}
     >
       <p
         id={`${id}-label`}
@@ -52,7 +52,7 @@ export function SuggestionList({
               e.preventDefault()
               onPick(s.text)
             }}
-            className={`flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 transition ${
+            className={`flex cursor-pointer items-center gap-2.5 rounded-control px-2.5 py-2 transition ${
               i === active ? 'bg-tint/10' : 'hover:bg-tint/6'
             }`}
           >

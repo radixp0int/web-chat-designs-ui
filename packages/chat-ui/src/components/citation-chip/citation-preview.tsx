@@ -20,7 +20,7 @@ export function CitationPreviewCard({
   const body = compact ? 'text-xs' : 'text-[13px]'
 
   return (
-    <div className="overflow-hidden rounded-lg border border-line bg-panel-solid shadow-xl shadow-(color:--shadow-menu)">
+    <div className="overflow-hidden rounded-control border border-line bg-panel-solid shadow-xl shadow-(color:--shadow-menu)">
       {/* The same numbered square SourceStrip uses, so a marker, a source pill
           and this card read as one object at three sizes. */}
       <div

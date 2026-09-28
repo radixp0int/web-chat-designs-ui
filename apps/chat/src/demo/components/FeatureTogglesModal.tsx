@@ -40,7 +40,7 @@ export function FeatureTogglesModal({ open, onClose }: { open: boolean; onClose:
       onClick={(e) => e.target === ref.current && onClose()}
       className="fixed top-1/2 right-4 left-auto m-0 max-w-none -translate-y-1/2 border-0 bg-transparent p-0 backdrop:bg-scrim/25"
     >
-      <div className="glass flex max-h-[calc(100dvh-2rem)] w-[min(26rem,calc(100vw-2rem))] flex-col rounded-xl">
+      <div className="glass flex max-h-[calc(100dvh-2rem)] w-[min(26rem,calc(100vw-2rem))] flex-col rounded-dialog">
         <header className="flex items-start gap-3 px-5 pt-5 pb-4">
           <div className="min-w-0 flex-1">
             <h2 id="feature-toggles-title" className="text-base font-semibold text-ink-strong">
@@ -63,7 +63,7 @@ export function FeatureTogglesModal({ open, onClose }: { open: boolean; onClose:
           <button
             type="button"
             onClick={reset}
-            className="rounded-lg px-2 py-1 text-[13px] font-medium text-ink-soft transition hover:text-ink-strong"
+            className="rounded-control px-2 py-1 text-[13px] font-medium text-ink-soft transition hover:text-ink-strong"
           >
             Reset to defaults
           </button>

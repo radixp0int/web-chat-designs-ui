@@ -33,7 +33,7 @@ const services = [
 ]
 
 const field =
-  'rounded-md border border-line bg-panel px-3 py-2 text-sm font-normal tracking-normal text-ink-strong normal-case outline-none focus:border-accent'
+  'rounded-control border border-line bg-panel px-3 py-2 text-sm font-normal tracking-normal text-ink-strong normal-case outline-none focus:border-accent'
 
 export function WidgetDemoPage() {
   // Mount the widget exactly the way an embedding site would — same init()

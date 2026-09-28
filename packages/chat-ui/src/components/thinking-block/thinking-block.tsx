@@ -12,7 +12,7 @@ export function ThinkingBlock({ text, active, durationSec }: ThinkingBlockProps)
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className={`flex items-center gap-1.5 rounded-lg px-1.5 py-1 font-medium transition hover:bg-tint/6 ${compact ? 'text-xs' : 'text-[13px]'}`}
+        className={`flex items-center gap-1.5 rounded-control px-1.5 py-1 font-medium transition hover:bg-tint/6 ${compact ? 'text-xs' : 'text-[13px]'}`}
       >
         <ChevronRightIcon
           width={14}

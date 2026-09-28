@@ -63,7 +63,7 @@ export function PersonaMenu({ personas, persona, onChange, compact }: PersonaMen
             onClick={() => setOpen((o) => !o)}
             aria-haspopup="listbox"
             aria-expanded={open}
-            className="hidden items-center gap-1.5 rounded-full bg-chip px-3.5 py-2 text-[13px] font-semibold text-chip-fg transition hover:bg-chip-hover @sm/composer:flex"
+            className="hidden items-center gap-1.5 rounded-control bg-chip px-3.5 py-2 text-[13px] font-semibold text-chip-fg transition hover:bg-chip-hover @sm/composer:flex"
           >
             <SparkleIcon width={14} height={14} className="text-accent" />
             {activePersona.name}
@@ -80,7 +80,7 @@ export function PersonaMenu({ personas, persona, onChange, compact }: PersonaMen
         <ul
           role="listbox"
           aria-label="Chat persona"
-          className="absolute bottom-full left-0 z-20 mb-2 w-56 overflow-hidden rounded-lg border border-line bg-panel-solid p-1.5 shadow-xl shadow-(color:--shadow-menu)"
+          className="absolute bottom-full left-0 z-20 mb-2 w-56 overflow-hidden rounded-control border border-line bg-panel-solid p-1.5 shadow-xl shadow-(color:--shadow-menu)"
         >
           {personas.map((p) => (
             <li key={p.id} role="option" aria-selected={p.id === persona}>
@@ -90,7 +90,7 @@ export function PersonaMenu({ personas, persona, onChange, compact }: PersonaMen
                   onChange(p.id)
                   setOpen(false)
                 }}
-                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left transition hover:bg-tint/8"
+                className="flex w-full items-center gap-2.5 rounded-control px-3 py-2 text-left transition hover:bg-tint/8"
               >
                 <span className="min-w-0 flex-1">
                   <span className="block text-[13px] font-semibold text-ink-strong">{p.name}</span>

@@ -43,7 +43,7 @@ export function IconButton({
 }: IconButtonProps) {
   const cls = [
     'inline-grid shrink-0 place-items-center',
-    shape === 'circle' ? 'rounded-full' : 'rounded-lg',
+    shape === 'circle' ? 'rounded-full' : 'rounded-control',
     sizeBox[size],
     ghost,
     active ? 'text-accent' : '',

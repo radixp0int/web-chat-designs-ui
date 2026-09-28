@@ -34,14 +34,14 @@ export function PalettePicker({
               role="radio"
               aria-checked={on}
               onClick={() => onChange(id)}
-              className={`min-w-0 flex-1 rounded-xl p-1.5 transition ${
+              className={`min-w-0 flex-1 rounded-surface p-1.5 transition ${
                 on ? 'ring-2 ring-accent ring-offset-2 ring-offset-panel-solid' : 'hover:bg-tint/8'
               }`}
             >
               <span
                 aria-hidden
                 style={{ background: canvas }}
-                className="relative flex h-12 w-full items-end justify-end overflow-hidden rounded-lg p-1.5 ring-1 ring-ink-soft/25"
+                className="relative flex h-12 w-full items-end justify-end overflow-hidden rounded-control p-1.5 ring-1 ring-ink-soft/25"
               >
                 <span
                   style={{ background: panel }}

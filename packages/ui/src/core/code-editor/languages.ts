@@ -1,7 +1,7 @@
 import type { CodeDiagnostic, CodeLanguage, CodeToken, CodeTokenKind } from './types'
 
 /**
- * Line tokenizers for the three languages the editor speaks.
+ * Line tokenizers for the four languages the editor speaks.
  *
  * Per line, not per document, because nothing in JSON or in the YAML subset we
  * colour spans a line break — and a per-line tokenizer is what lets the diff
@@ -98,9 +98,62 @@ function tokenizeYaml(line: string): CodeToken[] {
   return out
 }
 
+function csvScalarKind(value: string): CodeTokenKind {
+  if (/^[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?$/.test(value)) return 'number'
+  if (/^(true|false|null)$/i.test(value)) return 'literal'
+  return 'string'
+}
+
+/**
+ * CSV highlighting is intentionally line-local so the diff viewer can colour
+ * an isolated line with the same function. Document-level validation below
+ * still understands quoted fields that span line breaks.
+ */
+function tokenizeCsv(line: string): CodeToken[] {
+  const out: CodeToken[] = []
+  let i = 0
+  while (i < line.length) {
+    if (line[i] === ',') {
+      out.push({ kind: 'punctuation', text: ',' })
+      i++
+      continue
+    }
+
+    const start = i
+    if (line[i] === '"') {
+      i++
+      while (i < line.length) {
+        if (line[i] !== '"') {
+          i++
+          continue
+        }
+        if (line[i + 1] === '"') {
+          i += 2
+          continue
+        }
+        i++
+        break
+      }
+      out.push({ kind: 'string', text: line.slice(start, i) })
+      continue
+    }
+
+    while (i < line.length && line[i] !== ',') i++
+    const cell = line.slice(start, i)
+    const leading = cell.match(/^\s*/)![0]
+    const core = cell.slice(leading.length).replace(/\s+$/, '')
+    const trailing = cell.slice(leading.length + core.length)
+    if (leading) out.push({ kind: 'space', text: leading })
+    if (core) out.push({ kind: csvScalarKind(core), text: core })
+    if (trailing) out.push({ kind: 'space', text: trailing })
+  }
+  return out
+}
+
 export function tokenizeLine(language: CodeLanguage, line: string): CodeToken[] {
   if (language === 'json') return tokenizeJson(line)
   if (language === 'yaml') return tokenizeYaml(line)
+  if (language === 'csv') return tokenizeCsv(line)
   return line ? [{ kind: 'plain', text: line }] : []
 }
 
@@ -161,25 +214,156 @@ function lintYaml(source: string): CodeDiagnostic | null {
   return null
 }
 
+type CsvParse = {
+  rows: string[][]
+  diagnostic: CodeDiagnostic | null
+}
+
+/** RFC 4180-style parser used by validation and formatting. */
+function parseCsv(source: string): CsvParse {
+  if (!source) return { rows: [], diagnostic: null }
+
+  const rows: string[][] = []
+  let row: string[] = []
+  let field = ''
+  let quoted = false
+  let afterQuote = false
+  let quoteLine = 1
+  let quoteColumn = 1
+  let line = 1
+  let column = 1
+
+  const pushField = () => {
+    row.push(field)
+    field = ''
+    afterQuote = false
+  }
+  const pushRow = () => {
+    pushField()
+    rows.push(row)
+    row = []
+  }
+
+  for (let i = 0; i < source.length; i++) {
+    const char = source[i]
+    const newline = char === '\n' || char === '\r'
+    const crlf = char === '\r' && source[i + 1] === '\n'
+
+    if (quoted) {
+      if (char === '"') {
+        if (source[i + 1] === '"') {
+          field += '"'
+          i++
+          column += 2
+          continue
+        }
+        quoted = false
+        afterQuote = true
+        column++
+        continue
+      }
+      if (newline) {
+        field += '\n'
+        if (crlf) i++
+        line++
+        column = 1
+        continue
+      }
+      field += char
+      column++
+      continue
+    }
+
+    if (afterQuote) {
+      if (char === ',') {
+        pushField()
+        column++
+        continue
+      }
+      if (newline) {
+        pushRow()
+        if (crlf) i++
+        line++
+        column = 1
+        continue
+      }
+      return {
+        rows,
+        diagnostic: { line, column, message: 'Unexpected character after closing quote' },
+      }
+    }
+
+    if (char === '"') {
+      if (field.length > 0) {
+        return { rows, diagnostic: { line, column, message: 'Quote must start a field' } }
+      }
+      quoted = true
+      quoteLine = line
+      quoteColumn = column
+      column++
+      continue
+    }
+    if (char === ',') {
+      pushField()
+      column++
+      continue
+    }
+    if (newline) {
+      pushRow()
+      if (crlf) i++
+      line++
+      column = 1
+      continue
+    }
+    field += char
+    column++
+  }
+
+  if (quoted) {
+    return {
+      rows,
+      diagnostic: { line: quoteLine, column: quoteColumn, message: 'Unterminated quoted field' },
+    }
+  }
+  if (row.length > 0 || field || afterQuote || !/[\r\n]$/.test(source)) pushRow()
+  return { rows, diagnostic: null }
+}
+
+function lintCsv(source: string): CodeDiagnostic | null {
+  return parseCsv(source).diagnostic
+}
+
 export function lintCode(language: CodeLanguage, source: string): CodeDiagnostic | null {
   if (language === 'json') return lintJson(source)
   if (language === 'yaml') return lintYaml(source)
+  if (language === 'csv') return lintCsv(source)
   return null
 }
 
-/** Pretty-prints JSON at the given indent. Anything else — or invalid JSON — comes back as is. */
+function quoteCsvField(value: string): string {
+  return /[",\r\n]/.test(value) || /^\s|\s$/.test(value) ? `"${value.replace(/"/g, '""')}"` : value
+}
+
+/** Pretty-prints JSON or canonicalizes CSV. Invalid input and other languages come back as is. */
 export function formatCode(language: CodeLanguage, source: string, indent = 2): string {
-  if (language !== 'json') return source
-  try {
-    return JSON.stringify(JSON.parse(source), null, indent)
-  } catch {
-    return source
+  if (language === 'json') {
+    try {
+      return JSON.stringify(JSON.parse(source), null, indent)
+    } catch {
+      return source
+    }
   }
+  if (language !== 'csv') return source
+  const parsed = parseCsv(source)
+  if (parsed.diagnostic) return source
+  const formatted = parsed.rows.map((row) => row.map(quoteCsvField).join(',')).join('\n')
+  return /[\r\n]$/.test(source) && formatted ? `${formatted}\n` : formatted
 }
 
 export const languageLabels: Record<CodeLanguage, string> = {
   json: 'JSON',
   yaml: 'YAML',
+  csv: 'CSV',
   text: 'Plain text',
 }
 

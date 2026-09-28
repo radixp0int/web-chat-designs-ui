@@ -40,7 +40,7 @@ export function LoadControls({
           <button
             type="button"
             onClick={onLoadMore}
-            className="flex-1 rounded-lg border border-line bg-panel-solid px-2 py-1.5 text-[11.5px] font-semibold text-ink-strong transition hover:bg-tint/8"
+            className="flex-1 rounded-control border border-line bg-panel-solid px-2 py-1.5 text-[11.5px] font-semibold text-ink-strong transition hover:bg-tint/8"
           >
             Load {Math.min(pageSize, remaining).toLocaleString()} more
           </button>
@@ -49,7 +49,7 @@ export function LoadControls({
           <button
             type="button"
             onClick={onLoadAll}
-            className={`flex-1 rounded-lg px-2 py-1.5 text-[11.5px] font-semibold transition ${
+            className={`flex-1 rounded-control px-2 py-1.5 text-[11.5px] font-semibold transition ${
               heavy ? 'bg-caution-surface text-caution' : 'bg-chip text-chip-fg hover:bg-chip-hover'
             }`}
           >

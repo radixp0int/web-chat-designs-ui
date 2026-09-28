@@ -125,7 +125,10 @@ export function FilterPanel({
 }: FilterPanelProps) {
   return (
     <div
-      className={['flex flex-col gap-4 rounded-xl border border-line bg-panel-solid p-4', className]
+      className={[
+        'flex flex-col gap-4 rounded-surface border border-line bg-panel-solid p-4',
+        className,
+      ]
         .filter(Boolean)
         .join(' ')}
     >

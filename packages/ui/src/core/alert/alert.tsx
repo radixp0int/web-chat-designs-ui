@@ -69,7 +69,7 @@ export function Alert({
     <div
       role={role}
       className={[
-        'flex min-w-0 items-start gap-2.5 rounded-lg border',
+        'flex min-w-0 items-start gap-2.5 rounded-surface border',
         treatment.frame,
         bordered ? `border-l-[3px] ${treatment.accentBorder}` : '',
         compact ? 'px-2.5 py-2' : 'px-3 py-2.5',
@@ -133,7 +133,7 @@ export function Alert({
               onClick={action.onClick}
               aria-label={action.ariaLabel}
               disabled={action.disabled}
-              className="h-8 rounded-lg px-2.5 text-[12px] font-bold text-brand-fg transition hover:bg-brand-fg/10 hover:text-brand-fg-hover disabled:pointer-events-none disabled:opacity-40"
+              className="h-8 rounded-control px-2.5 text-[12px] font-bold text-brand-fg transition hover:bg-brand-fg/10 hover:text-brand-fg-hover disabled:pointer-events-none disabled:opacity-40"
             >
               {action.label}
             </button>

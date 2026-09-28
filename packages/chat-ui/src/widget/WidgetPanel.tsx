@@ -258,7 +258,7 @@ export function WidgetPanel({
                           key={prompt}
                           type="button"
                           onClick={() => submit(prompt)}
-                          className="glass rounded-full px-4 py-2 text-xs font-semibold text-ink transition hover:border-accent/50 hover:text-ink-strong"
+                          className="glass rounded-control px-4 py-2 text-xs font-semibold text-ink transition hover:border-accent/50 hover:text-ink-strong"
                         >
                           {prompt}
                         </button>

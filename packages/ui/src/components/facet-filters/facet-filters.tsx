@@ -133,7 +133,7 @@ export function FacetFilters({
         onClick={onExpandRail}
         title={labels.title}
         aria-label={`${labels.title}${activeCount ? `, ${activeCount} active` : ''}`}
-        className={`flex w-full items-center justify-center rounded-xl px-2 py-2 text-ink transition hover:bg-panel ${className}`}
+        className={`flex w-full items-center justify-center rounded-control px-2 py-2 text-ink transition hover:bg-panel ${className}`}
       >
         {/* The badge hangs off the glyph, not off the button: the button is
             full-width in the rail, so anchoring to its corner would leave the
@@ -157,7 +157,7 @@ export function FacetFilters({
           type="button"
           onClick={() => setOpen(!isOpen)}
           aria-expanded={isOpen}
-          className={`flex w-full items-center gap-2.5 rounded-xl px-2 py-2 text-sm font-medium text-ink transition hover:bg-panel ${
+          className={`flex w-full items-center gap-2.5 rounded-control px-2 py-2 text-sm font-medium text-ink transition hover:bg-panel ${
             isOpen ? 'bg-panel' : ''
           }`}
         >
@@ -196,7 +196,7 @@ export function FacetFilters({
           )}
 
           {error && (
-            <div className="rounded-xl border border-caution-line bg-caution-surface px-2.5 py-2">
+            <div className="rounded-surface border border-caution-line bg-caution-surface px-2.5 py-2">
               <p className="text-[11.5px] font-semibold text-ink-strong">{error}</p>
               {onRetry && (
                 <button
@@ -226,7 +226,7 @@ export function FacetFilters({
                 id="facet-scope"
                 value={scope.value}
                 onChange={(event) => scope.onChange(event.target.value)}
-                className="min-w-0 flex-1 rounded-lg border border-line bg-panel-solid px-2 py-1.5 text-[12px] font-medium text-ink"
+                className="min-w-0 flex-1 rounded-control border border-line bg-panel-solid px-2 py-1.5 text-[12px] font-medium text-ink"
               >
                 {scope.options.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -277,7 +277,7 @@ export function FacetFilters({
                 onChange={(event) => setFind(event.target.value)}
                 aria-label={labels.findPlaceholder}
                 placeholder={labels.findPlaceholder}
-                className="w-full rounded-lg border border-line bg-panel py-1.5 pr-2 pl-7 text-[12px] text-ink placeholder:text-ink-soft/70"
+                className="w-full rounded-control border border-line bg-panel py-1.5 pr-2 pl-7 text-[12px] text-ink placeholder:text-ink-soft/70"
               />
             </div>
 
@@ -335,7 +335,7 @@ export function FacetFilters({
           <button
             type="button"
             onClick={onDone}
-            className="shrink-0 rounded-lg bg-brand-solid px-4 py-1.5 text-[12px] font-bold text-on-brand-solid"
+            className="shrink-0 rounded-control bg-brand-solid px-4 py-1.5 text-[12px] font-bold text-on-brand-solid"
           >
             Done
           </button>

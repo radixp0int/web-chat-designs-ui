@@ -101,7 +101,7 @@ export function QueueRow({
     return (
       <li
         ref={rowRef}
-        className="rounded-lg border border-accent/70 bg-panel-solid px-2.5 py-2 ring-3 ring-accent/15"
+        className="rounded-control border border-accent/70 bg-panel-solid px-2.5 py-2 ring-3 ring-accent/15"
       >
         <label htmlFor={`queued-${item.id}`} className="sr-only">
           Edit queued message
@@ -128,14 +128,14 @@ export function QueueRow({
           <button
             type="button"
             onClick={cancel}
-            className="rounded-md px-2 py-1 text-[11px] font-semibold text-ink-soft transition hover:bg-tint/8 hover:text-ink-strong"
+            className="rounded-control px-2 py-1 text-[11px] font-semibold text-ink-soft transition hover:bg-tint/8 hover:text-ink-strong"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={commit}
-            className="rounded-md bg-brand-solid px-2.5 py-1 text-[11px] font-bold text-on-brand-solid transition hover:brightness-95"
+            className="rounded-control bg-brand-solid px-2.5 py-1 text-[11px] font-bold text-on-brand-solid transition hover:brightness-95"
           >
             Save
           </button>
@@ -195,7 +195,7 @@ export function QueueRow({
           rowRef.current?.blur()
         }
       }}
-      className={`group/row relative flex gap-1.5 rounded-lg outline-none transition-colors focus-visible:ring-3 focus-visible:ring-accent/25 ${
+      className={`group/row relative flex gap-1.5 rounded-control outline-none transition-colors focus-visible:ring-3 focus-visible:ring-accent/25 ${
         expanded ? 'items-start py-1.5' : 'items-center py-1'
       } ${dropping ? 'bg-chip' : 'hover:bg-tint/5 focus-visible:bg-tint/5'}`}
     >
@@ -339,7 +339,7 @@ export function QueueRow({
                 const delta = e.key === 'ArrowDown' ? 1 : -1
                 items[(at + delta + items.length) % items.length].focus()
               }}
-              className="absolute right-0 bottom-full z-30 mb-1 w-56 overflow-hidden rounded-lg border border-line bg-panel-solid p-1.5 shadow-xl shadow-(color:--shadow-menu)"
+              className="absolute right-0 bottom-full z-30 mb-1 w-56 overflow-hidden rounded-control border border-line bg-panel-solid p-1.5 shadow-xl shadow-(color:--shadow-menu)"
             >
               {compact && (
                 <>
@@ -437,7 +437,7 @@ function MenuItem({
       role="menuitem"
       disabled={disabled}
       onClick={onClick}
-      className={`flex w-full items-start gap-2.5 rounded-md px-2.5 py-1.5 text-left transition hover:bg-tint/8 disabled:pointer-events-none disabled:opacity-35 ${
+      className={`flex w-full items-start gap-2.5 rounded-control px-2.5 py-1.5 text-left transition hover:bg-tint/8 disabled:pointer-events-none disabled:opacity-35 ${
         danger ? 'text-danger-fg' : 'text-ink-strong'
       }`}
     >

@@ -47,7 +47,7 @@ export function RunSidebar({
 
   return (
     // Sized by the collapsing wrapper in WorkflowDemoPage, not by itself.
-    <aside className="glass flex h-full w-full flex-col rounded-xl">
+    <aside className="glass flex h-full w-full flex-col rounded-surface">
       <div className="flex items-center gap-3 px-6 pt-6 pb-5">
         <span className="orb block size-[30px] shrink-0 rounded-full" aria-hidden />
         {/* The app's name, not the run's — so it stays a constant. */}
@@ -77,7 +77,7 @@ export function RunSidebar({
               <select
                 value={variantId}
                 onChange={(e) => onVariant(e.target.value)}
-                className="h-9 w-full appearance-none rounded-lg border border-line bg-panel-solid pr-9 pl-3 text-[13px] font-semibold text-ink outline-none focus-visible:border-accent"
+                className="h-9 w-full appearance-none rounded-control border border-line bg-panel-solid pr-9 pl-3 text-[13px] font-semibold text-ink outline-none focus-visible:border-accent"
               >
                 {variants.map((v) => (
                   <option key={v.id} value={v.id}>
@@ -100,7 +100,7 @@ export function RunSidebar({
       )}
 
       <div className="px-5">
-        <div className="rounded-lg bg-panel-solid px-4 py-3.5 shadow-sm ring-1 ring-line">
+        <div className="rounded-surface bg-panel-solid px-4 py-3.5 shadow-sm ring-1 ring-line">
           <div className="text-sm leading-5 font-bold text-ink-strong">{header.primary}</div>
           <div className="text-[12.5px] leading-[17px] text-ink-soft">{header.secondary}</div>
           <div className="text-[12.5px] leading-[17px] text-ink-soft tabular-nums">
@@ -132,7 +132,7 @@ export function RunSidebar({
                   type="button"
                   onClick={() => onSelectStage(stage.id)}
                   aria-pressed={selected}
-                  className={`relative flex w-full items-center gap-3 rounded-lg p-2.5 text-left transition ${
+                  className={`relative flex w-full items-center gap-3 rounded-control p-2.5 text-left transition ${
                     selected
                       ? 'bg-chip ring-1 ring-accent'
                       : current
@@ -178,7 +178,7 @@ export function RunSidebar({
                   type="button"
                   onClick={() => onOpenStep(item.stepId)}
                   aria-pressed={selected}
-                  className={`flex w-full items-start gap-3 rounded-lg bg-panel-solid p-3 text-left ring-1 transition ${
+                  className={`flex w-full items-start gap-3 rounded-surface bg-panel-solid p-3 text-left ring-1 transition ${
                     selected ? 'ring-accent' : 'ring-line hover:ring-accent/40'
                   }`}
                 >

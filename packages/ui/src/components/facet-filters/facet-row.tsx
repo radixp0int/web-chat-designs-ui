@@ -36,7 +36,7 @@ export function FacetRow({ row, refreshing, onToggle, height, posInSet, setSize 
       className="list-none"
     >
       <label
-        className={`flex h-full items-center gap-2.5 rounded-lg px-2 ${height ? '' : 'py-1.5'} ${
+        className={`flex h-full items-center gap-2.5 rounded-control px-2 ${height ? '' : 'py-1.5'} ${
           row.selected ? 'bg-tint/6' : dead ? '' : 'hover:bg-tint/8'
         } ${dead ? 'cursor-default opacity-45' : 'cursor-pointer'}`}
       >

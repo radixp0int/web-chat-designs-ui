@@ -531,7 +531,7 @@ export function DataTablePage() {
           >
             Filters
             {activeFilters > 0 && (
-              <span className="ml-1 inline-grid min-w-[18px] place-items-center rounded-full bg-on-brand-solid/20 px-1.5 text-[11px] font-extrabold tabular-nums">
+              <span className="ml-1 inline-grid min-w-[18px] place-items-center rounded-control bg-on-brand-solid/20 px-1.5 text-[11px] font-extrabold tabular-nums">
                 {activeFilters}
               </span>
             )}
