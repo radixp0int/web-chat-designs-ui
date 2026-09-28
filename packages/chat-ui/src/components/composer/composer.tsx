@@ -11,11 +11,11 @@ import {
   SendIcon,
   SendToQueueIcon,
   StopIcon,
-  XIcon,
   IconButton,
   useUiSize,
   type UiSize,
   keyLabels,
+  Pill,
 } from '@chat/ui'
 import { useSpeechRecognition } from '../../hooks/useSpeechRecognition'
 import { QueueToggle } from '../queue-dock'
@@ -156,22 +156,16 @@ export function Composer({
       {attachments.length > 0 && (
         <div className={`flex flex-wrap gap-2 ${compact ? 'px-3 pt-2.5' : 'px-4 pt-3'}`}>
           {attachments.map((name) => (
-            <span
+            <Pill
               key={name}
-              className={`flex items-center gap-1.5 rounded-full bg-chip py-0.5 pr-0.5 pl-3 font-medium text-chip-fg ${
-                compact ? 'text-[11px]' : 'text-xs'
-              }`}
+              size="sm"
+              tone="brand"
+              leadingIcon={<PaperclipIcon />}
+              onClose={() => setAttachments((attachments) => attachments.filter((n) => n !== name))}
+              className={compact ? 'max-w-36' : 'max-w-48'}
             >
-              <PaperclipIcon width={13} height={13} />
-              <span className={compact ? 'max-w-28 truncate' : 'max-w-40 truncate'}>{name}</span>
-              <IconButton
-                size="sm"
-                onClick={() => setAttachments((a) => a.filter((n) => n !== name))}
-                aria-label={`Remove ${name}`}
-              >
-                <XIcon width={12} height={12} />
-              </IconButton>
-            </span>
+              {name}
+            </Pill>
           ))}
         </div>
       )}

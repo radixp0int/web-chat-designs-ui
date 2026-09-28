@@ -54,6 +54,13 @@ export const LibraryIcon = (p: IconProps) => (
   </svg>
 )
 
+export const HomeIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="m3 11 9-8 9 8" />
+    <path d="M5 9.5V21h14V9.5M9 21v-7h6v7" />
+  </svg>
+)
+
 export const ChatIcon = (p: IconProps) => (
   <svg {...base(p)}>
     <path d="M21 12a8 8 0 0 1-8 8H4l1.6-3.2A8 8 0 1 1 21 12Z" />
@@ -83,6 +90,34 @@ export const SummarizeIcon = (p: IconProps) => (
 export const BulbIcon = (p: IconProps) => (
   <svg {...base(p)}>
     <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.6 1 1.5 1 2.5h6c0-1 .3-1.9 1-2.5A6 6 0 0 0 12 3Z" />
+  </svg>
+)
+
+export const CircleInfoIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 11v5M12 8h.01" />
+  </svg>
+)
+
+export const CircleCheckIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="m8 12 2.5 2.5L16 9" />
+  </svg>
+)
+
+export const TriangleAlertIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M10.3 4.2 2.8 17.5A2 2 0 0 0 4.5 20h15a2 2 0 0 0 1.7-2.5L13.7 4.2a2 2 0 0 0-3.4 0Z" />
+    <path d="M12 9v4M12 16h.01" />
+  </svg>
+)
+
+export const CircleXIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="m9 9 6 6M15 9l-6 6" />
   </svg>
 )
 

@@ -20,7 +20,7 @@ function OptionsField({ field }: { field: OptionsFilterField }) {
       <Select
         id={`${field.id}-control`}
         aria-labelledby={`${field.id}-label`}
-        selectSize="sm"
+        size="sm"
         value={value[0] ?? ''}
         onChange={(e) => onChange(e.target.value ? [e.target.value] : [])}
         className="w-full"
@@ -60,7 +60,7 @@ function Field({ field }: { field: FilterField }) {
         <TextInput
           id={`${field.id}-control`}
           aria-labelledby={`${field.id}-label`}
-          inputSize="sm"
+          size="sm"
           placeholder={field.placeholder ?? 'Any'}
           icon={<SearchIcon width={13} height={13} />}
           value={field.value}

@@ -1,4 +1,5 @@
-import { XIcon } from '../../components/icons'
+import { useId } from 'react'
+import { CheckIcon, XIcon } from '../../components/icons'
 import { IconButton } from '../../components/icon-button'
 import type { TextInputProps, TextInputSize } from './types'
 
@@ -22,18 +23,27 @@ const boxes: Record<TextInputSize, string> = {
  * padding box.
  */
 export function TextInput({
-  inputSize = 'md',
+  size = 'md',
   icon,
   onClear,
   clearLabel,
   prefix,
   suffix,
+  validationState,
+  validationMessage,
+  validationIcon,
   className = '',
   ref,
   ...rest
 }: TextInputProps) {
+  const validationMessageId = useId()
   const hasValue = rest.value != null && String(rest.value).length > 0
   const invalid = rest['aria-invalid'] === true || rest['aria-invalid'] === 'true'
+  // Invalid wins if consumers briefly provide both states during async validation.
+  const valid = validationState === 'valid' && !invalid
+  const describedBy = [rest['aria-describedby'], valid ? validationMessageId : undefined]
+    .filter(Boolean)
+    .join(' ')
 
   return (
     <span
@@ -41,10 +51,12 @@ export function TextInput({
         'inline-flex min-w-0 items-center rounded-lg border bg-panel-solid transition',
         invalid
           ? 'border-danger focus-within:ring-3 focus-within:ring-danger/15'
-          : 'border-line hover:border-ink-soft/40 focus-within:border-accent focus-within:ring-3 focus-within:ring-accent/20',
+          : valid
+            ? 'border-success hover:border-success focus-within:border-success focus-within:ring-3 focus-within:ring-success/15'
+            : 'border-line hover:border-ink-soft/40 focus-within:border-accent focus-within:ring-3 focus-within:ring-accent/20',
         rest.disabled ? 'pointer-events-none opacity-40' : '',
         rest.readOnly ? 'bg-tint/5' : '',
-        boxes[inputSize],
+        boxes[size],
         className,
       ]
         .filter(Boolean)
@@ -58,6 +70,7 @@ export function TextInput({
         ref={ref}
         className="min-w-0 grow bg-transparent text-ink outline-none placeholder:text-ink-soft"
         {...rest}
+        aria-describedby={describedBy || undefined}
       />
       {onClear && hasValue && (
         <IconButton
@@ -71,7 +84,20 @@ export function TextInput({
           <XIcon width={11} height={11} />
         </IconButton>
       )}
+      {valid && validationIcon !== false && (
+        <span
+          className="inline-grid shrink-0 place-items-center text-success-fg"
+          aria-hidden="true"
+        >
+          {validationIcon ?? <CheckIcon width={14} height={14} />}
+        </span>
+      )}
       {suffix}
+      {valid && (
+        <span id={validationMessageId} role="status" className="sr-only">
+          {validationMessage}
+        </span>
+      )}
     </span>
   )
 }

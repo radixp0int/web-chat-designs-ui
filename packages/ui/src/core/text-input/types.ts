@@ -6,7 +6,7 @@ export type TextInputSize = 'sm' | 'md' | 'lg'
 // dropped before ours is declared — otherwise the two intersect into
 // `string & ReactNode` and no element is assignable to it.
 type TextInputBaseProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'prefix'> & {
-  inputSize?: TextInputSize
+  size?: TextInputSize
   /** Leading glyph inside the field. */
   icon?: ReactNode
   /** Chips, a scope button — anything rendered before the text cursor. */
@@ -16,9 +16,27 @@ type TextInputBaseProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | '
   ref?: Ref<HTMLInputElement>
 }
 
+/**
+ * A valid field carries a textual message as well as a visual mark. Colour
+ * alone must never be the only way the state is communicated.
+ */
+type TextInputValidationProps =
+  | {
+      validationState?: undefined
+      validationMessage?: never
+      validationIcon?: never
+    }
+  | {
+      validationState: 'valid'
+      /** Announced when validity changes and included in the input description. */
+      validationMessage: string
+      /** Custom trailing mark, or `false` to omit the default check. */
+      validationIcon?: ReactNode | false
+    }
+
 /** A clear button must always have a caller-provided accessible name. */
 type TextInputClearProps =
   | { onClear?: undefined; clearLabel?: never }
   | { onClear: () => void; clearLabel: string }
 
-export type TextInputProps = TextInputBaseProps & TextInputClearProps
+export type TextInputProps = TextInputBaseProps & TextInputClearProps & TextInputValidationProps

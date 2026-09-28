@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import {
+  Avatar,
   IconButton,
   XIcon,
   HighlightPicker,
@@ -61,12 +62,7 @@ export function UserSettingsModal({ open, onClose }: { open: boolean; onClose: (
           {/* Read-only: this demo has no account backend, and a form that
               silently discarded an edit would be a worse lie than plain text. */}
           <div className="flex items-center gap-3 rounded-xl bg-panel-solid px-4 py-3 ring-1 ring-line">
-            <span
-              aria-hidden
-              className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-solid text-sm font-bold text-on-brand-solid"
-            >
-              {DEMO_USER.initials}
-            </span>
+            <Avatar variant="text" text={DEMO_USER.initials} size={40} tone="brand" aria-hidden />
             {/* The plan sits under the name rather than beside it: on the
                 narrow card an email and a pill fighting for one row left the
                 address truncated, and the address is the identifying half. */}

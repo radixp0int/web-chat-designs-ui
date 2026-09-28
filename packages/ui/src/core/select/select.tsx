@@ -22,7 +22,7 @@ const boxes: Record<SelectSize, string> = {
  * without giving up the platform select's accessible popup.
  */
 export function Select({
-  selectSize = 'md',
+  size = 'md',
   options,
   children,
   className = '',
@@ -36,12 +36,12 @@ export function Select({
       <select
         ref={ref}
         className={[
-          'w-full appearance-none rounded-lg border bg-panel-solid font-bold text-ink outline-none transition',
+          'w-full appearance-none rounded-lg border bg-panel-solid text-ink outline-none transition',
           'hover:bg-tint/5 disabled:pointer-events-none disabled:opacity-40',
           invalid
-            ? 'border-danger ring-3 ring-danger/15'
+            ? 'border-danger focus-visible:ring-3 focus-visible:ring-danger/15'
             : 'border-line focus-visible:border-accent focus-visible:ring-3 focus-visible:ring-accent/20',
-          boxes[selectSize],
+          boxes[size],
         ].join(' ')}
         {...rest}
       >

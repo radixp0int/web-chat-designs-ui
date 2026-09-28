@@ -31,14 +31,15 @@ const sizes: Record<ButtonSize, string> = {
  * of it is white text on a white fill.
  *
  * `danger` tints rather than fills. A destructive action wants to be findable,
- * not the loudest thing on the page — the confirmation step is where the
- * weight belongs.
+ * not the loudest thing on the page. `destructive` is the solid treatment and
+ * belongs at the confirmation boundary, after intent has already been stated.
  */
 const variants: Record<ButtonVariant, string> = {
   primary: 'bg-brand-solid text-on-brand-solid hover:bg-brand-fg-hover',
   secondary: 'border border-line bg-panel-solid text-ink hover:bg-tint/6',
   ghost: 'text-ink-soft hover:bg-tint/8 hover:text-ink-strong',
   danger: 'border border-line bg-panel-solid text-danger-fg hover:bg-danger/10',
+  destructive: 'bg-danger-solid text-on-danger-solid hover:bg-danger-solid-hover',
   inverse:
     'border border-transparent bg-on-brand-solid/16 text-on-brand-solid hover:bg-on-brand-solid/28',
 }

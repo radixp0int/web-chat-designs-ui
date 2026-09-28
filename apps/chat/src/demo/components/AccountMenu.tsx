@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { ChevronDownIcon, SlidersIcon, UserIcon, useOverlayLayer } from '@chat/ui'
+import { Avatar, ChevronDownIcon, SlidersIcon, UserIcon, useOverlayLayer } from '@chat/ui'
 import { DEMO_USER } from '../config'
 
 type AccountMenuProps = {
@@ -128,12 +128,7 @@ export function AccountMenu({
           collapsed ? 'lg:justify-center' : ''
         }`}
       >
-        <span
-          aria-hidden
-          className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-solid text-xs font-bold text-on-brand-solid"
-        >
-          {DEMO_USER.initials}
-        </span>
+        <Avatar variant="text" text={DEMO_USER.initials} size={32} tone="brand" aria-hidden />
         <span
           className={`min-w-0 flex-1 text-[13px] leading-tight ${collapsed ? 'lg:hidden' : ''}`}
         >

@@ -49,7 +49,7 @@ export function CopyButton({
         }}
       >
         {copied ? (
-          <CheckIcon width={iconSize} height={iconSize} className="text-accent" />
+          <CheckIcon width={iconSize} height={iconSize} className="text-success-fg" />
         ) : (
           <CopyIcon width={iconSize} height={iconSize} />
         )}

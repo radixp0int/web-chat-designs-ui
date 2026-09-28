@@ -12,17 +12,25 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
   Breadcrumbs,
+  Alert,
+  Avatar,
   Button,
   Checkbox,
+  ChoiceCard,
   CodeEditor,
   CopyButton,
   DiffViewer,
   formatCode,
   lintCode,
+  Modal,
   Pagination,
   Select,
   Slider,
   Pill,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
   RadioGroup,
   RadioGroupItem,
   Field,
@@ -36,10 +44,16 @@ import {
   TextInput,
   djangoPageAdapter,
   formatSort,
+  HomeIcon,
+  LibraryIcon,
   PencilIcon,
+  PlanIcon,
   PlusIcon,
+  RefreshIcon,
   SearchIcon,
+  SparkleIcon,
   TrashIcon,
+  UserIcon,
   ThemeToggle,
 } from '@chat/ui'
 import type { CodeEditorHandle, CodeLanguage, DiffEditable } from '@chat/ui'
@@ -89,10 +103,22 @@ export function PrimitivesPage() {
   const all = ['active', 'pending', 'suspended']
   const allOn = picked.length === all.length
   const some = picked.length > 0 && !allOn
+  const [cardPlan, setCardPlan] = useState('home-equity')
+  const [cardFeatures, setCardFeatures] = useState<string[]>(['citations'])
 
   const [query, setQuery] = useState('crestview')
   const [budget, setBudget] = useState(45)
   const [plan, setPlan] = useState('team')
+  const [visiblePills, setVisiblePills] = useState(
+    () => new Set(['green', 'orange', 'yellow', 'red']),
+  )
+  const [actionPillActive, setActionPillActive] = useState(false)
+  const [avatarSelected, setAvatarSelected] = useState(false)
+  const [iconTab, setIconTab] = useState<string | null>('account')
+  const [infoAlertVisible, setInfoAlertVisible] = useState(true)
+  const [retryCount, setRetryCount] = useState(0)
+  const [openModal, setOpenModal] = useState<'delete' | 'workspace' | null>(null)
+  const workspaceNameRef = useRef<HTMLInputElement>(null)
 
   // CodeEditor — one document per language, so switching and back keeps edits.
   const [lang, setLang] = useState<CodeLanguage>('json')
@@ -174,6 +200,7 @@ export function PrimitivesPage() {
             <Button variant="secondary">Secondary</Button>
             <Button variant="ghost">Ghost</Button>
             <Button variant="danger">Danger</Button>
+            <Button variant="destructive">Destructive</Button>
           </Row>
           <Row label="Sizes">
             <Button size="sm">Small 32</Button>
@@ -201,8 +228,99 @@ export function PrimitivesPage() {
         </Section>
 
         <Section
+          title="Modal"
+          note="A controlled native dialog supplies real modality, focus containment, Escape dismissal and trigger-focus restoration. The opaque branded surface scrolls independently, while callers compose actions from Button."
+        >
+          <Row label="Examples">
+            <Button
+              variant="danger"
+              icon={<TrashIcon width={13} height={13} />}
+              onClick={() => setOpenModal('delete')}
+            >
+              Delete tenant
+            </Button>
+            <Button
+              variant="primary"
+              icon={<PlusIcon width={13} height={13} />}
+              onClick={() => setOpenModal('workspace')}
+            >
+              Create workspace
+            </Button>
+
+            <Modal
+              open={openModal === 'delete'}
+              onOpenChange={(open) => !open && setOpenModal(null)}
+              size="sm"
+              title="Delete Crestview Health?"
+              description="This permanently removes the tenant and its workspace data. This action cannot be undone."
+              icon={<TrashIcon />}
+              iconTone="danger"
+              showCloseButton={false}
+              footer={
+                <>
+                  <Button autoFocus onClick={() => setOpenModal(null)}>
+                    Cancel
+                  </Button>
+                  <Button variant="destructive" onClick={() => setOpenModal(null)}>
+                    Delete tenant
+                  </Button>
+                </>
+              }
+            >
+              <div className="rounded-xl border border-line bg-tint/4 px-3.5 py-3">
+                <p className="font-bold text-ink-strong">Crestview Health</p>
+                <p className="mt-0.5 text-xs text-ink-soft">42 members · Enterprise plan</p>
+              </div>
+            </Modal>
+
+            <Modal
+              open={openModal === 'workspace'}
+              onOpenChange={(open) => !open && setOpenModal(null)}
+              title="Create workspace"
+              description="Set the name and region now. You can invite members after creation."
+              icon={<PlusIcon />}
+              initialFocusRef={workspaceNameRef}
+              expandable
+              footer={
+                <>
+                  <Button onClick={() => setOpenModal(null)}>Cancel</Button>
+                  <Button variant="primary" onClick={() => setOpenModal(null)}>
+                    Create workspace
+                  </Button>
+                </>
+              }
+            >
+              <FieldGroup>
+                <Field>
+                  <FieldLabel htmlFor="modal-workspace-name">Workspace name</FieldLabel>
+                  <TextInput
+                    ref={workspaceNameRef}
+                    id="modal-workspace-name"
+                    placeholder="Claims operations"
+                    className="w-full"
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="modal-workspace-region">Region</FieldLabel>
+                  <Select
+                    id="modal-workspace-region"
+                    defaultValue="us-east"
+                    className="w-full"
+                    options={[
+                      { value: 'us-east', label: 'US East' },
+                      { value: 'us-west', label: 'US West' },
+                      { value: 'eu-west', label: 'EU West' },
+                    ]}
+                  />
+                </Field>
+              </FieldGroup>
+            </Modal>
+          </Row>
+        </Section>
+
+        <Section
           title="Checkbox"
-          note="Native, tinted with accent-color. `indeterminate` is a DOM property React never writes from JSX, so the callback ref that sets it is load-bearing — tick one box below and the header goes mixed."
+          note="A native input drives a custom rounded-square shell, preserving forms, keyboard behavior and screen-reader state while giving checked and mixed states the active brand fill. Tick one option below and the header goes mixed."
         >
           <Row label="Header box">
             <Checkbox
@@ -255,6 +373,92 @@ export function PrimitivesPage() {
         </Section>
 
         <Section
+          title="ChoiceCard"
+          note="A radio or checkbox with a larger visual surface. The native controlled input still owns form submission, required validation, keyboard behavior and screen-reader state."
+        >
+          <Row label="Radio">
+            <fieldset className="grid w-full grid-cols-3 gap-3 max-md:grid-cols-1">
+              <legend className="sr-only">Financing product</legend>
+              <ChoiceCard
+                type="radio"
+                name="card-plan"
+                value="home-equity"
+                checked={cardPlan === 'home-equity'}
+                onChange={(event) => setCardPlan(event.currentTarget.value)}
+                label="Home equity"
+                description="Use available home value"
+                icon={<HomeIcon />}
+              />
+              <ChoiceCard
+                type="radio"
+                name="card-plan"
+                value="line-of-credit"
+                checked={cardPlan === 'line-of-credit'}
+                onChange={(event) => setCardPlan(event.currentTarget.value)}
+                label="Line of credit"
+                description="Flexible access as needed"
+                icon={<PlanIcon />}
+              />
+              <ChoiceCard
+                type="radio"
+                name="card-plan"
+                value="refinance"
+                checked={cardPlan === 'refinance'}
+                onChange={(event) => setCardPlan(event.currentTarget.value)}
+                label="Refinance"
+                description="Currently unavailable"
+                icon={<RefreshIcon />}
+                disabled
+              />
+            </fieldset>
+          </Row>
+          <Row label="Checkbox">
+            <fieldset className="grid w-full grid-cols-3 gap-3 max-md:grid-cols-1">
+              <legend className="sr-only">Assistant features</legend>
+              {[
+                {
+                  value: 'citations',
+                  label: 'Citations',
+                  description: 'Show supporting sources',
+                  icon: <LibraryIcon />,
+                },
+                {
+                  value: 'search',
+                  label: 'Web search',
+                  description: 'Find current information',
+                  icon: <SearchIcon />,
+                },
+                {
+                  value: 'starters',
+                  label: 'Prompt starters',
+                  description: 'Offer suggested questions',
+                  icon: <SparkleIcon />,
+                },
+              ].map((feature) => (
+                <ChoiceCard
+                  key={feature.value}
+                  type="checkbox"
+                  name="card-features"
+                  value={feature.value}
+                  checked={cardFeatures.includes(feature.value)}
+                  onChange={(event) => {
+                    const selected = event.currentTarget.checked
+                    setCardFeatures((current) =>
+                      selected
+                        ? [...current, feature.value]
+                        : current.filter((value) => value !== feature.value),
+                    )
+                  }}
+                  label={feature.label}
+                  description={feature.description}
+                  icon={feature.icon}
+                />
+              ))}
+            </fieldset>
+          </Row>
+        </Section>
+
+        <Section
           title="Select"
           note="A label-agnostic native <select> with the platform arrow replaced. Pair it with FieldLabel in forms or provide an accessible name in compact toolbars."
         >
@@ -263,14 +467,14 @@ export function PrimitivesPage() {
               <FieldLabel htmlFor="primitive-page-size">Rows per page</FieldLabel>
               <Select
                 id="primitive-page-size"
-                selectSize="sm"
+                size="sm"
                 defaultValue={25}
                 options={[10, 25, 50, 100].map((n) => ({ value: n, label: String(n) }))}
               />
             </Field>
             <Select
               aria-label="Status filter"
-              selectSize="md"
+              size="md"
               defaultValue="active"
               options={[
                 { value: 'active', label: 'Active' },
@@ -299,6 +503,18 @@ export function PrimitivesPage() {
               />
             </Field>
           </Row>
+          <Row label="Valid">
+            <Field>
+              <FieldLabel htmlFor="primitive-valid-tenant">Tenant name</FieldLabel>
+              <TextInput
+                id="primitive-valid-tenant"
+                className="w-56"
+                defaultValue="Crestview"
+                validationState="valid"
+                validationMessage="Tenant name is available."
+              />
+            </Field>
+          </Row>
           <Row label="Search">
             <TextInput
               aria-label="Search tenants"
@@ -314,7 +530,7 @@ export function PrimitivesPage() {
           <Row label="Omnibox">
             <TextInput
               aria-label="Search and filter"
-              inputSize="lg"
+              size="lg"
               placeholder="Search, or type a field name…"
               icon={<SearchIcon width={16} height={16} />}
               className="w-[30rem] max-w-full"
@@ -330,6 +546,92 @@ export function PrimitivesPage() {
                 </kbd>
               }
             />
+          </Row>
+        </Section>
+
+        <Section
+          title="Alert"
+          note="Inline status messaging built from the active brand tokens. Every tone pairs colour with a distinct glyph and visible title; the stronger leading border is optional, while lists and native details handle richer messages."
+        >
+          <Row label="States">
+            <div className="flex w-[42rem] max-w-full flex-col gap-2.5">
+              <Alert tone="success" title="Workspace settings saved">
+                Your changes are available to everyone on the team.
+              </Alert>
+              <Alert tone="warning" title="Review before publishing">
+                Two answers contain sources that are more than a year old.
+              </Alert>
+              <Alert tone="error" title="The import could not be completed">
+                Correct the source data and try again.
+              </Alert>
+              <Alert tone="info" title="References are still loading">
+                You can continue reading while the source documents are prepared.
+              </Alert>
+            </div>
+          </Row>
+          <Row label="With accent border">
+            <div className="flex w-[42rem] max-w-full flex-col gap-2.5">
+              <Alert tone="success" title="Workspace settings saved" bordered />
+              <Alert tone="warning" title="Review before publishing" bordered />
+              <Alert tone="error" title="The import could not be completed" bordered />
+              <Alert tone="info" title="References are still loading" bordered />
+            </div>
+          </Row>
+          <Row label="List">
+            <Alert
+              tone="error"
+              title="Three fields need attention"
+              className="w-[42rem] max-w-full"
+              items={[
+                'Workspace name is required.',
+                'API endpoint must use HTTPS.',
+                'At least one knowledge source must be selected.',
+              ]}
+            />
+          </Row>
+          <Row label="Action + details">
+            <Alert
+              tone="error"
+              title="The API rejected this request"
+              className="w-[42rem] max-w-full"
+              action={{
+                label: retryCount === 0 ? 'Retry' : `Retry (${retryCount})`,
+                onClick: () => setRetryCount((count) => count + 1),
+              }}
+              detailsLabel="Show API response"
+              details={
+                <pre className="overflow-x-auto rounded-lg border border-line bg-code-block p-3 font-mono text-[11.5px] leading-relaxed text-ink">
+                  {JSON.stringify(
+                    {
+                      status: 422,
+                      code: 'invalid_source',
+                      requestId: 'req_7f91a2',
+                    },
+                    null,
+                    2,
+                  )}
+                </pre>
+              }
+            >
+              The service returned a validation error. Technical details are available below.
+            </Alert>
+          </Row>
+          <Row label="Dismissible">
+            {infoAlertVisible ? (
+              <Alert
+                tone="info"
+                title="Citation shortcuts are available"
+                className="w-[42rem] max-w-full"
+                onDismiss={() => setInfoAlertVisible(false)}
+                dismissLabel="Dismiss citation shortcut notice"
+              >
+                Select any numbered citation to open its original source.
+              </Alert>
+            ) : (
+              <Button size="sm" variant="secondary" onClick={() => setInfoAlertVisible(true)}>
+                Reset dismissed alert
+              </Button>
+            )}
           </Row>
         </Section>
 
@@ -518,13 +820,56 @@ export function PrimitivesPage() {
         </Section>
 
         <Section
+          title="Avatar"
+          note="A standalone identity primitive with explicit text, image, and icon content. Adding onClick promotes the same visual to a native button; static avatars remain non-interactive."
+        >
+          <Row label="Text">
+            <Avatar variant="text" text="A" size="lg" tone="accent" />
+            <Avatar variant="text" text="AN" size="lg" />
+            <Avatar variant="text" text="A" size="sm" />
+            <Avatar variant="text" text="AN" size="xs" tone="brand" />
+            <Avatar variant="text" text="32" size={32} tone="soft" />
+          </Row>
+          <Row label="Image">
+            <Avatar variant="image" src="/favicon.svg" alt="Aristotle" size="md" tone="brand" />
+            <Avatar variant="image" src="/favicon.svg" alt="Aristotle" size="sm" />
+          </Row>
+          <Row label="Icon">
+            <Avatar
+              variant="icon"
+              icon={<UserIcon />}
+              label="Unassigned user"
+              size="md"
+              tone="brand"
+            />
+          </Row>
+          <Row label="Clickable">
+            <Avatar
+              variant="text"
+              text="CS"
+              tone={avatarSelected ? 'brand' : 'accent'}
+              aria-label="Open Christian's profile"
+              aria-pressed={avatarSelected}
+              onClick={() => setAvatarSelected((selected) => !selected)}
+            />
+            <Avatar
+              variant="icon"
+              icon={<UserIcon />}
+              label="Open account menu"
+              onClick={() => setAvatarSelected((selected) => !selected)}
+            />
+          </Row>
+        </Section>
+
+        <Section
           title="Pill"
-          note="Named for the shape, not the first use case — the same label carries a plan tier or a region, not just a status. `neutral` is built from --ink-soft rather than --tint (which is --brand-600, so it came out faintly blue). No green: brand.css has no green ramp, and one would be the first colour in the library that ignores a chat-theme-* switch."
+          note="Named for the shape, not the first use case. Soft and outline treatments share a theme-aware colour set; avatars accept an image, initials, or icon; onClose adds a separately focusable dismiss button with an accessible name."
         >
           <Row label="Soft">
             <Pill tone="brand">Active</Pill>
             <Pill tone="neutral">Draft</Pill>
-            <Pill tone="caution">Pending</Pill>
+            <Pill tone="success">Verified</Pill>
+            <Pill tone="warning">Pending</Pill>
             <Pill tone="danger">Suspended</Pill>
           </Row>
           <Row label="Outline">
@@ -534,12 +879,112 @@ export function PrimitivesPage() {
             <Pill variant="outline" tone="neutral">
               Draft
             </Pill>
-            <Pill variant="outline" tone="caution">
+            <Pill variant="outline" tone="success">
+              Saved
+            </Pill>
+            <Pill variant="outline" tone="warning">
               Pending
             </Pill>
             <Pill variant="outline" tone="danger">
               Suspended
             </Pill>
+          </Row>
+          <Row label="Colours">
+            <Pill tone="green">Green chip</Pill>
+            <Pill tone="orange">Orange chip</Pill>
+            <Pill tone="yellow">Yellow chip</Pill>
+            <Pill tone="red">Red chip</Pill>
+            <Pill variant="outline" tone="green">
+              Green outline
+            </Pill>
+            <Pill variant="outline" tone="orange">
+              Orange outline
+            </Pill>
+            <Pill variant="outline" tone="yellow">
+              Yellow outline
+            </Pill>
+            <Pill variant="outline" tone="red">
+              Red outline
+            </Pill>
+          </Row>
+          <Row label="Avatar">
+            <Pill tone="neutral" avatar={<Avatar variant="text" text="AN" size="xs" />}>
+              Avatar chip
+            </Pill>
+            <Pill
+              variant="outline"
+              tone="brand"
+              avatar={<Avatar variant="image" src="/favicon.svg" alt="" size="xs" />}
+            >
+              Bordered avatar
+            </Pill>
+          </Row>
+          <Row label="Sizes">
+            <Pill size="sm" tone="green">
+              Small green chip
+            </Pill>
+            <Pill size="sm" variant="outline" tone="orange">
+              Small outline chip
+            </Pill>
+            <Pill tone="yellow">Default pill</Pill>
+          </Row>
+          <Row label="Actionable">
+            <Pill
+              tone={actionPillActive ? 'brand' : 'neutral'}
+              aria-pressed={actionPillActive}
+              onClick={() => setActionPillActive((active) => !active)}
+            >
+              {actionPillActive ? 'Selected chip' : 'Clickable chip'}
+            </Pill>
+            <Pill
+              variant="outline"
+              tone="brand"
+              onClick={() => setActionPillActive((active) => !active)}
+            >
+              Clickable outline
+            </Pill>
+          </Row>
+          <Row label="With icon">
+            <Pill tone="brand" leadingIcon={<UserIcon />}>
+              Assigned to you
+            </Pill>
+            <Pill
+              size="lg"
+              variant="outline"
+              tone="neutral"
+              leadingIcon={<SearchIcon />}
+              onClick={() => setActionPillActive((active) => !active)}
+            >
+              Search scope
+            </Pill>
+          </Row>
+          <Row label="Closable">
+            {(['green', 'orange', 'yellow', 'red'] as const).map((tone) =>
+              visiblePills.has(tone) ? (
+                <Pill
+                  key={tone}
+                  tone={tone}
+                  onClose={() =>
+                    setVisiblePills((current) => {
+                      const next = new Set(current)
+                      next.delete(tone)
+                      return next
+                    })
+                  }
+                >
+                  {tone[0].toUpperCase() + tone.slice(1)} chip
+                </Pill>
+              ) : null,
+            )}
+            {visiblePills.size === 0 && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setVisiblePills(new Set(['green', 'orange', 'yellow', 'red']))}
+              >
+                Reset pills
+              </Button>
+            )}
           </Row>
           <Row label="On a tint">
             <div className="flex flex-wrap items-center gap-2.5 rounded-lg bg-chip px-3 py-2">
@@ -556,12 +1001,97 @@ export function PrimitivesPage() {
             <Pill tone="neutral" dot>
               Draft
             </Pill>
-            <Pill tone="caution" dot>
+            <Pill tone="success" dot>
+              Verified
+            </Pill>
+            <Pill tone="warning" dot>
               Pending
             </Pill>
             <Pill tone="danger" dot>
               Suspended
             </Pill>
+          </Row>
+        </Section>
+
+        <Section
+          title="Tabs"
+          note="The familiar shadcn compound API, styled with this app's brand tokens. Arrow keys move through enabled tabs; selection may activate automatically or wait for Enter/Space in manual mode."
+        >
+          <Tabs defaultValue="elements">
+            <TabsList>
+              <TabsTrigger value="elements">Card elements</TabsTrigger>
+              <TabsTrigger value="details">Details</TabsTrigger>
+              <TabsTrigger value="activity">Activity</TabsTrigger>
+              <TabsTrigger value="disabled" disabled>
+                Disabled
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="elements">
+              <div className="rounded-lg border border-line bg-code p-4 text-[13px] text-ink">
+                Content for the selected card-elements tab.
+              </div>
+            </TabsContent>
+            <TabsContent value="details">
+              <div className="rounded-lg border border-line bg-code p-4 text-[13px] text-ink">
+                Details stay mounted only while this tab is selected.
+              </div>
+            </TabsContent>
+            <TabsContent value="activity">
+              <div className="rounded-lg border border-line bg-code p-4 text-[13px] text-ink">
+                Recent activity for this record.
+              </div>
+            </TabsContent>
+          </Tabs>
+          <Row label="Contained">
+            <Tabs defaultValue="overview">
+              <TabsList variant="contained">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="analytics">Analytics</TabsTrigger>
+                <TabsTrigger value="reports">Reports</TabsTrigger>
+              </TabsList>
+              <TabsContent value="overview" className="text-[13px] text-ink-soft">
+                Overview panel
+              </TabsContent>
+              <TabsContent value="analytics" className="text-[13px] text-ink-soft">
+                Analytics panel
+              </TabsContent>
+              <TabsContent value="reports" className="text-[13px] text-ink-soft">
+                Reports panel
+              </TabsContent>
+            </Tabs>
+          </Row>
+          <Row label="Icon rail">
+            <Tabs
+              value={iconTab}
+              onValueChange={setIconTab}
+              allowDeselect
+              orientation="vertical"
+              activationMode="manual"
+            >
+              <TabsList variant="unstyled" className="flex flex-col gap-1">
+                <TabsTrigger
+                  value="account"
+                  controls={false}
+                  tabIndex={iconTab == null ? 0 : undefined}
+                  aria-label="Account"
+                  className={`grid size-8 place-items-center rounded-lg transition ${
+                    iconTab === 'account' ? 'bg-chip text-chip-fg' : 'text-ink-soft hover:bg-tint/8'
+                  }`}
+                >
+                  <UserIcon width={16} height={16} />
+                </TabsTrigger>
+                <TabsTrigger
+                  value="search"
+                  controls={false}
+                  aria-label="Search"
+                  className={`grid size-8 place-items-center rounded-lg transition ${
+                    iconTab === 'search' ? 'bg-chip text-chip-fg' : 'text-ink-soft hover:bg-tint/8'
+                  }`}
+                >
+                  <SearchIcon width={16} height={16} />
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
           </Row>
         </Section>
 
@@ -684,7 +1214,7 @@ export function PrimitivesPage() {
               <>
                 <Select
                   aria-label="Language"
-                  selectSize="sm"
+                  size="sm"
                   value={lang}
                   onChange={(e) => setLang(e.target.value as CodeLanguage)}
                   options={[
@@ -785,7 +1315,7 @@ export function PrimitivesPage() {
           <Row label="Editable">
             <Select
               aria-label="Editable sides"
-              selectSize="sm"
+              size="sm"
               value={diffEditable}
               onChange={(e) => setDiffEditable(e.target.value as DiffEditable)}
               options={[

@@ -1,3 +1,4 @@
+import { Checkbox } from '../../core/checkbox'
 import type { FacetRowModel } from './facetRules'
 import { countLabel } from './facetRules'
 
@@ -15,7 +16,7 @@ export type FacetRowProps = {
 
 /**
  * One option. The whole row is the target because the `<label>` wraps the
- * input — a 15px checkbox is a legal target only in the sense that nobody
+ * input — a small checkbox is a legal target only in the sense that nobody
  * measured it.
  *
  * A row that cannot match is disabled rather than hidden. Removing it would
@@ -39,13 +40,7 @@ export function FacetRow({ row, refreshing, onToggle, height, posInSet, setSize 
           row.selected ? 'bg-tint/6' : dead ? '' : 'hover:bg-tint/8'
         } ${dead ? 'cursor-default opacity-45' : 'cursor-pointer'}`}
       >
-        <input
-          type="checkbox"
-          checked={row.selected}
-          disabled={dead}
-          onChange={() => onToggle(row.value)}
-          className="size-[15px] shrink-0 accent-accent"
-        />
+        <Checkbox checked={row.selected} disabled={dead} onChange={() => onToggle(row.value)} />
         <span
           className={`min-w-0 flex-1 truncate text-[12.5px] ${
             row.selected ? 'font-semibold text-ink-strong' : 'text-ink'

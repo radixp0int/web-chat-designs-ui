@@ -3,7 +3,7 @@
 // Everything run-shaped arrives as props. "Needs you" is a *list*, not a
 // boolean: a run can stop on two approvals at once (the onboarding variant
 // does), and the old single hardcoded card made the second one invisible.
-import { ChevronDownIcon, ChevronLeftIcon, IconButton } from '@chat/ui'
+import { Avatar, ChevronDownIcon, ChevronLeftIcon, IconButton } from '@chat/ui'
 import { APP_NAME } from '../../config'
 import { SectionLabel } from './SectionLabel'
 import type { StageSeed } from '../canvas'
@@ -202,9 +202,7 @@ export function RunSidebar({
 
       <div className="border-t border-line px-6 py-5">
         <div className="flex items-center gap-3">
-          <span className="grid size-[34px] shrink-0 place-items-center rounded-full bg-brand-solid text-xs font-bold text-on-brand-solid">
-            {actor.initials}
-          </span>
+          <Avatar variant="text" text={actor.initials} size={34} tone="brand" aria-hidden />
           <div className="flex min-w-0 flex-col text-[13px] leading-tight">
             <span className="truncate font-bold text-ink-strong">{actor.name}</span>
             <span className="truncate text-ink-soft">{actor.role}</span>

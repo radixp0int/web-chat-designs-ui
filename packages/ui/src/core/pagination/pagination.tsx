@@ -81,7 +81,7 @@ export function Pagination({
           </label>
           <Select
             id={sizeId}
-            selectSize="sm"
+            size="sm"
             value={size}
             onChange={(e) => onSizeChange(Number(e.target.value))}
             options={sizeOptions.map((n) => ({ value: n, label: String(n) }))}

@@ -5,6 +5,9 @@ import {
   ExternalLinkIcon,
   XIcon,
   IconButton,
+  Tabs,
+  TabsList,
+  TabsTrigger,
   useUiSize,
   useWheelToHorizontal,
 } from '@chat/ui'
@@ -91,6 +94,7 @@ export function ReferencePanel({
   }, [activeId])
 
   const onKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.target as Element).closest('[role="tablist"]')) return
     if (e.key === 'ArrowLeft' && prev) onSelect(prev.id)
     else if (e.key === 'ArrowRight' && next) onSelect(next.id)
     else if (e.key === 'Escape') onClose()
@@ -164,35 +168,39 @@ export function ReferencePanel({
 
       {sources.length > 1 && (
         <div className="flex items-center gap-4 border-b border-line px-3 py-2">
-          <div
-            ref={railRef}
-            style={RAIL_FADE}
-            className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto overscroll-x-contain [scrollbar-width:thin]"
-            role="tablist"
-            aria-label="References"
+          <Tabs
+            value={String(active.id)}
+            onValueChange={(value) => value != null && onSelect(Number(value))}
+            className="min-w-0 flex-1"
           >
-            {sources.map((source) => {
-              const isActive = source.id === active.id
-              return (
-                <button
-                  key={source.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  data-active={isActive || undefined}
-                  onClick={() => onSelect(source.id)}
-                  title={source.title}
-                  className={`grid size-7 shrink-0 place-items-center rounded-full text-xs font-semibold transition ${
-                    isActive
-                      ? 'bg-brand-solid text-on-brand-solid'
-                      : 'border border-line text-ink-soft hover:bg-tint/8 hover:text-ink-strong'
-                  }`}
-                >
-                  {source.id}
-                </button>
-              )
-            })}
-          </div>
+            <TabsList
+              ref={railRef}
+              variant="unstyled"
+              style={RAIL_FADE}
+              aria-label="References"
+              className="flex min-w-0 gap-1.5 overflow-x-auto overscroll-x-contain [scrollbar-width:thin]"
+            >
+              {sources.map((source) => {
+                const isActive = source.id === active.id
+                return (
+                  <TabsTrigger
+                    key={source.id}
+                    value={String(source.id)}
+                    controls={false}
+                    data-active={isActive || undefined}
+                    title={source.title}
+                    className={`grid size-7 place-items-center rounded-full text-xs font-semibold transition ${
+                      isActive
+                        ? 'bg-brand-solid text-on-brand-solid'
+                        : 'border border-line text-ink-soft hover:bg-tint/8 hover:text-ink-strong'
+                    }`}
+                  >
+                    {source.id}
+                  </TabsTrigger>
+                )
+              })}
+            </TabsList>
+          </Tabs>
           {showJump && (
             <>
               <span aria-hidden className="h-[18px] w-px shrink-0 bg-line" />
