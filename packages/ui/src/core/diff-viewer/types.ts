@@ -23,7 +23,10 @@ export type DiffViewerProps = {
   defaultHideUnchanged?: boolean
   /** Unchanged lines kept visible either side of a change when collapsing. */
   context?: number
-  /** Hides the layout switch, the collapse switch and change navigation. */
+  /**
+   * Hides the layout switch, collapse switch, change navigation and built-in
+   * JSON/CSV formatting control.
+   */
   hideControls?: boolean
   /**
    * Which sides can be typed in — `'none'` (the default), `'original'`,

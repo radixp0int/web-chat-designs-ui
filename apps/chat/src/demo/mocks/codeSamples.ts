@@ -65,10 +65,10 @@ Keep answers short: lead with the answer, then the detail.`,
 
 export const diffSample = {
   file: 'team-budget.csv',
-  original: `name,department,budget,active
-Ada Lovelace,"Research, Applied",125000,true
-Grace Hopper,Platform,98000,true
-Katherine Johnson,Operations,112500,false`,
+  original: `"name","department","budget","active"
+"Ada Lovelace","Research, Applied","125000","true"
+"Grace Hopper","Platform","98000","true"
+"Katherine Johnson","Operations","112500","false"`,
   modified: `name,department,budget,active
 Ada Lovelace,"Research, Applied",140000,true
 Grace Hopper,Platform,98000,true

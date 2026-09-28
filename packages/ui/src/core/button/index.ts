@@ -1,2 +1,9 @@
 export { Button } from './button'
-export type { ButtonProps, ButtonSize, ButtonVariant } from './types'
+export { AdaptiveButton } from './adaptive-button'
+export type {
+  AdaptiveButtonCollapse,
+  AdaptiveButtonProps,
+  ButtonProps,
+  ButtonSize,
+  ButtonVariant,
+} from './types'

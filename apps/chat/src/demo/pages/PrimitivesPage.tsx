@@ -13,6 +13,7 @@ import {
   BreadcrumbSeparator,
   Breadcrumbs,
   Alert,
+  AdaptiveButton,
   Avatar,
   Button,
   Checkbox,
@@ -44,6 +45,7 @@ import {
   TextInput,
   djangoPageAdapter,
   formatSort,
+  FormatIcon,
   HomeIcon,
   LibraryIcon,
   PencilIcon,
@@ -89,7 +91,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
       <span className="w-28 shrink-0 text-[11px] font-extrabold tracking-[0.07em] text-ink-soft uppercase">
         {label}
       </span>
-      <div className="flex flex-wrap items-center gap-2.5">{children}</div>
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2.5">{children}</div>
     </div>
   )
 }
@@ -118,6 +120,8 @@ export function PrimitivesPage() {
   const [infoAlertVisible, setInfoAlertVisible] = useState(true)
   const [retryCount, setRetryCount] = useState(0)
   const [openModal, setOpenModal] = useState<'delete' | 'workspace' | null>(null)
+  const [adaptiveFormatted, setAdaptiveFormatted] = useState(false)
+  const [adaptiveCompact, setAdaptiveCompact] = useState(false)
   const workspaceNameRef = useRef<HTMLInputElement>(null)
 
   // CodeEditor — one document per language, so switching and back keeps edits.
@@ -194,7 +198,7 @@ export function PrimitivesPage() {
 
         <Section
           title="Button"
-          note="Heights, not padding — 32 / 36 / 44, matching IconButton's boxes exactly so the two sit on one row without a half-pixel step. `primary` uses --brand-solid, never --action: that token is the composer's send button and nothing else."
+          note="Heights, not padding — 32 / 36 / 44, matching IconButton's boxes exactly. AdaptiveButton keeps one native button but collapses its visible label inside a constrained query container; its accessible name remains and its tooltip is portalled beyond clipping and local stacking contexts."
         >
           <Row label="Variants">
             <Button variant="primary">Primary</Button>
@@ -216,6 +220,36 @@ export function PrimitivesPage() {
             <Button variant="danger" icon={<TrashIcon width={13} height={13} />}>
               Delete
             </Button>
+          </Row>
+          <Row label="Adaptive">
+            <div className="flex w-full min-w-0 flex-col items-start gap-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                aria-pressed={adaptiveCompact}
+                onClick={() => setAdaptiveCompact((value) => !value)}
+              >
+                {adaptiveCompact ? 'Show roomy preview' : 'Preview compact fallback'}
+              </Button>
+              <div
+                className={`@container flex w-full min-w-0 items-center gap-2 overflow-hidden rounded-control border border-line bg-tint/3 p-2 transition-[max-width] ${
+                  adaptiveCompact ? 'max-w-72' : 'max-w-xl'
+                }`}
+              >
+                <span className="min-w-0 flex-1 truncate text-[12px] text-ink-soft">
+                  Diff toolbar action
+                </span>
+                <AdaptiveButton
+                  size="sm"
+                  variant="ghost"
+                  icon={<FormatIcon width={16} height={16} />}
+                  label={adaptiveFormatted ? 'Raw view' : 'Format view'}
+                  tooltip={adaptiveFormatted ? 'Show raw comparison' : 'Format comparison view'}
+                  aria-pressed={adaptiveFormatted}
+                  onClick={() => setAdaptiveFormatted((value) => !value)}
+                />
+              </div>
+            </div>
           </Row>
           <Row label="Disabled">
             <Button variant="primary" disabled>
@@ -1315,7 +1349,7 @@ export function PrimitivesPage() {
 
         <Section
           title="DiffViewer"
-          note="Myers' diff by line, then again by word inside each changed pair, so the edit itself gets the stronger wash. Added is the accent and removed is --danger rather than green — brand.css has no green ramp, and the +/− column carries the meaning without colour. Long lines wrap, so the two sides of a row can't drift apart. Make a side editable and it becomes a textarea editor — no wrapping, synced scrolling, the diff redrawn on every keystroke."
+          note="Myers' diff by line, then again by word inside each changed pair, so the edit itself gets the stronger wash. For JSON and CSV, Format view normalizes only the read-only comparison while Format editable updates the controlled source values. The CSV specimen deliberately mixes equivalent quoting styles so formatting removes that noise and leaves the real value changes."
         >
           <Row label="Editable">
             <Select
