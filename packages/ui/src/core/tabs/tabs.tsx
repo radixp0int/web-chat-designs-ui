@@ -6,6 +6,7 @@ import {
   useId,
   useState,
   type KeyboardEvent,
+  type ReactNode,
 } from 'react'
 import type {
   TabsActivationMode,
@@ -27,7 +28,7 @@ type TabsContextValue = {
 
 const TabsContext = createContext<TabsContextValue | null>(null)
 type TabsListContextValue = {
-  variant: TabsListVariant
+  variant: Exclude<TabsListVariant, 'contained'>
   firstValue?: string
 }
 
@@ -78,9 +79,10 @@ export function Tabs({
   )
 }
 
-/** The tab rail. `line` matches the app's restrained brand treatment. */
+/** The tab rail: `line` by default, `segmented` for switching views of one thing. */
 export function TabsList({ variant = 'line', className = '', children, ...rest }: TabsListProps) {
   const { orientation } = useTabs('TabsList')
+  const skinName = variant === 'contained' ? 'segmented' : variant
   const firstTrigger = Children.toArray(children).find(
     (child) => isValidElement<TabsTriggerProps>(child) && child.type === TabsTrigger,
   )
@@ -89,16 +91,16 @@ export function TabsList({ variant = 'line', className = '', children, ...rest }
     : undefined
   const line =
     orientation === 'horizontal'
-      ? 'flex items-end gap-5 border-b border-line'
-      : 'flex shrink-0 flex-col border-r border-line'
-  const contained =
+      ? 'flex items-end gap-6 border-b border-line'
+      : 'flex shrink-0 flex-col gap-0.5 border-l border-line'
+  const segmented =
     orientation === 'horizontal'
-      ? 'inline-flex items-center gap-1 rounded-control bg-code p-1'
-      : 'inline-flex shrink-0 flex-col gap-1 rounded-control bg-code p-1'
-  const skin = variant === 'line' ? line : variant === 'contained' ? contained : ''
+      ? 'inline-flex items-center gap-0.5 rounded-surface border border-line bg-chip p-1'
+      : 'inline-flex shrink-0 flex-col gap-0.5 rounded-surface border border-line bg-chip p-1'
+  const skin = skinName === 'line' ? line : skinName === 'segmented' ? segmented : ''
 
   return (
-    <TabsListContext.Provider value={{ variant, firstValue }}>
+    <TabsListContext.Provider value={{ variant: skinName, firstValue }}>
       <div
         {...rest}
         role="tablist"
@@ -136,9 +138,36 @@ function moveFocus(event: KeyboardEvent<HTMLButtonElement>, orientation: TabsOri
   tabs[index]?.focus()
 }
 
+/**
+ * The selected label steps up to extra-bold. A plain-text label reserves that
+ * width with an invisible bold copy, so neighbours do not shift on selection.
+ */
+function Label({ children }: { children: ReactNode }) {
+  if (typeof children !== 'string' && typeof children !== 'number') return <>{children}</>
+  return (
+    <span className="inline-grid">
+      <span className="col-start-1 row-start-1">{children}</span>
+      <span aria-hidden="true" className="invisible col-start-1 row-start-1 font-extrabold">
+        {children}
+      </span>
+    </span>
+  )
+}
+
+// The `line` bar: rounded, 3px, grown from the centre. Vertical lists put it on
+// the leading edge.
+const bar = {
+  horizontal:
+    '-mb-px h-11 px-0.5 after:inset-x-0 after:bottom-0 after:h-[3px] after:rounded-t-[3px] after:scale-x-0 data-[state=active]:after:scale-x-100',
+  vertical:
+    '-ml-px min-h-9 justify-start px-3.5 after:inset-y-1.5 after:left-0 after:w-[3px] after:rounded-r-[3px] after:scale-y-0 data-[state=active]:after:scale-y-100',
+}
+
 /** A native button with roving focus and automatic or manual activation. */
 export function TabsTrigger({
   value,
+  icon,
+  count,
   disabled,
   className = '',
   children,
@@ -153,24 +182,16 @@ export function TabsTrigger({
   const { variant, firstValue } = useContext(TabsListContext)
   const selected = tabs.value === value
   const id = valueId(value)
-  const line =
-    tabs.orientation === 'horizontal'
-      ? '-mb-px h-10 border-b-2 px-1'
-      : '-mr-px min-h-9 justify-start border-r-2 px-3'
-  const contained = 'min-h-8 rounded-control px-3'
-  const unstyled = 'shrink-0 disabled:pointer-events-none disabled:opacity-35'
-  const active =
+  const line = `relative after:absolute after:bg-brand-fg after:transition-transform after:duration-300 after:ease-[cubic-bezier(.2,.7,.2,1)] motion-reduce:after:transition-none ${bar[tabs.orientation]}`
+  const segmented = 'min-h-8 rounded-control px-3.5'
+  const skin =
     variant === 'line'
-      ? 'border-brand-solid text-brand-fg'
-      : 'border-transparent bg-panel-solid text-ink-strong shadow-sm'
-  const inactive =
-    variant === 'line'
-      ? 'border-transparent text-ink-soft hover:bg-tint/6 hover:text-ink-strong'
-      : 'border-transparent text-ink-soft hover:text-ink-strong'
+      ? `${line} ${selected ? 'text-ink-strong' : 'text-ink-soft hover:text-ink-strong'}`
+      : `${segmented} ${selected ? 'bg-panel-solid text-ink-strong shadow-sm shadow-(color:--shadow-soft)' : 'text-ink-soft hover:text-ink-strong'}`
   const base =
     variant === 'unstyled'
-      ? unstyled
-      : `inline-flex shrink-0 items-center gap-2 text-[13px] font-bold whitespace-nowrap transition disabled:pointer-events-none disabled:opacity-35 ${variant === 'line' ? line : contained} ${selected ? active : inactive}`
+      ? 'shrink-0 disabled:pointer-events-none disabled:opacity-35'
+      : `inline-flex shrink-0 items-center gap-2 text-[13.5px] whitespace-nowrap transition-colors disabled:pointer-events-none disabled:opacity-35 ${selected ? 'font-extrabold' : 'font-semibold'} ${skin}`
 
   return (
     <button
@@ -200,7 +221,21 @@ export function TabsTrigger({
         if (!event.defaultPrevented && tabs.activationMode === 'automatic') tabs.select(value)
       }}
     >
-      {children}
+      {icon != null && (
+        <span aria-hidden="true" className="inline-grid shrink-0 place-items-center">
+          {icon}
+        </span>
+      )}
+      <Label>{children}</Label>
+      {count != null && (
+        <span
+          className={`inline-grid h-[18px] min-w-5 place-items-center rounded-full px-1.5 text-[11px] font-extrabold tabular-nums transition-colors ${
+            selected ? 'bg-chip text-chip-fg' : 'bg-tint/6 text-ink-soft'
+          }`}
+        >
+          {count}
+        </span>
+      )}
     </button>
   )
 }

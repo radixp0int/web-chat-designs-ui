@@ -1,0 +1,107 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Docs/Contracts" />
+
+# Contracts
+
+The seams where the UI meets something it does not own. Each is a small type a
+host implements once; the components on the other side never change. Component
+props are documented on each module's Docs page (generated from its `types.ts`);
+this page covers the contracts that span modules.
+
+---
+
+## `Responder` — where answers come from
+
+`packages/chat-ui/src/engine/chatEngine.ts`
+
+```ts
+type Responder = (prompt: string, signal: AbortSignal) => AsyncGenerator<ChatEvent>
+
+type ChatEvent =
+  | { type: 'thinking'; delta: string }
+  | { type: 'thinking-done'; fullText?: string }
+  | { type: 'content'; delta: string }
+  | { type: 'tool'; toolCall: ToolCall }
+  | { type: 'sources'; sources: Source[]; highlights?: Highlight[] }
+  | { type: 'followups'; items: string[] }
+  | { type: 'error'; fault: TurnFault; recoverable: boolean }
+  | { type: 'done'; fullText?: string; model?: string; tokens?: number; errors?: TurnFault[] }
+```
+
+- Deltas carry their own whitespace; the consumer concatenates verbatim.
+- Emit `sources` **before** the content that cites them, so `[n]` markers are clickable the moment they stream in.
+- A recoverable `error` puts a fault on the turn's trace and the answer carries on (`status: 'recovered'`). A fatal one ends the turn; only then does `Message.error` get set.
+- Aborting the `signal` is a cancel. Never throw — report failures as `error` events so they render in the conversation.
+
+Shipped: `createCannedResponder(turns)` (the stories and the demo), `createWsResponder(url)` (the mock WebSocket server). **Recipes / Chat / Conversation** runs `useChat` on the canned one; swapping in your own is one line.
+
+---
+
+## `Message` — one turn, as the transcript records it
+
+`packages/chat-ui/src/types.ts`. `useChat` builds these from `ChatEvent`s;
+`ChatMessage` renders one. Every visual state in **Recipes / Chat / ChatMessage**
+is a different `Message`:
+
+| State           | Fields                                                                              |
+| --------------- | ----------------------------------------------------------------------------------- |
+| Thinking        | `thinkingActive: true`, `content: ''`                                               |
+| Streaming       | `streaming: true` (compare to `false`, not falsy — `undefined` means _not started_) |
+| Done            | `streaming: false`, optional `followups`, `trace.status: 'ok'`                      |
+| Recovered       | `trace.status: 'recovered'` with a `fault` step — no `error`                        |
+| Stopped         | `stopped: true`, partial `content` kept                                             |
+| Failed          | `error: TurnFault`, `trace.status: 'failed'`                                        |
+| Scoped question | `role: 'user'`, `askedOver: AskedOverScope` — a snapshot, never recomputed          |
+
+---
+
+## `Page<T>` — paging, whatever the backend
+
+`packages/ui/src/core/paging`. One normalised shape, `page` always 1-based, and
+an adapter per backend. See **Data Table / Paging model** for the full contract
+and a live adapter explorer.
+
+---
+
+## Facet filters — given, never fetched
+
+`packages/ui/src/components/facet-filters/types.ts`
+
+`FacetFilters` fetches nothing, counts nothing and stores nothing. The host
+owns `selection: Record<groupKey, string[]>` and answers the component's
+callbacks:
+
+| Callback                             | The host…                                                       |
+| ------------------------------------ | --------------------------------------------------------------- |
+| `onSelectionChange(next)`            | stores it, refetches counts                                     |
+| `onSearchGroup(key, query)`          | replaces that lookup group's `values` with matches              |
+| `onLoadMore(key)` / `onLoadAll(key)` | appends a page / everything left                                |
+| `onAddQuery(q)`                      | stores a predicate chip instead of enumerating thousands of ids |
+
+A `count` of `null` means _unknown_ and renders as an em dash — a zero is a
+claim, an unknown is not. `packages/ui/src/__fixtures__/facets.ts` is a
+complete in-memory host, and the story that uses it is the reference
+implementation.
+
+---
+
+## `RunSource` — where a workflow run comes from
+
+`apps/chat/src/demo/workflow-demo/run/types.ts`
+
+```ts
+type RunSource = {
+  subscribe(listener: (event: RunEvent) => void): () => void
+  start(variantId: string): void
+  decide(stepId: string, decision: 'approved' | 'changes' | 'declined', note?: string): void
+  control(action: 'pause' | 'resume' | 'restart'): void
+  variants: VariantInfo[]
+}
+```
+
+The same shape `Responder` gives chat: the page draws whatever the source
+emits. `staticRunSource` replays the hand-tuned loan run (**Recipes / Workflows
+/ Loan review run**); `createWsRunSource(url)` talks to `workflow-ws-server`.
+The source must be stable across renders — a module constant or a memo — or
+the subscription is torn down and, for the socket, a new run starts.

@@ -1,0 +1,44 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Docs/Introduction" />
+
+# chat-interfaces Storybook
+
+Every module in the repo, in every state worth looking at, on one screen at a time.
+This workspace (`apps/storybook`) owns none of the components. It collects the
+`*.stories.tsx` files that sit **beside** each module and adds the toolbar, the
+docs you are reading and the release notes.
+
+```sh
+npm run storybook          # from the repo root
+npm run start              # from apps/storybook
+```
+
+## What is where
+
+| Sidebar                     | Source                                                                     | What it holds                                                                    |
+| --------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| **Primitives / Core**       | `packages/ui/src/core/*`                                                   | Brand-agnostic controls: buttons, inputs, editors, overlays                      |
+| **Primitives / Components** | `packages/ui/src/components/*`                                             | Generic composites: icon buttons, tooltips, facet filters, settings pickers      |
+| **Data Table**              | `packages/ui/src/core/{data-table,pagination,filter-panel,omnibox,paging}` | The table and everything that feeds it, plus the full Tenants recipe             |
+| **Recipes / Chat**          | `packages/chat-ui/src/*`                                                   | Chat components, the widget panel, and a live conversation on a canned responder |
+| **Recipes / Workflows**     | `apps/chat/src/demo/workflow-demo`                                         | The React Flow run canvas and its panels, on the hard-coded loan run             |
+
+## The toolbar
+
+Four globals, applied to `<html>` so portals follow them:
+
+- **Mode** — `light` / `dark`
+- **Palette** — the `chat-theme-*` class (Navy, Aristotle 1, Deep, Graphite)
+- **Highlight** — the `chat-highlight-*` colour behind cited passages
+- **Density** — `UiSizeProvider`; `compact` is what the embedded widget runs
+
+## Lazy by default
+
+Storybook indexes story files without executing them and loads each one as its
+own chunk when you open it. Heavy dependencies — `beautiful-mermaid`,
+`@xyflow/react` — are fetched only by the stories that import them, the same
+way `apps/chat/src/demo/lazyRoutes.tsx` splits the demo app.
+
+Next: [Module anatomy](?path=/docs/docs-module-anatomy--docs) — the shape every
+folder follows, and how to add a story to one.

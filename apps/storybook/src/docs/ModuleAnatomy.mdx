@@ -1,0 +1,101 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Docs/Module anatomy" />
+
+# Module anatomy
+
+Every component in the repo is one folder, and the folder is the unit you copy
+when a component moves somewhere else. Storybook doesn't change that shape; it
+adds one file to it.
+
+```
+packages/ui/src/core/date-picker/
+├── index.ts                  public surface — the only file other modules import
+├── types.ts                  the contract: props, unions, JSDoc on every field
+├── date-picker.tsx           the implementation
+├── date-value.ts             module-private helpers, when the logic earns a file
+├── date-picker.stories.tsx   scenarios — Storybook reads this, the app never does
+├── date-picker.css           optional — only when Tailwind utilities can't say it
+└── README.md                 optional — usage and the contract in prose
+```
+
+| File                 | Required | Rule                                                                                                                                                                                                                                                                                                                                                                       |
+| -------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `index.ts`           | yes      | Re-exports the component(s) and their types. Nothing else imports deep paths.                                                                                                                                                                                                                                                                                              |
+| `types.ts`           | yes      | Props live here, not in the `.tsx`. The JSDoc on each prop **is** the documentation — the Controls table and autodocs read it verbatim, as Markdown, so wrap JSX in backticks (`` `<BulbIcon />` ``) or it renders as a tag.                                                                                                                                               |
+| `<name>.tsx`         | yes      | Imports its own types from `./types`. Named export, no default.                                                                                                                                                                                                                                                                                                            |
+| `<name>.stories.tsx` | yes      | Scenarios for every state worth looking at. Imports the component from `./<name>`, siblings by relative path, never the package barrel.                                                                                                                                                                                                                                    |
+| `<name>.css`         | no       | Most modules need none: styling is Tailwind on brand tokens. When utilities can't express it — a vendor widget's internals (`date-picker.css` skins react-datepicker), a `::-webkit-slider-thumb` — scope every rule under the module's root class and `@import` the sheet at the top of the package sheet (`ui.css`), so an app that already imports the package gets it. |
+| `<name>.example.tsx` | no       | A host component only stories render — a parent that owns state the primitive deliberately doesn't (`card/sortable-column.example.tsx` owns list order). Not exported from `index.ts`.                                                                                                                                                                                     |
+| `README.md`          | no       | Usage and contract in prose, for someone reading the folder rather than Storybook.                                                                                                                                                                                                                                                                                         |
+| `<name>.mdx`         | no       | Only when a module is a **contract** more than a component (see `core/paging/paging.mdx`). Attach it with `<Meta of={Stories} />` and leave `autodocs` off that meta.                                                                                                                                                                                                      |
+
+## Writing a story file
+
+```tsx
+import type { Meta, StoryObj } from '@storybook/react-vite'
+import { fn } from 'storybook/test'
+import { Pill } from './pill'
+
+const meta = {
+  title: 'Primitives/Core/Pill', // the sidebar path — see "Where it goes" below
+  component: Pill,
+  tags: ['autodocs'], // generate the Docs page from types.ts
+  args: { children: 'Active', tone: 'brand' },
+} satisfies Meta<typeof Pill>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const Playground: Story = {} // args-driven, all controls live
+export const Outline: Story = { args: { variant: 'outline' } }
+export const Closable: Story = { args: { onClose: fn() } } // fn() logs to the Actions panel
+```
+
+Conventions the existing stories follow:
+
+- **`Playground` first** when the component is args-driven, so the Controls panel is the first thing you reach.
+- **Controlled components get a stateful `render`.** A `Switch` whose `checked` never changes is a screenshot, not a story. Hold the state in the render function and forward to the `fn()` arg so Actions still logs it.
+- **A story is a state, named for the state** — `Loading`, `Empty`, `Failed`, `Held` — not `Example2`.
+- **Type against the component** (`StoryObj<typeof Avatar>`) when the props are a discriminated union or require `children`; otherwise `StoryObj<typeof meta>`, which makes the meta's `args` count.
+- **Interactions go in `play`.** Card, DatePicker and Navigation assert behaviour with `play` functions from `storybook/test` (`within`, `userEvent`, `expect`) — they run every time the story renders, and the Interactions panel shows each step. Use `useArgs` from `storybook/preview-api` when a controlled story should write back to its args.
+- **Relative imports only.** A story that imports `@chat/ui` pulls the whole barrel into its chunk; `../button` pulls one module. (Chat components import the `@chat/ui` barrel themselves, so this matters most in `packages/ui`.)
+
+## Fixtures
+
+Sample data shared by several stories lives in the package's `src/__fixtures__/`:
+
+| File                                        | Used by                                                                |
+| ------------------------------------------- | ---------------------------------------------------------------------- |
+| `packages/ui/src/__fixtures__/code.ts`      | CodeEditor, DiffViewer                                                 |
+| `packages/ui/src/__fixtures__/tenants.ts`   | DataTable                                                              |
+| `packages/ui/src/__fixtures__/facets.ts`    | FacetFilters — a deterministic loan corpus whose counts agree          |
+| `packages/chat-ui/src/__fixtures__/chat.ts` | Every chat story — sources, highlights, traces, messages, canned turns |
+
+Fixtures are plain data in the package's own types. They are never exported
+from a package barrel and never imported from an app, because a package may not
+depend on an app; where a fixture mirrors a demo mock (the tenants, the code
+samples) it is a copy, noted at the top of the file.
+
+## Where it goes
+
+The `title` decides the sidebar, not the folder. The sections:
+
+| Title prefix              | For                                                                     |
+| ------------------------- | ----------------------------------------------------------------------- |
+| `Primitives/Core/…`       | `packages/ui/src/core/*` — brand-agnostic controls                      |
+| `Primitives/Components/…` | `packages/ui/src/components/*` — generic composites                     |
+| `Data Table/…`            | The table and what feeds it: pagination, filter panel, omnibox, paging  |
+| `Recipes/Chat/…`          | `packages/chat-ui` components, and compositions of them                 |
+| `Recipes/Workflows/…`     | The workflow canvas and its panels (`apps/chat/src/demo/workflow-demo`) |
+
+Stories for app-level code sit beside that code under `apps/chat/src` and are
+picked up by the same globs; `apps/storybook/.storybook/main.ts` lists them.
+
+## Checking your work
+
+```sh
+npm run typecheck      # apps/storybook typechecks every story; packages skip them
+npm run storybook      # dev server on :6006
+npm run build-storybook
+```

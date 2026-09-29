@@ -1,26 +1,73 @@
-import { useId } from 'react'
-import type { DateFieldProps, DateRangeFieldProps } from './types'
+import { useCallback, useId, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
+import { IconButton } from '../../components/icon-button'
+import { CalendarIcon, CircleXIcon } from '../../components/icons'
+import { DatePopover, LazyDatePicker, PresetList } from './date-popover'
+import {
+  dateRangePresets,
+  datePresets,
+  daysBetween,
+  formatDisplay,
+  formatRange,
+  parseTyped,
+} from './date-text'
+import type { DateFieldProps, DateRange, DateRangeFieldProps } from './types'
 
-const box =
-  'h-9 w-full rounded-control border border-line bg-panel-solid px-2.5 text-[13px] text-ink transition ' +
-  'accent-[var(--brand-solid)] hover:border-ink-soft/40 focus-visible:border-accent focus-visible:ring-3 ' +
-  'focus-visible:ring-accent/20 disabled:pointer-events-none disabled:opacity-40'
+/** The shell every date field draws: TextInput's box, plus an open state. */
+function shell(open: boolean, invalid: boolean, disabled: boolean) {
+  return [
+    'flex h-9 min-w-0 items-center gap-2 rounded-control border bg-panel-solid pr-1 pl-3 text-[13px] transition',
+    invalid
+      ? 'border-danger focus-within:ring-3 focus-within:ring-danger/15'
+      : open
+        ? 'border-accent ring-3 ring-accent/20'
+        : 'border-line hover:border-ink-soft/40 focus-within:border-accent focus-within:ring-3 focus-within:ring-accent/20',
+    disabled ? 'pointer-events-none opacity-40' : '',
+  ].join(' ')
+}
+
+function FieldLabel({
+  id,
+  htmlFor,
+  visible,
+  children,
+}: {
+  id: string
+  htmlFor?: string
+  visible: boolean
+  children: ReactNode
+}) {
+  const cls = visible ? 'text-[12px] font-bold text-ink-soft' : 'sr-only'
+  return htmlFor ? (
+    <label id={id} htmlFor={htmlFor} className={cls}>
+      {children}
+    </label>
+  ) : (
+    <span id={id} className={cls}>
+      {children}
+    </span>
+  )
+}
+
+function ErrorLine({ id, children }: { id: string; children: ReactNode }) {
+  return (
+    <span id={id} className="flex items-start gap-1.5 text-[12px] font-semibold text-danger-fg">
+      <CircleXIcon width={14} height={14} className="mt-px shrink-0" />
+      {children}
+    </span>
+  )
+}
+
+const presetChip =
+  'inline-flex h-[22px] shrink-0 items-center rounded-full bg-chip px-2 text-[12px] font-extrabold text-chip-fg'
 
 /**
- * A date, on a native `<input type="date">`.
+ * One date. Type it ("Sep 30, 2026", "9/30/2026", "2026-09-30") or open the
+ * branded calendar — the same `DatePicker`, in a popover — from the button or
+ * with Alt+↓. The field shows the value as people read it and hands back ISO.
  *
- * Native rather than a calendar library, and it is a deliberate call rather
- * than a shortcut. What the platform control already gets right: keyboard
- * entry segment by segment, the user's own locale and first-day-of-week, a
- * real date picker on desktop, the OS wheel picker on phones, and correct
- * behaviour for screen readers. A JS calendar re-implements all of that, and
- * usually ships a stylesheet of hard-coded colours — which in this library
- * means the first control that ignores a `chat-theme-*` switch.
- *
- * The cost is honest: the field's text layout is the browser's, so it will not
- * match a designed input to the pixel across Safari and Chrome. If a custom
- * calendar is wanted later it belongs behind this same props shape, so nothing
- * that consumes it has to change.
+ * `presets` swaps typing for quick picks: the field then shows the matching
+ * pick as a chip ("End of month") beside the date, which fits a narrow rail.
  */
 export function DateField({
   label,
@@ -30,41 +77,152 @@ export function DateField({
   min,
   max,
   disabled = false,
+  error,
+  placeholder,
+  presets,
   className = '',
   id,
 }: DateFieldProps) {
   const auto = useId()
   const inputId = id ?? auto
+  const labelId = `${inputId}-label`
+  const valueId = `${inputId}-value`
+  const errorId = `${inputId}-error`
+  const [anchor, setAnchor] = useState<HTMLDivElement | null>(null)
+  const focusRef = useRef<HTMLInputElement | HTMLButtonElement | null>(null)
+  const [open, setOpen] = useState(false)
+  const [draft, setDraft] = useState<string | null>(null)
+  const [parseError, setParseError] = useState<string | null>(null)
+
+  const list = presets === true ? datePresets() : presets || null
+  const active = list?.find((p) => p.value === value)?.label
+  const message = parseError ?? error
+  const close = useCallback((refocus: boolean) => {
+    setOpen(false)
+    if (refocus) focusRef.current?.focus()
+  }, [])
+  const pick = (next: string | null) => {
+    setDraft(null)
+    setParseError(null)
+    if (next !== value) onChange(next)
+    close(true)
+  }
+  const commit = () => {
+    if (draft === null) return
+    const result = parseTyped(draft, min, max)
+    if (result.error !== undefined) return setParseError(result.error)
+    setParseError(null)
+    setDraft(null)
+    if (result.value !== value) onChange(result.value)
+  }
 
   return (
-    <span className={['flex min-w-0 flex-col gap-1', className].filter(Boolean).join(' ')}>
-      <label
-        htmlFor={inputId}
-        className={showLabel ? 'text-[12px] font-bold text-ink-soft' : 'sr-only'}
-      >
+    <span className={`flex min-w-0 flex-col gap-1 ${className}`}>
+      <FieldLabel id={labelId} htmlFor={list ? undefined : inputId} visible={showLabel}>
         {label}
-      </label>
-      <input
-        id={inputId}
-        type="date"
-        value={value ?? ''}
-        min={min}
-        max={max}
-        disabled={disabled}
-        onChange={(e) => onChange(e.target.value === '' ? null : e.target.value)}
-        className={box}
-      />
+      </FieldLabel>
+      <div ref={setAnchor} className={shell(open, !!message, disabled)}>
+        {list ? (
+          <button
+            ref={(el) => {
+              focusRef.current = el
+            }}
+            id={inputId}
+            type="button"
+            disabled={disabled}
+            aria-haspopup="dialog"
+            aria-expanded={open}
+            aria-labelledby={`${labelId} ${valueId}`}
+            aria-invalid={message ? true : undefined}
+            aria-describedby={message ? errorId : undefined}
+            onClick={() => setOpen((o) => !o)}
+            className="flex h-full min-w-0 grow items-center gap-2 text-left outline-none"
+          >
+            <span id={valueId} className="flex min-w-0 items-center gap-2">
+              {active && <span className={presetChip}>{active}</span>}
+              <span
+                className={`truncate ${value ? (active ? 'text-ink-soft' : 'text-ink') : 'text-ink-soft'}`}
+              >
+                {value ? formatDisplay(value) : (placeholder ?? 'Pick a date')}
+              </span>
+            </span>
+          </button>
+        ) : (
+          <input
+            ref={(el) => {
+              focusRef.current = el
+            }}
+            id={inputId}
+            type="text"
+            inputMode="text"
+            autoComplete="off"
+            disabled={disabled}
+            placeholder={placeholder ?? 'Mon DD, YYYY'}
+            value={draft ?? formatDisplay(value)}
+            aria-invalid={message ? true : undefined}
+            aria-describedby={message ? errorId : undefined}
+            onChange={(e) => {
+              setDraft(e.target.value)
+              if (parseError) setParseError(null)
+            }}
+            onBlur={commit}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') commit()
+              else if (e.key === 'Escape' && draft !== null) {
+                setDraft(null)
+                setParseError(null)
+              } else if (e.key === 'ArrowDown' && e.altKey) {
+                e.preventDefault()
+                setOpen(true)
+              }
+            }}
+            className="min-w-0 grow bg-transparent text-ink outline-none placeholder:text-ink-soft"
+          />
+        )}
+        <IconButton
+          size="sm"
+          shape="rounded"
+          aria-label={open ? 'Close calendar' : 'Open calendar'}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          disabled={disabled}
+          active={open}
+          tabIndex={list ? -1 : undefined}
+          onClick={() => setOpen((o) => !o)}
+          className="size-7!"
+        >
+          <CalendarIcon width={16} height={16} />
+        </IconButton>
+      </div>
+      {message && <ErrorLine id={errorId}>{message}</ErrorLine>}
+      <DatePopover
+        anchor={anchor}
+        open={open}
+        label={label}
+        onClose={close}
+        aside={list && <PresetList presets={list} active={active} onPick={pick} />}
+      >
+        <LazyDatePicker
+          label={label}
+          value={value}
+          onChange={pick}
+          min={min}
+          max={max}
+          className="rounded-none! border-0! shadow-none!"
+        />
+      </DatePopover>
     </span>
   )
 }
 
 /**
- * Two dates that bound each other.
+ * Two dates that bound each other, chosen in one calendar: the first click
+ * sets the start, the second the end, and Apply commits both — an impossible
+ * range is never entered, so there is no error to write for one.
  *
- * The `min`/`max` cross-wiring is the whole reason this is a component and not
- * two `DateField`s: once a start is chosen, the end input cannot offer a day
- * before it, so an impossible range is never entered in the first place and
- * there is no error message to write.
+ * The field reads "Sep 6 – Sep 15, 2026 · 10 days". With `presets` it leads
+ * with the matching pick ("Last 30 days"), and the calendar opens with the
+ * picks alongside — one click for the ranges people actually ask for.
  */
 export function DateRangeField({
   label,
@@ -74,34 +232,105 @@ export function DateRangeField({
   min,
   max,
   disabled = false,
+  error,
+  placeholder,
+  presets,
   className = '',
+  id,
 }: DateRangeFieldProps) {
+  const auto = useId()
+  const fieldId = id ?? auto
+  const labelId = `${fieldId}-label`
+  const valueId = `${fieldId}-value`
+  const errorId = `${fieldId}-error`
+  const [anchor, setAnchor] = useState<HTMLDivElement | null>(null)
+  const trigger = useRef<HTMLButtonElement>(null)
+  const [open, setOpen] = useState(false)
+
+  const list = presets === true ? dateRangePresets() : presets || null
+  const active = list?.find((p) => p.value.from === value.from && p.value.to === value.to)?.label
+  const complete = !!value.from && !!value.to
+  const close = useCallback((refocus: boolean) => {
+    setOpen(false)
+    if (refocus) trigger.current?.focus()
+  }, [])
+  const pick = (next: DateRange) => {
+    onChange(next)
+    close(true)
+  }
+
   return (
-    <div className={['flex min-w-0 flex-col gap-1.5', className].filter(Boolean).join(' ')}>
-      {showLabel && <span className="text-[12px] font-bold text-ink-soft">{label}</span>}
-      <div className="flex min-w-0 items-center gap-1.5">
-        <DateField
-          label={`${label} from`}
-          value={value.from}
-          min={min}
-          max={value.to ?? max}
+    <div className={`flex min-w-0 flex-col gap-1.5 ${className}`}>
+      <FieldLabel id={labelId} visible={showLabel}>
+        {label}
+      </FieldLabel>
+      <div ref={setAnchor} className={shell(open, !!error, disabled)}>
+        <button
+          ref={trigger}
+          id={fieldId}
+          type="button"
           disabled={disabled}
-          onChange={(from) => onChange({ ...value, from })}
-          className="grow"
-        />
-        <span aria-hidden="true" className="shrink-0 text-[12px] text-ink-soft">
-          to
-        </span>
-        <DateField
-          label={`${label} to`}
-          value={value.to}
-          min={value.from ?? min}
-          max={max}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-labelledby={`${labelId} ${valueId}`}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
+          onClick={() => setOpen((o) => !o)}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowDown' && e.altKey) {
+              e.preventDefault()
+              setOpen(true)
+            }
+          }}
+          className="flex h-full min-w-0 grow items-center gap-2 text-left outline-none"
+        >
+          <span id={valueId} className="flex min-w-0 items-center gap-2">
+            {active && <span className={presetChip}>{active}</span>}
+            <span
+              className={`truncate ${value.from ? (active ? 'text-ink-soft' : 'text-ink') : 'text-ink-soft'}`}
+            >
+              {value.from ? formatRange(value) : (placeholder ?? 'Start – end date')}
+            </span>
+            {complete && !active && (
+              <span className="inline-flex h-5 shrink-0 items-center rounded-full border border-line bg-tint/5 px-2 text-[11px] font-bold text-ink-soft">
+                {daysBetween(value.from!, value.to!)} days
+              </span>
+            )}
+          </span>
+        </button>
+        <IconButton
+          size="sm"
+          shape="rounded"
+          aria-label={open ? 'Close calendar' : 'Open calendar'}
           disabled={disabled}
-          onChange={(to) => onChange({ ...value, to })}
-          className="grow"
-        />
+          active={open}
+          tabIndex={-1}
+          onClick={() => setOpen((o) => !o)}
+          className="size-7!"
+        >
+          <CalendarIcon width={16} height={16} />
+        </IconButton>
       </div>
+      {error && <ErrorLine id={errorId}>{error}</ErrorLine>}
+      <DatePopover
+        anchor={anchor}
+        open={open}
+        label={label}
+        onClose={close}
+        aside={list && <PresetList presets={list} active={active} onPick={pick} />}
+      >
+        <LazyDatePicker
+          mode="range"
+          label={label}
+          value={value}
+          onChange={pick}
+          min={min}
+          max={max}
+          commitMode="apply"
+          onCancel={() => close(true)}
+          className="rounded-none! border-0! shadow-none!"
+        />
+      </DatePopover>
     </div>
   )
 }

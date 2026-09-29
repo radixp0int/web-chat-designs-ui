@@ -12,14 +12,22 @@ export type AlertAction = {
 export type AlertProps = Omit<HTMLAttributes<HTMLDivElement>, 'title'> & {
   tone?: AlertTone
   title: ReactNode
-  /** Adds the stronger tone-coloured leading border. Defaults to `false`. */
+  /** @deprecated No longer drawn: the tone lives in the icon tile and the action. */
   bordered?: boolean
+  /**
+   * `stack` (default) puts the actions under the copy. `inline` keeps title,
+   * copy and actions on one line — a page-level banner — and wraps when it
+   * runs out of room.
+   */
+  layout?: 'stack' | 'inline'
   /** Supporting copy beneath the title. */
   children?: ReactNode
   /** Highlighted facts or problems rendered as a semantic list. */
   items?: readonly ReactNode[]
-  /** A compact, brand-styled action that remains visually secondary to the message. */
+  /** The one thing to do next, as a button in the tone's own colour: Retry in red, Review in amber. */
   action?: AlertAction
+  /** A second, quieter way out, drawn as a tone-coloured text link: "Publish anyway". */
+  secondaryAction?: AlertAction
   /** Present to add a dismiss button. */
   onDismiss?: MouseEventHandler<HTMLButtonElement>
   dismissLabel?: string

@@ -1,4 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["src"]
+  "include": ["src"],
+  // Stories are typechecked by apps/storybook, which has Storybook's types.
+  "exclude": ["src/**/*.stories.tsx"]
 }

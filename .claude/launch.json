@@ -9,6 +9,13 @@
       "autoPort": true
     },
     {
+      "name": "storybook",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start", "-w", "@chat/storybook", "--", "--no-open"],
+      "port": 6006,
+      "autoPort": true
+    },
+    {
       "name": "widget-preview",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "preview:widget", "-w", "apps/chat"],

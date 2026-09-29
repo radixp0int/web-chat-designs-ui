@@ -3,5 +3,7 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo"
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Stories are typechecked by apps/storybook, which has Storybook's types.
+  "exclude": ["src/**/*.stories.tsx"]
 }
