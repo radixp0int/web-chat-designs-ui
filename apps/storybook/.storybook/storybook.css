@@ -8,8 +8,9 @@
 
 /* The packages declare their own @source lines. App-level recipes do not —
    apps/chat relies on Vite's root being its own folder — so their classes are
-   named here, or the workflow stories would render unstyled. */
-@source "../../chat/src/demo/workflow-demo";
+   named here, including demo pages and workflow recipes, so responsive
+   utilities used only by app-level stories are generated too. */
+@source "../../chat/src/demo";
 
 /* The docs pages render stories inline on Storybook's own surface; give the
    specimens the brand canvas so light and dark read the same as in a story. */
