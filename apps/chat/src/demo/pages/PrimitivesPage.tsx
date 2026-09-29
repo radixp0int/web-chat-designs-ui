@@ -130,6 +130,7 @@ export function PrimitivesPage() {
     json: codeSamples.json.text,
     yaml: codeSamples.yaml.text,
     csv: codeSamples.csv.text,
+    html: codeSamples.html.text,
     text: codeSamples.text.text,
   }))
   const doc = docs[lang]
@@ -1232,7 +1233,7 @@ export function PrimitivesPage() {
 
         <Section
           title="CodeEditor"
-          note="A transparent <textarea> over a highlighted copy of the same text — typing, selection, undo and screen readers are the browser's. JSON, YAML and CSV have syntax colour and validation; JSON and CSV can be formatted. Escape then Tab leaves the field."
+          note="A transparent <textarea> over a highlighted copy of the same text — typing, selection, undo and screen readers are the browser's. JSON, YAML, CSV and HTML have syntax colour and lightweight validation; JSON, CSV and HTML can be formatted. Escape then Tab leaves the field."
         >
           <CodeEditor
             label="Code"
@@ -1259,10 +1260,11 @@ export function PrimitivesPage() {
                     { value: 'json', label: 'JSON' },
                     { value: 'yaml', label: 'YAML' },
                     { value: 'csv', label: 'CSV' },
+                    { value: 'html', label: 'HTML' },
                     { value: 'text', label: 'Plain text' },
                   ]}
                 />
-                {(lang === 'json' || lang === 'csv') && (
+                {(lang === 'json' || lang === 'csv' || lang === 'html') && (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -1284,7 +1286,7 @@ export function PrimitivesPage() {
             language="json"
             value={codeSamples.json.text.split('\n').slice(0, 7).join('\n')}
             validate={false}
-            statusBar={false}
+            options={{ statusBar: false }}
           />
           <span className="pt-2 text-[11px] font-extrabold tracking-[0.07em] text-ink-soft uppercase">
             Controlled wizard gate
@@ -1349,7 +1351,7 @@ export function PrimitivesPage() {
 
         <Section
           title="DiffViewer"
-          note="Myers' diff by line, then again by word inside each changed pair, so the edit itself gets the stronger wash. For JSON and CSV, Format view normalizes only the read-only comparison while Format editable updates the controlled source values. The CSV specimen deliberately mixes equivalent quoting styles so formatting removes that noise and leaves the real value changes."
+          note="Myers' diff by line, then again by word inside each changed pair, so the edit itself gets the stronger wash. For JSON, CSV and HTML, Format view normalizes only the read-only comparison while Format editable updates the controlled source values. The CSV specimen deliberately mixes equivalent quoting styles so formatting removes that noise and leaves the real value changes."
         >
           <Row label="Editable">
             <Select

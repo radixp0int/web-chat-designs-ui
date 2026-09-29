@@ -1,17 +1,21 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import type { KeyboardEvent } from 'react'
 import {
   ChevronDownIcon,
   ChevronUpIcon,
   ExpandVerticalIcon,
   FormatIcon,
+  SearchIcon,
 } from '../../components/icons'
 import { CopyButton } from '../../components/copy-button'
 import { IconButton } from '../../components/icon-button'
 import { AdaptiveButton } from '../button'
+import { EditorOptionsMenu } from '../editor-options'
+import { FindReplaceBar } from '../find-replace'
+import { findTextMatches, replaceAllText } from '../find-replace-model'
 import { formatCode, lintCode, tokenizeLine } from '../code-editor/languages'
 import type { CodeLanguage } from '../code-editor'
 import { Pill } from '../pill'
-import { Switch } from '../switch'
 import { alignChange, changedRanges, diffBlocks } from './diff'
 import type { Range } from './diff'
 import { EditPane } from './edit-pane'
@@ -55,15 +59,37 @@ function segments(language: CodeLanguage, text: string, ranges: Range[]): Segmen
 
 const EMPTY: Side = { kind: 'empty', num: null, segments: [] }
 
-function Code({ side }: { side: Side }) {
+function Code({
+  side,
+  wordWrap,
+  search,
+}: {
+  side: Side
+  wordWrap: boolean
+  search?: { query: string; activeStart?: number }
+}) {
   return (
-    <span className="min-w-0 grow pr-3 whitespace-pre-wrap [overflow-wrap:anywhere]">
-      <Tokens side={side} />
+    <span
+      className={`min-w-0 grow pr-3 ${wordWrap ? 'whitespace-pre-wrap [overflow-wrap:anywhere]' : 'whitespace-pre'}`}
+    >
+      <Tokens side={side} search={search} />
     </span>
   )
 }
 
-function SplitSide({ side, divider }: { side: Side; divider?: boolean }) {
+function SplitSide({
+  side,
+  divider,
+  wordWrap,
+  lineNumbers,
+  search,
+}: {
+  side: Side
+  divider?: boolean
+  wordWrap: boolean
+  lineNumbers: boolean
+  search?: { query: string; activeStart?: number }
+}) {
   return (
     <div
       className={[
@@ -75,9 +101,9 @@ function SplitSide({ side, divider }: { side: Side; divider?: boolean }) {
         .join(' ')}
       style={side.kind === 'empty' ? HATCH : undefined}
     >
-      <Gutter num={side.num} kind={side.kind} />
+      {lineNumbers && <Gutter num={side.num} kind={side.kind} />}
       <Sign kind={side.kind} />
-      <Code side={side} />
+      <Code side={side} wordWrap={wordWrap} search={search} />
     </div>
   )
 }
@@ -118,6 +144,7 @@ export function DiffViewer({
   defaultView = 'split',
   onViewChange,
   defaultHideUnchanged = true,
+  options,
   context = 3,
   hideControls = false,
   editable = 'none',
@@ -130,6 +157,31 @@ export function DiffViewer({
 }: DiffViewerProps) {
   const [initialLanguage] = useState(defaultLanguage)
   const language = languageProp ?? initialLanguage
+  const [wordWrap, setWordWrap] = useState(options?.wordWrap !== 'off')
+  const [showLineNumbers, setShowLineNumbers] = useState(options?.lineNumbers !== 'off')
+  const [showStatusBar, setShowStatusBar] = useState(
+    options?.statusBar !== false && options?.statusBar !== 'off',
+  )
+  const findInputRef = useRef<HTMLInputElement>(null)
+  const replacementInputRef = useRef<HTMLInputElement>(null)
+  const findReturnRef = useRef<HTMLElement | null>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const [findOpen, setFindOpen] = useState(false)
+  const [replaceOpen, setReplaceOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const [replacement, setReplacement] = useState('')
+  const [currentMatch, setCurrentMatch] = useState(0)
+  useEffect(() => {
+    if (options?.wordWrap !== undefined) setWordWrap(options.wordWrap === 'on')
+  }, [options?.wordWrap])
+  useEffect(() => {
+    if (options?.lineNumbers !== undefined) setShowLineNumbers(options.lineNumbers === 'on')
+  }, [options?.lineNumbers])
+  useEffect(() => {
+    if (options?.statusBar !== undefined) {
+      setShowStatusBar(options.statusBar === true || options.statusBar === 'on')
+    }
+  }, [options?.statusBar])
   const [viewState, setViewState] = useState<DiffView>(defaultView)
   const view = viewProp ?? viewState
   const setView = (v: DiffView) => {
@@ -140,7 +192,7 @@ export function DiffViewer({
   const canEditOriginal = (editable === 'original' || editable === 'both') && !!onOriginalChange
   const canEditModified = (editable === 'modified' || editable === 'both') && !!onModifiedChange
   const editing = canEditOriginal || canEditModified
-  const formatEligible = language === 'json' || language === 'csv'
+  const formatEligible = language === 'json' || language === 'csv' || language === 'html'
   const formattedOriginal = useMemo(
     () => (formatEligible ? formatCode(language, original, tabSize) : original),
     [formatEligible, language, original, tabSize],
@@ -157,6 +209,35 @@ export function DiffViewer({
   const showingFormattedView = bothSidesValid && !editing && formattedView
   const visibleOriginal = showingFormattedView ? formattedOriginal : original
   const visibleModified = showingFormattedView ? formattedModified : modified
+  const originalSearchMatches = useMemo(
+    () => findTextMatches(visibleOriginal, query),
+    [visibleOriginal, query],
+  )
+  const modifiedSearchMatches = useMemo(
+    () => findTextMatches(visibleModified, query),
+    [visibleModified, query],
+  )
+  const searchMatches = useMemo(
+    () => [
+      ...originalSearchMatches.map((match) => ({
+        ...match,
+        side: 'original' as const,
+      })),
+      ...modifiedSearchMatches.map((match) => ({
+        ...match,
+        side: 'modified' as const,
+      })),
+    ],
+    [originalSearchMatches, modifiedSearchMatches],
+  )
+  const activeSearch = searchMatches[Math.min(currentMatch, Math.max(0, searchMatches.length - 1))]
+
+  useEffect(() => {
+    setCurrentMatch((current) => Math.min(current, Math.max(0, searchMatches.length - 1)))
+  }, [searchMatches.length])
+  useEffect(() => {
+    if (findOpen) (replaceOpen ? replacementInputRef : findInputRef).current?.focus()
+  }, [findOpen, replaceOpen])
 
   const formatEditable = () => {
     if (canEditOriginal && originalCanFormat) onOriginalChange?.(formattedOriginal)
@@ -168,7 +249,7 @@ export function DiffViewer({
   const unifiedEdits = canEditModified ? 'modified' : 'original'
 
   const [hide, setHide] = useState(defaultHideUnchanged)
-  const folding = hide && !editing
+  const folding = hide && !editing && !query
   const [expanded, setExpanded] = useState<ReadonlySet<number>>(() => new Set())
   const [currentRaw, setCurrent] = useState(0)
 
@@ -256,6 +337,45 @@ export function DiffViewer({
   }, [blocks, a, b, language, view, folding, expanded, context])
   // Clamped, so a shorter diff arriving in new props never points past its end.
   const current = Math.min(currentRaw, Math.max(0, changes - 1))
+  const stepFind = (delta: number) => {
+    if (!searchMatches.length) return
+    setCurrentMatch(
+      (current) =>
+        (Math.min(current, searchMatches.length - 1) + delta + searchMatches.length) %
+        searchMatches.length,
+    )
+  }
+  const canReplaceSearch =
+    !!activeSearch && (activeSearch.side === 'original' ? canEditOriginal : canEditModified)
+  const canReplaceAny =
+    (canEditOriginal && !!originalSearchMatches.length) ||
+    (canEditModified && !!modifiedSearchMatches.length)
+  const replaceCurrent = () => {
+    if (!activeSearch || !canReplaceSearch) return
+    const source = activeSearch.side === 'original' ? original : modified
+    const next = source.slice(0, activeSearch.start) + replacement + source.slice(activeSearch.end)
+    if (activeSearch.side === 'original') onOriginalChange?.(next)
+    else onModifiedChange?.(next)
+    if (replacement.toLocaleLowerCase() === query.toLocaleLowerCase()) stepFind(1)
+  }
+  const replaceAll = () => {
+    if (canEditOriginal && originalSearchMatches.length) {
+      onOriginalChange?.(replaceAllText(original, originalSearchMatches, replacement))
+    }
+    if (canEditModified && modifiedSearchMatches.length) {
+      onModifiedChange?.(replaceAllText(modified, modifiedSearchMatches, replacement))
+    }
+  }
+  const openFind = (replace = false) => {
+    if (disabled || hideControls) return
+    if (!findOpen) findReturnRef.current = document.activeElement as HTMLElement | null
+    setFindOpen(true)
+    if (replace && editing) setReplaceOpen(true)
+  }
+  const closeFind = () => {
+    setFindOpen(false)
+    requestAnimationFrame(() => findReturnRef.current?.focus())
+  }
 
   // Edit mode draws the same rows as columns, one per pane. No folds reach
   // here — folding is off while editing.
@@ -352,12 +472,39 @@ export function DiffViewer({
     sc.scrollTo({ top: Math.max(0, el.offsetTop - 64), behavior: reduce ? 'auto' : 'smooth' })
   }, [current])
 
+  useEffect(() => {
+    if (!activeSearch) return
+    rootRef.current
+      ?.querySelector<HTMLElement>('[data-current-search="true"]')
+      ?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+  }, [activeSearch, rows])
+
   const markClass = (change: number | null) =>
     change !== null && change === current ? 'shadow-[inset_3px_0_0_var(--brand-fg)]' : ''
 
+  const searchFor = (side: 'original' | 'modified', line: number | null) => ({
+    query,
+    activeStart:
+      activeSearch?.side === side && activeSearch.line === line ? activeSearch.column : undefined,
+  })
+  const onShortcut = (event: KeyboardEvent<HTMLDivElement>) => {
+    const mod = event.metaKey || event.ctrlKey
+    const key = event.key.toLowerCase()
+    if (mod && !event.altKey && (key === 'f' || key === 'h')) {
+      event.preventDefault()
+      openFind(key === 'h')
+    } else if (event.key === 'Escape' && findOpen) {
+      event.preventDefault()
+      event.stopPropagation()
+      closeFind()
+    }
+  }
+
   return (
     <div
+      ref={rootRef}
       aria-disabled={disabled || undefined}
+      onKeyDownCapture={onShortcut}
       className={[
         'flex min-h-0 flex-col overflow-hidden rounded-surface border border-line bg-panel-solid transition',
         'has-[textarea:focus-visible]:border-accent has-[textarea:focus-visible]:ring-3 has-[textarea:focus-visible]:ring-accent/20',
@@ -405,17 +552,6 @@ export function DiffViewer({
                 <ChevronDownIcon width={16} height={16} />
               </IconButton>
             </div>
-            {!editing && (
-              <Switch
-                label="Hide unchanged"
-                checked={hide}
-                disabled={disabled}
-                onChange={(on) => {
-                  setHide(on)
-                  setExpanded(new Set())
-                }}
-              />
-            )}
             {formatEligible &&
               (editing ? (
                 <AdaptiveButton
@@ -474,18 +610,111 @@ export function DiffViewer({
                 </button>
               ))}
             </div>
+            <IconButton
+              size="sm"
+              shape="rounded"
+              aria-label="Find in diff"
+              title="Find"
+              disabled={disabled}
+              onClick={() => openFind()}
+            >
+              <SearchIcon width={15} height={15} />
+            </IconButton>
+            <EditorOptionsMenu
+              disabled={disabled}
+              options={[
+                {
+                  label: 'Word wrap',
+                  checked: wordWrap && !editing,
+                  disabled: editing,
+                  onChange: setWordWrap,
+                },
+                {
+                  label: 'Line numbers',
+                  checked: showLineNumbers,
+                  onChange: setShowLineNumbers,
+                },
+                { label: 'Status bar', checked: showStatusBar, onChange: setShowStatusBar },
+                {
+                  label: 'Hide unchanged',
+                  checked: hide,
+                  disabled: editing,
+                  onChange: (on) => {
+                    setHide(on)
+                    setExpanded(new Set())
+                  },
+                },
+              ]}
+            />
           </div>
         )}
       </div>
 
-      <div className="grid min-h-8 shrink-0 border-b border-line bg-code-block text-[12px]">
-        {view === 'split' ? (
-          <div className="grid grid-cols-2 pr-3.5">
-            <div className="flex min-w-0 items-center gap-2 border-r border-line pl-4">
-              <span className="font-bold text-ink-strong">{originalLabel}</span>
-              <span className="text-ink-soft">{a.length} lines</span>
-              <span className="ml-auto flex shrink-0 items-center gap-1 pr-1">
-                {editing && <Access editable={canEditOriginal} />}
+      {findOpen && (
+        <FindReplaceBar
+          query={query}
+          replacement={replacement}
+          replaceOpen={replaceOpen}
+          replaceAvailable={editing}
+          current={Math.min(currentMatch, Math.max(0, searchMatches.length - 1))}
+          total={searchMatches.length}
+          canReplaceCurrent={canReplaceSearch}
+          canReplaceAll={canReplaceAny}
+          inputRef={findInputRef}
+          replacementInputRef={replacementInputRef}
+          onQueryChange={(next) => {
+            setQuery(next)
+            setCurrentMatch(0)
+          }}
+          onReplacementChange={setReplacement}
+          onToggleReplace={() => setReplaceOpen((open) => !open)}
+          onPrevious={() => stepFind(-1)}
+          onNext={() => stepFind(1)}
+          onReplace={replaceCurrent}
+          onReplaceAll={replaceAll}
+          onClose={closeFind}
+        />
+      )}
+
+      {showStatusBar && (
+        <div className="grid min-h-8 shrink-0 border-b border-line bg-code-block text-[12px]">
+          {view === 'split' ? (
+            <div className="grid grid-cols-2 pr-3.5">
+              <div className="flex min-w-0 items-center gap-2 border-r border-line pl-4">
+                <span className="font-bold text-ink-strong">{originalLabel}</span>
+                <span className="text-ink-soft">{a.length} lines</span>
+                <span className="ml-auto flex shrink-0 items-center gap-1 pr-1">
+                  {editing && <Access editable={canEditOriginal} />}
+                  {onCopyOriginal && (
+                    <CopySide
+                      text={original}
+                      label={originalLabel}
+                      onCopy={onCopyOriginal}
+                      disabled={disabled}
+                    />
+                  )}
+                </span>
+              </div>
+              <div className="flex min-w-0 items-center gap-2 pl-4">
+                <span className="font-bold text-ink-strong">{modifiedLabel}</span>
+                <span className="text-ink-soft">{b.length} lines</span>
+                <span className="ml-auto flex shrink-0 items-center gap-1 pr-1">
+                  {editing && <Access editable={canEditModified} />}
+                  {onCopyModified && (
+                    <CopySide
+                      text={modified}
+                      label={modifiedLabel}
+                      onCopy={onCopyModified}
+                      disabled={disabled}
+                    />
+                  )}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center gap-x-4 pl-4">
+              <span className="flex items-center gap-1 font-bold text-danger-fg">
+                − {originalLabel} · {a.length} lines
                 {onCopyOriginal && (
                   <CopySide
                     text={original}
@@ -495,12 +724,8 @@ export function DiffViewer({
                   />
                 )}
               </span>
-            </div>
-            <div className="flex min-w-0 items-center gap-2 pl-4">
-              <span className="font-bold text-ink-strong">{modifiedLabel}</span>
-              <span className="text-ink-soft">{b.length} lines</span>
-              <span className="ml-auto flex shrink-0 items-center gap-1 pr-1">
-                {editing && <Access editable={canEditModified} />}
+              <span className="flex items-center gap-1 font-bold text-accent-fg">
+                + {modifiedLabel} · {b.length} lines
                 {onCopyModified && (
                   <CopySide
                     text={modified}
@@ -510,40 +735,15 @@ export function DiffViewer({
                   />
                 )}
               </span>
+              {editing && (
+                <span className="ml-auto pr-5 text-ink-soft">
+                  Editing {unifiedEdits === 'modified' ? modifiedLabel : originalLabel}
+                </span>
+              )}
             </div>
-          </div>
-        ) : (
-          <div className="flex flex-wrap items-center gap-x-4 pl-4">
-            <span className="flex items-center gap-1 font-bold text-danger-fg">
-              − {originalLabel} · {a.length} lines
-              {onCopyOriginal && (
-                <CopySide
-                  text={original}
-                  label={originalLabel}
-                  onCopy={onCopyOriginal}
-                  disabled={disabled}
-                />
-              )}
-            </span>
-            <span className="flex items-center gap-1 font-bold text-accent-fg">
-              + {modifiedLabel} · {b.length} lines
-              {onCopyModified && (
-                <CopySide
-                  text={modified}
-                  label={modifiedLabel}
-                  onCopy={onCopyModified}
-                  disabled={disabled}
-                />
-              )}
-            </span>
-            {editing && (
-              <span className="ml-auto pr-5 text-ink-soft">
-                Editing {unifiedEdits === 'modified' ? modifiedLabel : originalLabel}
-              </span>
-            )}
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       <div className="flex min-h-0 grow">
         {panes ? (
@@ -559,6 +759,12 @@ export function DiffViewer({
                 tabSize={tabSize}
                 label={originalLabel}
                 current={current}
+                lineNumbers={showLineNumbers}
+                search={{
+                  query,
+                  side: 'original',
+                  active: activeSearch,
+                }}
                 scrollRef={leftPane}
                 onScroll={follow(leftPane, scroller)}
                 className="border-r border-line"
@@ -580,6 +786,12 @@ export function DiffViewer({
                 view === 'split' || unifiedEdits === 'modified' ? modifiedLabel : originalLabel
               }
               current={current}
+              lineNumbers={showLineNumbers}
+              search={{
+                query,
+                side: view === 'split' ? 'modified' : 'unified',
+                active: activeSearch,
+              }}
               scrollRef={scroller}
               contentRef={content}
               onScroll={follow(scroller, leftPane)}
@@ -588,7 +800,7 @@ export function DiffViewer({
         ) : (
           <div
             ref={scroller}
-            className="relative min-w-0 grow overflow-y-auto font-mono text-[13px] leading-5 [font-variant-ligatures:none]"
+            className={`relative min-w-0 grow font-mono text-[13px] leading-5 [font-variant-ligatures:none] ${wordWrap ? 'overflow-y-auto' : 'overflow-auto'}`}
           >
             <div ref={content}>
               {rows.map((row, i) => {
@@ -613,8 +825,19 @@ export function DiffViewer({
                       data-change={row.change ?? undefined}
                       className={`grid grid-cols-2 ${markClass(row.change)}`}
                     >
-                      <SplitSide side={row.left} divider />
-                      <SplitSide side={row.right} />
+                      <SplitSide
+                        side={row.left}
+                        divider
+                        wordWrap={wordWrap}
+                        lineNumbers={showLineNumbers}
+                        search={searchFor('original', row.left.num)}
+                      />
+                      <SplitSide
+                        side={row.right}
+                        wordWrap={wordWrap}
+                        lineNumbers={showLineNumbers}
+                        search={searchFor('modified', row.right.num)}
+                      />
                     </div>
                   )
                 }
@@ -624,10 +847,26 @@ export function DiffViewer({
                     data-change={row.change ?? undefined}
                     className={`flex min-h-5 ${tone[row.side.kind].row} ${markClass(row.change)}`}
                   >
-                    <Gutter num={row.a} kind={row.side.kind} width="w-12" />
-                    <Gutter num={row.b} kind={row.side.kind} width="w-12" />
+                    {showLineNumbers && (
+                      <>
+                        <Gutter num={row.a} kind={row.side.kind} width="w-12" />
+                        <Gutter num={row.b} kind={row.side.kind} width="w-12" />
+                      </>
+                    )}
                     <Sign kind={row.side.kind} />
-                    <Code side={row.side} />
+                    <Code
+                      side={row.side}
+                      wordWrap={wordWrap}
+                      search={{
+                        query,
+                        activeStart:
+                          activeSearch &&
+                          ((activeSearch.side === 'original' && activeSearch.line === row.a) ||
+                            (activeSearch.side === 'modified' && activeSearch.line === row.b))
+                            ? activeSearch.column
+                            : undefined,
+                      }}
+                    />
                   </div>
                 )
               })}
