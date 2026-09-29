@@ -1,0 +1,22 @@
+[
+  {
+    "width": 768,
+    "canvasWidth": 734,
+    "passed": true
+  },
+  {
+    "width": 820,
+    "canvasWidth": 786,
+    "passed": true
+  },
+  {
+    "width": 1024,
+    "canvasWidth": 990,
+    "passed": true
+  },
+  {
+    "width": 1440,
+    "canvasWidth": 702,
+    "passed": true
+  }
+]

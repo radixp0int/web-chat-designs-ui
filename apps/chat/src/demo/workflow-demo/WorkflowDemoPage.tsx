@@ -10,10 +10,10 @@
 // /workflow-live. That is the same shape `Responder` gives the chat demo. What
 // is left here is composition and selection — the canvas, the top bar and each
 // panel live in their own files.
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { Link } from 'react-router'
 import { ReactFlowProvider } from '@xyflow/react'
-import { AmbientGlow } from '@chat/ui'
+import { AmbientGlow, Modal } from '@chat/ui'
 import { EDGE_TOKENS, WorkflowCanvas } from './WorkflowCanvas'
 import { WorkflowSkeleton } from './WorkflowSkeleton'
 import { CollapsiblePanel } from './panels/CollapsiblePanel'
@@ -27,7 +27,19 @@ import { useRun, type Decision, type RunSource } from './run'
 import type { StepSeed, View } from './canvas'
 import type { RunDetail } from './run/wireProtocol'
 
+// Tablet layouts give the canvas its own width. Side panels become modal
+// surfaces so opening details never squeezes the canvas into a few pixels.
+const tabletQuery = '(max-width: 1279px)'
+const subscribeTablet = (notify: () => void) => {
+  const query = window.matchMedia(tabletQuery)
+  query.addEventListener('change', notify)
+  return () => query.removeEventListener('change', notify)
+}
+const isTablet = () => window.matchMedia(tabletQuery).matches
+
 export function WorkflowDemoPage({ source }: { source: RunSource }) {
+  const tablet = useSyncExternalStore(subscribeTablet, isTablet, () => false)
+  const [tabletPanel, setTabletPanel] = useState<'run' | 'details' | null>(null)
   const run = useRun(source)
   const { graph, statuses, phase, awaiting, decisionsFor, busyStepId } = run
 
@@ -69,7 +81,10 @@ export function WorkflowDemoPage({ source }: { source: RunSource }) {
       setPanelShows('step')
       setUserPicked(id !== null)
       setExpanded(false)
-      if (id) setDetailsOpen(true)
+      if (id) {
+        setDetailsOpen(true)
+        setTabletPanel('details')
+      }
     },
     [stageOf],
   )
@@ -98,6 +113,7 @@ export function WorkflowDemoPage({ source }: { source: RunSource }) {
       const next = selectedStageId === id ? null : id
       setSelectedStageId(next)
       setPanelShows(next ? 'stage' : 'step')
+      setTabletPanel('details')
       setUserPicked(true)
       setStageFocusSeq((n) => n + 1)
       setExpanded(false)
@@ -198,26 +214,76 @@ export function WorkflowDemoPage({ source }: { source: RunSource }) {
     return run.error ? <RunUnavailable message={run.error.message} /> : <WorkflowSkeleton />
   }
 
+  const sidebar = (
+    <RunSidebar
+      header={graph.header}
+      actor={graph.actor}
+      stages={graph.stages}
+      needs={needs}
+      selectedStageId={selectedStageId}
+      onSelectStage={selectStage}
+      variants={run.variants}
+      variantId={graph.variantId}
+      onVariant={run.start}
+      onOpenStep={openStepFromSidebar}
+      selectedStepId={selectedId}
+      onCollapse={() => {
+        setRunPanelOpen(false)
+        setTabletPanel(null)
+      }}
+    />
+  )
+  const inspector = selectedStage ? (
+    <StageInspector
+      stage={selectedStage}
+      steps={stageSteps}
+      statuses={statuses}
+      selectedStepId={selectedId}
+      onSelectStep={selectStep}
+      onClose={() => {
+        setDetailsOpen(false)
+        setTabletPanel(null)
+      }}
+    />
+  ) : (
+    <StepInspector
+      step={selectedStep}
+      status={selectedId ? statuses[selectedId] : undefined}
+      decisions={(selectedId && decisionsFor[selectedId]) || []}
+      busy={busyStepId === selectedId}
+      onClose={() => {
+        setDetailsOpen(false)
+        setTabletPanel(null)
+      }}
+      onExpand={() => {
+        setExpanded(true)
+        setTabletPanel(null)
+      }}
+      onDecide={onDecide}
+    />
+  )
+
   return (
     <div className="relative flex h-dvh gap-4 overflow-hidden bg-canvas p-4">
       <AmbientGlow />
 
-      <CollapsiblePanel open={runPanelOpen} width="w-72" gutter="-mr-4">
-        <RunSidebar
-          header={graph.header}
-          actor={graph.actor}
-          stages={graph.stages}
-          needs={needs}
-          selectedStageId={selectedStageId}
-          onSelectStage={selectStage}
-          variants={run.variants}
-          variantId={graph.variantId}
-          onVariant={run.start}
-          onOpenStep={openStepFromSidebar}
-          selectedStepId={selectedId}
-          onCollapse={() => setRunPanelOpen(false)}
-        />
-      </CollapsiblePanel>
+      {!tablet && (
+        <CollapsiblePanel open={runPanelOpen} width="w-72" gutter="-mr-4">
+          {sidebar}
+        </CollapsiblePanel>
+      )}
+      {tablet && (
+        <Modal
+          open={tabletPanel !== null}
+          onOpenChange={(open) => {
+            if (!open) setTabletPanel(null)
+          }}
+          title={tabletPanel === 'run' ? 'Run outline' : 'Step details'}
+          size="md"
+        >
+          <div className="h-[min(70dvh,42rem)]">{tabletPanel === 'run' ? sidebar : inspector}</div>
+        </Modal>
+      )}
 
       <main className="glass relative flex min-w-0 flex-1 overflow-hidden rounded-surface">
         {/* @container: the top bar has to respond to THIS column's width, not the
@@ -231,10 +297,16 @@ export function WorkflowDemoPage({ source }: { source: RunSource }) {
             waitingCount={awaiting.length}
             phase={phase}
             onControl={run.control}
-            runPanelOpen={runPanelOpen}
-            onShowRunPanel={() => setRunPanelOpen(true)}
-            detailsOpen={detailsOpen}
-            onToggleDetails={() => setDetailsOpen((o) => !o)}
+            runPanelOpen={!tablet && runPanelOpen}
+            onShowRunPanel={() => {
+              if (tablet) setTabletPanel('run')
+              else setRunPanelOpen(true)
+            }}
+            detailsOpen={tablet ? tabletPanel === 'details' : detailsOpen}
+            onToggleDetails={() => {
+              if (tablet) setTabletPanel((panel) => (panel === 'details' ? null : 'details'))
+              else setDetailsOpen((o) => !o)
+            }}
             logOpen={logOpen}
             onToggleLog={() => setLogOpen((o) => !o)}
           />
@@ -280,28 +352,11 @@ export function WorkflowDemoPage({ source }: { source: RunSource }) {
           />
         )}
 
-        <CollapsiblePanel open={detailsOpen} width="w-[400px]">
-          {selectedStage ? (
-            <StageInspector
-              stage={selectedStage}
-              steps={stageSteps}
-              statuses={statuses}
-              selectedStepId={selectedId}
-              onSelectStep={selectStep}
-              onClose={() => setDetailsOpen(false)}
-            />
-          ) : (
-            <StepInspector
-              step={selectedStep}
-              status={selectedId ? statuses[selectedId] : undefined}
-              decisions={(selectedId && decisionsFor[selectedId]) || []}
-              busy={busyStepId === selectedId}
-              onClose={() => setDetailsOpen(false)}
-              onExpand={() => setExpanded(true)}
-              onDecide={onDecide}
-            />
-          )}
-        </CollapsiblePanel>
+        {!tablet && (
+          <CollapsiblePanel open={detailsOpen} width="w-[400px]">
+            {inspector}
+          </CollapsiblePanel>
+        )}
       </main>
     </div>
   )

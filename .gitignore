@@ -24,3 +24,6 @@ storybook-static
 *.njsproj
 *.sln
 *.sw?
+
+# Generated responsive audit runs; curated evidence lives in docs/responsive.
+/reports/responsive/
