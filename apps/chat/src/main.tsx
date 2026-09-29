@@ -6,7 +6,6 @@ import { LandingPage } from './demo/pages/LandingPage.tsx'
 import {
   ChatPage,
   DataTablePage,
-  PrimitivesPage,
   RoutePending,
   WidgetDemoPage,
   WorkflowLiveRoute,
@@ -34,7 +33,6 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/widget-demo" element={<WidgetDemoPage />} />
           <Route path="/workflow-demo" element={<WorkflowRoute />} />
           <Route path="/workflow-live" element={<WorkflowLiveRoute />} />
-          <Route path="/primitives" element={<PrimitivesPage />} />
           <Route path="/data-table" element={<DataTablePage />} />
         </Route>
       </Routes>

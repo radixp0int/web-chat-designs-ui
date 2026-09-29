@@ -20,13 +20,6 @@ export const WorkflowLiveRoute = lazy(() =>
   })),
 )
 
-// Unlisted workbench for @chat/ui's core primitives. Deliberately absent from
-// the landing page — reachable only by typing /primitives.
-export const PrimitivesPage = lazy(() =>
-  import('./pages/PrimitivesPage.tsx').then((module) => ({
-    default: module.PrimitivesPage,
-  })),
-)
 export const DataTablePage = lazy(() =>
   import('./pages/DataTablePage.tsx').then((module) => ({
     default: module.DataTablePage,

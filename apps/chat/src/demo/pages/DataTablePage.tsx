@@ -1,6 +1,6 @@
-// Unlisted, like /primitives. The H/I shell from the design canvas assembled
-// around <DataTable/>: omnibox on top, collapsible facet rail beside it,
-// pagination in the card's footer.
+// Unlisted: reachable only by typing /data-table. The H/I shell from the
+// design canvas assembled around <DataTable/>: omnibox on top, collapsible
+// facet rail beside it, pagination in the card's footer.
 //
 // Everything stateful lives HERE, in the host — the query, the facets, the
 // sort, the page, the selection, the expansion. That is the point of the
