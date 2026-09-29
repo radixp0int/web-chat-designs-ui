@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import type { CodeLanguage } from '../code-editor'
+import type { EditorOptions } from '../editor-options'
 
 export type DiffView = 'split' | 'unified'
 
@@ -25,6 +26,8 @@ export type DiffViewerProps = {
   onViewChange?: (view: DiffView) => void
   /** Collapse long unchanged runs to a "Show N unchanged lines" row. */
   defaultHideUnchanged?: boolean
+  /** Monaco-style display options. Each setting can also be changed from the built-in menu. */
+  options?: EditorOptions
   /** Unchanged lines kept visible either side of a change when collapsing. */
   context?: number
   /**

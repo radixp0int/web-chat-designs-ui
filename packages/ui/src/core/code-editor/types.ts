@@ -1,6 +1,7 @@
 import type { ReactNode, Ref } from 'react'
+import type { EditorOptions } from '../editor-options'
 
-export type CodeLanguage = 'json' | 'yaml' | 'csv' | 'text'
+export type CodeLanguage = 'json' | 'yaml' | 'csv' | 'html' | 'text'
 
 export type CodeTokenKind =
   | 'key'
@@ -61,7 +62,11 @@ export type CodeEditorProps = {
   title?: ReactNode
   /** Header content on the right — Format, Copy. */
   actions?: ReactNode
+  /** Monaco-style display options. Each setting can also be changed from the built-in menu. */
+  options?: EditorOptions
+  /** @deprecated Prefer `options.lineNumbers`. */
   lineNumbers?: boolean
+  /** @deprecated Prefer `options.statusBar`. */
   statusBar?: boolean
   /** On the outer box. Give it a height; the code scrolls inside it. */
   className?: string

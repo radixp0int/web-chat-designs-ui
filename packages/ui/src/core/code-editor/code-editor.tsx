@@ -1,6 +1,18 @@
-import { useEffect, useId, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import {
+  useEffect,
+  useId,
+  useImperativeHandle,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import type { KeyboardEvent, SyntheticEvent } from 'react'
-import { CheckIcon } from '../../components/icons'
+import { CheckIcon, SearchIcon } from '../../components/icons'
+import { IconButton } from '../../components/icon-button'
+import { EditorOptionsMenu } from '../editor-options'
+import { FindReplaceBar } from '../find-replace'
+import { findTextMatches, replaceAllText, splitSearchParts } from '../find-replace-model'
 import { languageLabels, lintCode, tokenClass, tokenizeLine } from './languages'
 import type { CodeEditorProps } from './types'
 
@@ -10,8 +22,7 @@ import type { CodeEditorProps } from './types'
  * underneath is what you read, so any difference in font, size, line height,
  * padding, tab size or ligatures slides the caret off the glyphs it sits in.
  */
-const metrics =
-  'font-mono text-[13px] leading-5 whitespace-pre [font-variant-ligatures:none] py-3 pr-8 pl-4'
+const metrics = 'font-mono text-[13px] leading-5 [font-variant-ligatures:none] py-3 pr-8 pl-4'
 
 /** Line height in px — `leading-5`. The gutter rows depend on it. */
 const LINE = 20
@@ -33,7 +44,7 @@ function insertText(ta: HTMLTextAreaElement, text: string) {
 }
 
 /**
- * A code editor for JSON, YAML, CSV and plain text — no editor library.
+ * A code editor for JSON, YAML, CSV, HTML and plain text — no editor library.
  *
  * A real `<textarea>` with transparent text lies exactly over a highlighted
  * copy of the same text. Typing, selection, the caret, IME, spellcheck-off,
@@ -63,6 +74,7 @@ export function CodeEditor({
   tabSize = 2,
   title,
   actions,
+  options,
   lineNumbers = true,
   statusBar = true,
   className = '',
@@ -87,6 +99,41 @@ export function CodeEditor({
   const [released, setReleased] = useState(false)
   const [validationAttempt, setValidationAttempt] = useState(0)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const highlightedRef = useRef<HTMLDivElement>(null)
+  const findInputRef = useRef<HTMLInputElement>(null)
+  const replacementInputRef = useRef<HTMLInputElement>(null)
+  const findReturnRef = useRef<HTMLElement | null>(null)
+  const [findOpen, setFindOpen] = useState(false)
+  const [replaceOpen, setReplaceOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const [replacement, setReplacement] = useState('')
+  const [currentMatch, setCurrentMatch] = useState(0)
+  const [wordWrap, setWordWrap] = useState(options?.wordWrap === 'on')
+  const [showLineNumbers, setShowLineNumbers] = useState(
+    options?.lineNumbers === undefined ? lineNumbers : options.lineNumbers === 'on',
+  )
+  const [showStatusBar, setShowStatusBar] = useState(
+    options?.statusBar === undefined
+      ? statusBar
+      : options.statusBar === true || options.statusBar === 'on',
+  )
+  const [lineHeights, setLineHeights] = useState<number[]>([])
+
+  useEffect(() => {
+    if (options?.wordWrap !== undefined) setWordWrap(options.wordWrap === 'on')
+  }, [options?.wordWrap])
+  useEffect(() => {
+    setShowLineNumbers(
+      options?.lineNumbers === undefined ? lineNumbers : options.lineNumbers === 'on',
+    )
+  }, [lineNumbers, options?.lineNumbers])
+  useEffect(() => {
+    setShowStatusBar(
+      options?.statusBar === undefined
+        ? statusBar
+        : options.statusBar === true || options.statusBar === 'on',
+    )
+  }, [statusBar, options?.statusBar])
 
   const diagnostic = useMemo(() => {
     if (validate === false) return null
@@ -119,6 +166,97 @@ export function CodeEditor({
     () => value.split('\n').map((text) => ({ text, tokens: tokenizeLine(language, text) })),
     [value, language],
   )
+  const lineStarts = useMemo(() => {
+    let offset = 0
+    return lines.map((line) => {
+      const start = offset
+      offset += line.text.length + 1
+      return start
+    })
+  }, [lines])
+  const searchMatches = useMemo(() => findTextMatches(value, query), [value, query])
+  const activeMatch = searchMatches[Math.min(currentMatch, Math.max(0, searchMatches.length - 1))]
+
+  useEffect(() => {
+    setCurrentMatch((current) => Math.min(current, Math.max(0, searchMatches.length - 1)))
+  }, [searchMatches.length])
+  useEffect(() => {
+    if (findOpen) (replaceOpen ? replacementInputRef : findInputRef).current?.focus()
+  }, [findOpen, replaceOpen])
+  useEffect(() => {
+    if (!activeMatch) return
+    highlightedRef.current
+      ?.querySelector<HTMLElement>('[data-current-search="true"]')
+      ?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+  }, [activeMatch, wordWrap])
+
+  const updateValue = (next: string) => {
+    if (!controlled) setUncontrolledValue(next)
+    onChange?.(next)
+  }
+  const stepFind = (delta: number) => {
+    if (!searchMatches.length) return
+    setCurrentMatch(
+      (current) =>
+        (Math.min(current, searchMatches.length - 1) + delta + searchMatches.length) %
+        searchMatches.length,
+    )
+  }
+  const replaceCurrent = () => {
+    if (locked || !activeMatch) return
+    updateValue(value.slice(0, activeMatch.start) + replacement + value.slice(activeMatch.end))
+    if (replacement.toLocaleLowerCase() === query.toLocaleLowerCase()) stepFind(1)
+  }
+  const replaceAll = () => {
+    if (!locked && searchMatches.length)
+      updateValue(replaceAllText(value, searchMatches, replacement))
+  }
+  const openFind = (replace = false) => {
+    if (disabled) return
+    if (!findOpen) findReturnRef.current = document.activeElement as HTMLElement | null
+    setFindOpen(true)
+    if (replace && !locked) setReplaceOpen(true)
+  }
+  const closeFind = () => {
+    setFindOpen(false)
+    requestAnimationFrame(() => findReturnRef.current?.focus())
+  }
+  const onShortcut = (event: KeyboardEvent<HTMLDivElement>) => {
+    const mod = event.metaKey || event.ctrlKey
+    const key = event.key.toLowerCase()
+    if (mod && !event.altKey && (key === 'f' || key === 'h')) {
+      event.preventDefault()
+      openFind(key === 'h')
+    } else if (event.key === 'Escape' && findOpen) {
+      event.preventDefault()
+      event.stopPropagation()
+      closeFind()
+    }
+  }
+
+  useLayoutEffect(() => {
+    if (!wordWrap) {
+      setLineHeights([])
+      return
+    }
+    const highlighted = highlightedRef.current
+    if (!highlighted) return
+    const measure = () => {
+      const next = Array.from(highlighted.children, (line) =>
+        Math.max(LINE, (line as HTMLElement).offsetHeight),
+      )
+      setLineHeights((current) =>
+        current.length === next.length && current.every((height, index) => height === next[index])
+          ? current
+          : next,
+      )
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(highlighted)
+    for (const line of highlighted.children) observer.observe(line)
+    return () => observer.disconnect()
+  }, [lines, showLineNumbers, wordWrap])
 
   const trackCaret = (e: SyntheticEvent<HTMLTextAreaElement>) => {
     const ta = e.currentTarget
@@ -188,6 +326,13 @@ export function CodeEditor({
       if (/[{[]\s*$/.test(current)) indent += unit
       else if (language === 'yaml' && /:\s*$/.test(current)) indent += unit
       else if (language === 'yaml' && /^ *- \S/.test(current)) indent += '- '
+      else if (
+        language === 'html' &&
+        /<(?!\/|!|\?)(?!(?:area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)\b)[a-z][^>]*>\s*$/i.test(
+          current,
+        )
+      )
+        indent += unit
       if (!indent) return
       e.preventDefault()
       insertText(ta, `\n${indent}`)
@@ -195,11 +340,10 @@ export function CodeEditor({
   }
 
   const guidesOn = language === 'json' || language === 'yaml'
-  const hasHeader = title != null || actions != null
-
   return (
     <div
       aria-disabled={disabled || undefined}
+      onKeyDownCapture={onShortcut}
       className={[
         'flex min-h-0 flex-col overflow-hidden rounded-surface border bg-panel-solid transition',
         diagnostic
@@ -211,18 +355,64 @@ export function CodeEditor({
         .filter(Boolean)
         .join(' ')}
     >
-      {hasHeader && (
-        <div className="flex min-h-11 shrink-0 items-center gap-2 border-b border-line py-1.5 pr-1.5 pl-4">
-          <div className="flex min-w-0 grow items-center gap-2 text-[13px] font-bold text-ink-strong">
-            {title}
-          </div>
-          {actions && <div className="flex shrink-0 items-center gap-1">{actions}</div>}
+      <div className="flex min-h-11 shrink-0 items-center gap-2 border-b border-line py-1.5 pr-1.5 pl-4">
+        <div className="flex min-w-0 grow items-center gap-2 text-[13px] font-bold text-ink-strong">
+          {title}
         </div>
+        {actions && <div className="flex shrink-0 items-center gap-1">{actions}</div>}
+        <IconButton
+          size="sm"
+          shape="rounded"
+          aria-label="Find in editor"
+          title="Find"
+          disabled={disabled}
+          onClick={() => openFind()}
+        >
+          <SearchIcon width={15} height={15} />
+        </IconButton>
+        <EditorOptionsMenu
+          disabled={disabled}
+          options={[
+            { label: 'Word wrap', checked: wordWrap, onChange: setWordWrap },
+            {
+              label: 'Line numbers',
+              checked: showLineNumbers,
+              onChange: setShowLineNumbers,
+            },
+            { label: 'Status bar', checked: showStatusBar, onChange: setShowStatusBar },
+          ]}
+        />
+      </div>
+
+      {findOpen && (
+        <FindReplaceBar
+          query={query}
+          replacement={replacement}
+          replaceOpen={replaceOpen}
+          replaceAvailable={!locked}
+          current={Math.min(currentMatch, Math.max(0, searchMatches.length - 1))}
+          total={searchMatches.length}
+          canReplaceCurrent={!locked && !!activeMatch}
+          canReplaceAll={!locked && !!searchMatches.length}
+          inputRef={findInputRef}
+          replacementInputRef={replacementInputRef}
+          onQueryChange={(next) => {
+            setQuery(next)
+            setCurrentMatch(0)
+          }}
+          onReplacementChange={setReplacement}
+          onToggleReplace={() => setReplaceOpen((open) => !open)}
+          onPrevious={() => stepFind(-1)}
+          onNext={() => stepFind(1)}
+          onReplace={replaceCurrent}
+          onReplaceAll={replaceAll}
+          onClose={closeFind}
+        />
       )}
 
-      <div className="min-h-0 grow overflow-auto">
-        <div className="flex min-h-full w-max min-w-full">
-          {lineNumbers && (
+      <div className={`min-h-0 grow ${wordWrap ? 'overflow-y-auto' : 'overflow-auto'}`}>
+        <div className={`flex min-h-full min-w-full ${wordWrap ? '' : 'w-max'}`}>
+          {showLineNumbers && (
             <div
               aria-hidden="true"
               className="sticky left-0 z-10 shrink-0 bg-panel-solid py-3 font-mono text-[12px] leading-5 tabular-nums select-none"
@@ -234,7 +424,7 @@ export function CodeEditor({
                 return (
                   <div
                     key={n}
-                    style={{ height: LINE }}
+                    style={{ height: wordWrap ? (lineHeights[i] ?? LINE) : LINE }}
                     className={[
                       'flex items-center justify-end gap-1.5 pr-3 pl-3',
                       isError ? 'text-danger-fg' : isActive ? 'text-ink-strong' : 'text-ink-soft',
@@ -251,7 +441,12 @@ export function CodeEditor({
           )}
 
           <div className="relative min-w-0 grow">
-            <div aria-hidden="true" className={metrics} style={{ tabSize }}>
+            <div
+              ref={highlightedRef}
+              aria-hidden="true"
+              className={`${metrics} ${wordWrap ? 'whitespace-pre-wrap [overflow-wrap:anywhere]' : 'whitespace-pre'}`}
+              style={{ tabSize }}
+            >
               {lines.map((line, i) => {
                 const n = i + 1
                 const isError = diagnostic?.line === n
@@ -281,7 +476,8 @@ export function CodeEditor({
                   <div
                     key={i}
                     style={{
-                      height: LINE,
+                      minHeight: LINE,
+                      height: wordWrap ? undefined : LINE,
                       // Indent guides: one hairline per indent step, spaced in
                       // `ch` so they land on the columns whatever the font.
                       backgroundImage: depth
@@ -293,19 +489,34 @@ export function CodeEditor({
                     }}
                     className={isError ? 'bg-danger/8' : isActive ? 'bg-tint/5' : undefined}
                   >
-                    {line.tokens.map((t, k) => (
-                      <span
-                        key={k}
-                        className={[
-                          tokenClass[t.kind],
-                          k === squiggle
-                            ? 'underline decoration-danger-fg decoration-wavy underline-offset-4'
-                            : '',
-                        ].join(' ')}
-                      >
-                        {t.text}
-                      </span>
-                    ))}
+                    {splitSearchParts(line.tokens, query).map((part, k) => {
+                      const match = part.matchStart !== null
+                      const current =
+                        match && activeMatch?.start === lineStarts[i] + part.matchStart!
+                      const contents = (
+                        <span
+                          className={[
+                            tokenClass[part.source.kind],
+                            line.tokens.indexOf(part.source) === squiggle
+                              ? 'underline decoration-danger-fg decoration-wavy underline-offset-4'
+                              : '',
+                          ].join(' ')}
+                        >
+                          {part.text}
+                        </span>
+                      )
+                      return match ? (
+                        <mark
+                          key={k}
+                          data-current-search={current || undefined}
+                          className={`rounded-[2px] text-inherit ${current ? 'bg-brand-solid/35 ring-1 ring-brand-fg' : 'bg-caution/35'}`}
+                        >
+                          {contents}
+                        </mark>
+                      ) : (
+                        <span key={k}>{contents}</span>
+                      )
+                    })}
                   </div>
                 )
               })}
@@ -317,8 +528,7 @@ export function CodeEditor({
               value={value}
               onChange={(e) => {
                 const next = e.target.value
-                if (!controlled) setUncontrolledValue(next)
-                onChange?.(next)
+                updateValue(next)
                 trackCaret(e)
               }}
               onKeyDown={onKeyDown}
@@ -337,15 +547,15 @@ export function CodeEditor({
               autoCapitalize="off"
               autoComplete="off"
               autoCorrect="off"
-              wrap="off"
+              wrap={wordWrap ? 'soft' : 'off'}
               style={{ tabSize }}
-              className={`${metrics} absolute inset-0 size-full resize-none overflow-hidden border-0 bg-transparent text-transparent caret-ink-strong outline-none`}
+              className={`${metrics} absolute inset-0 size-full resize-none overflow-hidden border-0 bg-transparent text-transparent caret-ink-strong outline-none ${wordWrap ? 'whitespace-pre-wrap [overflow-wrap:anywhere]' : 'whitespace-pre'}`}
             />
           </div>
         </div>
       </div>
 
-      {statusBar && (
+      {showStatusBar && (
         <div className="flex h-8 shrink-0 items-center gap-4 border-t border-line px-4 text-[12px] text-ink-soft">
           <div className="flex min-w-0 grow items-center gap-1.5">
             {diagnostic ? (
@@ -373,7 +583,7 @@ export function CodeEditor({
         </div>
       )}
 
-      {!statusBar && diagnostic && (
+      {!showStatusBar && diagnostic && (
         <span id={problemId} className="sr-only">
           Line {diagnostic.line}, column {diagnostic.column}: {diagnostic.message}
         </span>

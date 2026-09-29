@@ -61,6 +61,8 @@ export function EditPane({
   tabSize,
   label,
   current,
+  lineNumbers,
+  search,
   scrollRef,
   contentRef,
   onScroll,
@@ -75,6 +77,12 @@ export function EditPane({
   tabSize: number
   label: string
   current: number
+  lineNumbers: boolean
+  search?: {
+    query: string
+    side: 'original' | 'modified' | 'unified'
+    active?: { side: 'original' | 'modified'; line: number; column: number }
+  }
   scrollRef?: Ref<HTMLDivElement>
   contentRef?: Ref<HTMLDivElement>
   onScroll?: () => void
@@ -266,6 +274,13 @@ export function EditPane({
       if (/[{[]\s*$/.test(currentLine)) indent += unit
       else if (language === 'yaml' && /:\s*$/.test(currentLine)) indent += unit
       else if (language === 'yaml' && /^ *- \S/.test(currentLine)) indent += '- '
+      else if (
+        language === 'html' &&
+        /<(?!\/|!|\?)(?!(?:area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)\b)[a-z][^>]*>\s*$/i.test(
+          currentLine,
+        )
+      )
+        indent += unit
       e.preventDefault()
       const at = s + 1 + indent.length
       commit(v.slice(0, s) + '\n' + indent + v.slice(end), at, at, 'other')
@@ -307,14 +322,15 @@ export function EditPane({
               style={row.kind === 'empty' ? HATCH : undefined}
               className={`flex h-5 ${tone[row.kind].row} ${markClass(row.change)}`}
             >
-              {row.nums.map((n, k) => (
-                <Gutter
-                  key={k}
-                  num={n}
-                  kind={row.kind}
-                  width={row.nums.length > 1 ? 'w-12' : 'w-13'}
-                />
-              ))}
+              {lineNumbers &&
+                row.nums.map((n, k) => (
+                  <Gutter
+                    key={k}
+                    num={n}
+                    kind={row.kind}
+                    width={row.nums.length > 1 ? 'w-12' : 'w-13'}
+                  />
+                ))}
               <Sign kind={row.kind} />
             </div>
           ))}
@@ -328,7 +344,19 @@ export function EditPane({
                 style={row.kind === 'empty' ? HATCH : undefined}
                 className={`h-5 ${tone[row.kind].row}`}
               >
-                <Tokens side={{ kind: row.kind, num: null, segments: row.segments }} />
+                <Tokens
+                  side={{ kind: row.kind, num: null, segments: row.segments }}
+                  search={{
+                    query: search?.query ?? '',
+                    activeStart:
+                      search?.active &&
+                      (search.side === 'unified'
+                        ? search.active.line === row.nums[search.active.side === 'original' ? 0 : 1]
+                        : search.active.side === search.side && search.active.line === row.nums[0])
+                        ? search.active.column
+                        : undefined,
+                  }}
+                />
               </div>
             ))}
           </div>

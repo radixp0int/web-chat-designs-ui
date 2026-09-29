@@ -51,6 +51,23 @@ retrieval:
 "Grace Hopper","Platform","98000","true"
 "Katherine Johnson","Operations","112500","false"`,
   },
+  html: {
+    file: 'chat-widget.html',
+    text: `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Research assistant</title>
+  </head>
+  <body>
+    <main class="assistant">
+      <h1>Ask a question</h1>
+      <p>Answers use <strong>approved sources</strong> and include citations.</p>
+      <button type="button" aria-label="Open assistant">Start a conversation</button>
+    </main>
+  </body>
+</html>`,
+  },
   text: {
     file: 'system-prompt.txt',
     text: `You are a research assistant for internal teams.
