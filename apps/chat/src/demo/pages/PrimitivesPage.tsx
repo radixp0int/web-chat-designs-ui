@@ -24,6 +24,7 @@ import {
   formatCode,
   lintCode,
   Modal,
+  Notice,
   Pagination,
   Select,
   Slider,
@@ -608,12 +609,24 @@ export function PrimitivesPage() {
               </Alert>
             </div>
           </Row>
-          <Row label="With accent border">
+          <Row label="Notice">
             <div className="flex w-[42rem] max-w-full flex-col gap-2.5">
-              <Alert tone="success" title="Workspace settings saved" bordered />
-              <Alert tone="warning" title="Review before publishing" bordered />
-              <Alert tone="error" title="The import could not be completed" bordered />
-              <Alert tone="info" title="References are still loading" bordered />
+              <Notice tone="info" label="Loading">
+                References are still loading
+              </Notice>
+              <Notice tone="success" label="Saved">
+                Workspace settings saved
+              </Notice>
+              <Notice tone="warning" label="Check">
+                Two answers cite sources older than a year
+              </Notice>
+              <Notice
+                tone="error"
+                label="Interrupted"
+                action={{ label: 'Retry', onClick: () => {} }}
+              >
+                The answer stopped before it finished
+              </Notice>
             </div>
           </Row>
           <Row label="List">
@@ -1081,9 +1094,9 @@ export function PrimitivesPage() {
               </div>
             </TabsContent>
           </Tabs>
-          <Row label="Contained">
+          <Row label="Segmented">
             <Tabs defaultValue="overview">
-              <TabsList variant="contained">
+              <TabsList variant="segmented">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="analytics">Analytics</TabsTrigger>
                 <TabsTrigger value="reports">Reports</TabsTrigger>

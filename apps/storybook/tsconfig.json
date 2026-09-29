@@ -1,0 +1,21 @@
+{
+  // Typechecks the Storybook config and every story in the repo. The packages'
+  // own tsconfigs leave `*.stories.tsx` out, so `npm run typecheck` in a
+  // package never needs Storybook's types — this is the one place they are
+  // checked.
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
+    "types": ["vite/client", "node"]
+  },
+  // The package sources are listed, not just reached through imports:
+  // react-docgen-typescript only reads props from files the project names.
+  "include": [
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx",
+    "vite.config.ts",
+    "../../packages/*/src",
+    "../../apps/chat/src/demo/workflow-demo",
+    "../../apps/chat/src/**/*.stories.tsx"
+  ]
+}

@@ -16,6 +16,8 @@
     "format:check": "oxfmt --check",
     "preview": "npm run preview -w apps/chat",
     "preview:widget": "npm run preview:widget -w apps/chat",
+    "storybook": "npm run start -w apps/storybook",
+    "build-storybook": "npm run build-storybook -w apps/storybook",
     "prepare": "node .husky/install.mjs",
     "typecheck": "npm run typecheck --workspaces --if-present"
   },

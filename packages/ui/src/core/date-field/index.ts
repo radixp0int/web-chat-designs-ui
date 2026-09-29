@@ -1,2 +1,10 @@
 export { DateField, DateRangeField } from './date-field'
-export type { DateFieldProps, DateRange, DateRangeFieldProps, IsoDate } from './types'
+export { datePresets, dateRangePresets } from './date-text'
+export type {
+  DateFieldProps,
+  DatePreset,
+  DateRange,
+  DateRangeFieldProps,
+  DateRangePreset,
+  IsoDate,
+} from './types'

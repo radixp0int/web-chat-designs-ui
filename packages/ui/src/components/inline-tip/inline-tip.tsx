@@ -1,4 +1,4 @@
-import { Alert } from '../../core/alert'
+import { Notice } from '../../core/notice'
 import type { InlineTipProps } from './types'
 
 /**
@@ -17,13 +17,14 @@ export function InlineTip({
   dismissLabel = 'Dismiss tip',
 }: InlineTipProps) {
   return (
-    <Alert
+    <Notice
       tone="info"
-      title={<span className="font-normal">{children}</span>}
       icon={icon ?? false}
       onDismiss={onDismiss}
       dismissLabel={dismissLabel}
       role="note"
-    />
+    >
+      <span className="font-normal text-ink">{children}</span>
+    </Notice>
   )
 }

@@ -406,3 +406,12 @@ export const CalendarIcon = (p: IconProps) => (
     <path d="M3.5 10h17M8.5 3v4M15.5 3v4" />
   </svg>
 )
+
+/** A stacked envelope — messages, an inbox, a mail-backed item. */
+export const MailIcon = (p: IconProps) => (
+  <svg {...base(p)}>
+    <rect x="3.5" y="8" width="15" height="11" rx="2" />
+    <path d="m3.5 10 7.5 4.5 7.5-4.5" />
+    <path d="M7 5h11.5a2 2 0 0 1 2 2v8" />
+  </svg>
+)

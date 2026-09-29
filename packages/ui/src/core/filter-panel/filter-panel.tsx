@@ -84,6 +84,7 @@ function Field({ field }: { field: FilterField }) {
           value={field.value}
           min={field.min}
           max={field.max}
+          presets={field.presets}
           onChange={field.onChange}
         />
       )
@@ -95,6 +96,7 @@ function Field({ field }: { field: FilterField }) {
           value={field.value}
           min={field.min}
           max={field.max}
+          presets={field.presets}
           onChange={field.onChange}
         />
       )

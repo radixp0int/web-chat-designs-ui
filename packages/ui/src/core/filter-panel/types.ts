@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { DateRange, IsoDate } from '../date-field'
+import type { DateFieldProps, DateRange, DateRangeFieldProps, IsoDate } from '../date-field'
 
 type Base = {
   id: string
@@ -50,6 +50,8 @@ export type DateFilterField = Base & {
   onChange: (value: IsoDate) => void
   min?: string
   max?: string
+  /** Quick picks instead of typing — see `DateField`'s `presets`. */
+  presets?: DateFieldProps['presets']
 }
 
 export type DateRangeFilterField = Base & {
@@ -58,6 +60,11 @@ export type DateRangeFilterField = Base & {
   onChange: (value: DateRange) => void
   min?: string
   max?: string
+  /**
+   * Quick picks — "Last 30 days". Worth it in the rail, where a named range
+   * fits and two dates barely do. See `DateRangeField`'s `presets`.
+   */
+  presets?: DateRangeFieldProps['presets']
 }
 
 export type FilterField =

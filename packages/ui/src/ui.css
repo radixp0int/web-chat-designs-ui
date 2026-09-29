@@ -1,3 +1,6 @@
+@import './core/date-picker/date-picker.css';
+@import './core/accordion/accordion.css';
+
 /* @chat/ui's stylesheet. An app imports it after @chat/tokens — see the app's
    app.css — and never the other way round: package sheets don't import one
    another, because Tailwind's import inliner does not dedupe.

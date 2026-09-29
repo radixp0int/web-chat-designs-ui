@@ -1,0 +1,55 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Docs/Theming" />
+
+# Theming
+
+Every colour in every story resolves through a CSS variable from
+`packages/tokens/src/brand.css`. Nothing in a component names a hex value. The
+toolbar at the top of the canvas flips the same classes a host page would set.
+
+| Toolbar   | Class on `<html>`     | What it changes                                      |
+| --------- | --------------------- | ---------------------------------------------------- |
+| Mode      | `light` / `dark`      | Every tier-2 token re-derives for the mode           |
+| Palette   | `chat-theme-<id>`     | The identity ramp: canvas, panels, brand fills       |
+| Highlight | `chat-highlight-<id>` | `--highlight`, the `<mark>` behind cited passages    |
+| Density   | _(React context)_     | `UiSizeProvider` — `compact` is what the widget runs |
+
+## Why `<html>`, not a wrapper
+
+`body` paints `var(--canvas)`, which resolves at `:root`, and `HoverCard`,
+`Tooltip` and `Modal` render through portals into `document.body`. A theme class
+on a wrapper `div` would leave both on the previous palette. The decorator in
+`apps/storybook/.storybook/preview.tsx` puts the classes where a real app puts
+them — the same element `usePaletteClass` targets.
+
+The one exception is the widget. `mountWidget` renders into a shadow root and
+takes its theme class as an option, because a host page's classes cannot cross
+the shadow boundary. The **Recipes / Chat / Widget on a host page** story is
+that path, and it deliberately ignores the toolbar.
+
+## The token tiers
+
+```css
+/* Tier 1 — per theme, in each .chat-theme-* block */
+--brand-50 … --brand-950      /* identity hue */
+--accent-200 … --accent-700   /* action hue */
+--font-brand-family
+
+/* Tier 2 — semantic, derived; what components actually use */
+--canvas  --panel  --panel-solid  --line
+--ink-strong  --ink  --ink-soft
+--brand-solid  --brand-fg  --action  --focus-ring  --highlight …
+```
+
+Tailwind sees tier 2 through the `@theme inline` bridge in `tokens.css`, so
+`bg-canvas` compiles to `var(--canvas)` rather than a value pinned at `:root`.
+That `inline` is what lets a `chat-theme-*` class re-theme any subtree.
+
+## Adding a palette
+
+Copy the commented **TEMPLATE** block at the end of `brand.css`, rename
+`.chat-theme-yourbrand`, and fill in the tier-1 values. Every tier-2 token
+derives from them. Then add it to `PALETTES` in `.storybook/preview.tsx` to get
+it on the toolbar, and to `SHIPPED_PALETTES` in
+`packages/ui/src/settings/appearance.ts` if viewers should be able to pick it.

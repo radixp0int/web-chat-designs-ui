@@ -1,0 +1,18 @@
+/* The preview's whole stylesheet — the same order as apps/chat/src/app.css,
+   for the same reason: package sheets never import one another, because
+   Tailwind's import inliner does not dedupe. */
+@import 'tailwindcss';
+@import '@chat/tokens/tokens.css';
+@import '@chat/ui/ui.css';
+@import '@chat/chat-ui/chat-ui.css';
+
+/* The packages declare their own @source lines. App-level recipes do not —
+   apps/chat relies on Vite's root being its own folder — so their classes are
+   named here, or the workflow stories would render unstyled. */
+@source "../../chat/src/demo/workflow-demo";
+
+/* The docs pages render stories inline on Storybook's own surface; give the
+   specimens the brand canvas so light and dark read the same as in a story. */
+.docs-story {
+  background-color: var(--canvas);
+}

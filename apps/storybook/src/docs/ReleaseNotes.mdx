@@ -1,0 +1,8 @@
+import { Markdown, Meta } from '@storybook/addon-docs/blocks'
+import notes from '../../RELEASE_NOTES.md?raw'
+
+<Meta title="Docs/Release notes" />
+
+{/* One source of truth: RELEASE_NOTES.md at the workspace root, rendered here. */}
+
+<Markdown>{notes}</Markdown>

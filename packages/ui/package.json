@@ -15,7 +15,8 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@chat/tokens": "*"
+    "@chat/tokens": "*",
+    "react-datepicker": "^9.1.0"
   },
   "peerDependencies": {
     "react": "^19.2.7",

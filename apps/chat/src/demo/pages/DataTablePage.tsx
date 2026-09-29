@@ -448,6 +448,7 @@ export function DataTablePage() {
       id: 'created',
       label: 'Created',
       type: 'dateRange',
+      presets: true,
       value: createdRange,
       onChange: (v) => {
         setCreatedRange(v)
